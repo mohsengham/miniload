@@ -1,0 +1,906 @@
+/**
+ * MiniLoad AJAX Search Pro - Frontend Styles
+ * With comprehensive mobile design and icon trigger support
+ */
+
+/* Search Wrapper */
+.miniload-search-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+/* Form reset for better control */
+.miniload-search-form {
+    margin: 0;
+    padding: 0;
+}
+
+/* When no categories - search input takes full width */
+.miniload-search-wrapper:not(.has-categories) .miniload-search-input {
+    flex: 1 1 100%;
+    min-width: 0;
+}
+
+/* Style variations */
+.miniload-search-wrapper[data-style="minimal"] .miniload-search-input-wrapper {
+    border: 1px solid #ddd;
+    padding: 2px;
+}
+
+.miniload-search-wrapper[data-style="modern"] .miniload-search-input-wrapper {
+    border: none;
+    background: #f5f5f5;
+    border-radius: 8px;
+}
+
+/* Hidden state for icon-only and floating modes */
+.miniload-search-wrapper.miniload-search-hidden {
+    display: none;
+}
+
+/* Icon-Only Trigger Styles */
+.miniload-search-icon-wrapper {
+    display: inline-block;
+    position: relative;
+}
+
+.miniload-search-icon-wrapper[data-icon-position="center"] {
+    text-align: center;
+}
+
+.miniload-search-icon-wrapper[data-icon-position="right"] {
+    text-align: right;
+}
+
+.miniload-search-icon-trigger {
+    background: #1e88e5;
+    border: none;
+    padding: 10px;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.miniload-search-icon-wrapper[data-icon-size="small"] .miniload-search-icon-trigger {
+    width: 36px;
+    height: 36px;
+    padding: 8px;
+}
+
+.miniload-search-icon-wrapper[data-icon-size="medium"] .miniload-search-icon-trigger {
+    width: 44px;
+    height: 44px;
+    padding: 10px;
+}
+
+.miniload-search-icon-wrapper[data-icon-size="large"] .miniload-search-icon-trigger {
+    width: 56px;
+    height: 56px;
+    padding: 14px;
+}
+
+.miniload-search-icon-trigger:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.miniload-search-icon-trigger:active {
+    transform: scale(0.95);
+}
+
+/* Floating Button Styles */
+.miniload-search-floating-button {
+    position: fixed;
+    z-index: 9998;
+    animation: floatIn 0.3s ease;
+}
+
+@keyframes floatIn {
+    from {
+        opacity: 0;
+        transform: scale(0.8);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.miniload-floating-trigger {
+    background: linear-gradient(135deg, #1e88e5, #1565c0);
+    border: none;
+    padding: 15px 20px;
+    border-radius: 30px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 15px rgba(30, 136, 229, 0.3);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.miniload-floating-trigger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(30, 136, 229, 0.4);
+}
+
+.miniload-floating-trigger .miniload-floating-text {
+    display: none;
+}
+
+.miniload-floating-trigger:hover .miniload-floating-text {
+    display: inline;
+}
+
+/* Mobile-First Styles */
+.miniload-search-wrapper[data-style="mobile-first"] {
+    max-width: 100%;
+}
+
+.miniload-mobile-header {
+    display: none;
+    align-items: center;
+    padding: 15px;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.miniload-mobile-back {
+    background: none;
+    border: none;
+    padding: 8px;
+    cursor: pointer;
+    color: #333;
+}
+
+.miniload-mobile-title {
+    flex: 1;
+    text-align: center;
+    font-size: 18px;
+    font-weight: 600;
+    margin-right: 40px; /* Balance with back button */
+}
+
+/* Clear Button - Absolute positioned inside input area */
+.miniload-search-clear {
+    position: absolute;
+    right: 60px; /* Position further from search button to avoid overlap */
+    top: 50%;
+    transform: translateY(-50%);
+    background: transparent; /* Transparent background */
+    border: none;
+    padding: 4px;
+    cursor: pointer;
+    color: #999;
+    transition: all 0.2s ease;
+    display: none; /* Hidden by default - JS will show when needed */
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    z-index: 2; /* Higher z-index to be clickable */
+}
+
+/* Adjust position based on button position */
+.miniload-search-input-wrapper[data-submit-position="left"] .miniload-search-clear {
+    right: 12px; /* When button is on left, clear is on right edge */
+}
+
+.miniload-search-input-wrapper[data-submit-position="none"] .miniload-search-clear {
+    right: 12px; /* When no button, clear is on right edge */
+}
+
+/* Show clear button only when it has the visible class (controlled by JS) */
+.miniload-search-clear.visible {
+    display: flex;
+}
+
+.miniload-search-clear:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #e91e63;
+    transform: translateY(-50%) scale(1.1); /* Keep vertical centering on hover */
+}
+
+.miniload-search-clear svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 2;
+}
+
+/* Voice Search Button */
+.miniload-voice-search {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    cursor: pointer;
+    color: #666;
+    transition: color 0.2s ease;
+    flex-shrink: 0;
+    order: 4; /* Place after input, before clear */
+}
+
+.miniload-voice-search:hover {
+    color: #1e88e5;
+    transform: scale(1.1);
+}
+
+/* Search Input Container */
+.miniload-search-input-wrapper {
+    position: relative;
+    display: -webkit-box;
+    display: -webkit-flex;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -webkit-align-items: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: start;
+    -webkit-justify-content: flex-start;
+    -ms-flex-pack: start;
+    justify-content: flex-start;
+    background: #fff;
+    border: 2px solid #e0e0e0;
+    border-radius: 50px;
+    padding: 3px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+.miniload-search-input-wrapper:focus-within {
+    border-color: #1e88e5;
+    box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.1);
+}
+
+/* Search Input */
+.miniload-search-input {
+    flex: 1 1 auto; /* Takes available space but doesn't force it */
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    padding: 12px 20px;
+    font-size: 16px;
+    background: transparent;
+    min-width: 0; /* Allow shrinking */
+}
+
+/* Remove any focus borders */
+.miniload-search-input:focus,
+.miniload-search-input:active {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    background: transparent !important;
+}
+
+/* Adjust input padding when clear button is visible */
+.miniload-search-input-wrapper.has-clear-button .miniload-search-input {
+    padding-right: 55px !important; /* Make room for clear button with proper spacing */
+}
+
+/* When button is on left side, adjust padding for clear on right */
+.miniload-search-input-wrapper[data-submit-position="left"].has-clear-button .miniload-search-input {
+    padding-right: 40px !important; /* Make room for clear button on right edge */
+}
+
+/* When no button, adjust padding for clear on right */
+.miniload-search-input-wrapper[data-submit-position="none"].has-clear-button .miniload-search-input {
+    padding-right: 40px !important; /* Make room for clear button on right edge */
+}
+
+/* Category Dropdown */
+.miniload-search-category {
+    flex: 0 0 auto; /* Fixed width, doesn't grow */
+    border: none;
+    outline: none;
+    padding: 10px 35px 10px 15px;
+    margin: 0;
+    border-right: 1px solid #e0e0e0;
+    background: transparent;
+    cursor: pointer;
+    font-size: 14px;
+    color: #666;
+    min-width: 120px;
+    max-width: 150px;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    order: 2; /* Place after left button, before input */
+}
+
+.miniload-search-category:focus {
+    background-color: #f8f8f8;
+}
+
+/* Search Button */
+.miniload-search-submit {
+    background: #1e88e5;
+    border: none;
+    padding: 0;
+    border-radius: 50%;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex: 0 0 44px; /* Fixed size, no grow or shrink */
+}
+
+/* Button position variations */
+.miniload-search-submit-left {
+    margin-right: 10px;
+    margin-left: 3px;
+    order: 1; /* Place at beginning */
+}
+
+.miniload-search-submit-right {
+    margin-left: 3px;
+    margin-right: 3px;
+    order: 10; /* Place at end */
+}
+
+/* When button is on both sides */
+.miniload-search-input-wrapper[data-submit-position="both"] .miniload-search-submit-left {
+    background: #f0f0f0;
+    color: #666;
+}
+
+.miniload-search-input-wrapper[data-submit-position="both"] .miniload-search-submit-left:hover {
+    background: #e0e0e0;
+}
+
+.miniload-search-submit:hover {
+    background: #1565c0;
+    transform: scale(1.05);
+}
+
+.miniload-search-submit:active {
+    transform: scale(0.95);
+}
+
+.miniload-search-submit svg {
+    display: block;
+    width: 20px;
+    height: 20px;
+    stroke-width: 2.5;
+}
+
+/* Results Container */
+.miniload-search-results {
+    position: absolute;
+    top: calc(100% + 10px);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 9999;
+    max-height: 500px;
+    overflow-y: auto;
+    animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Section Headers */
+.miniload-search-section {
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.miniload-search-section:last-child {
+    border-bottom: none;
+}
+
+.miniload-search-section h4 {
+    margin: 0 0 10px;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+/* Product Results */
+.miniload-search-products {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.miniload-search-products li {
+    margin-bottom: 10px;
+}
+
+.miniload-search-products a {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    text-decoration: none;
+    color: #333;
+    border-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.miniload-search-products a:hover,
+.miniload-search-products a.selected {
+    background: #f5f5f5;
+}
+
+.miniload-search-products img {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 4px;
+    margin-right: 15px;
+}
+
+.miniload-search-product-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.miniload-search-product-info .title {
+    font-weight: 600;
+    margin-bottom: 3px;
+    color: #222;
+}
+
+.miniload-search-product-info .sku {
+    font-size: 12px;
+    color: #999;
+    margin-bottom: 3px;
+}
+
+.miniload-search-product-info .price {
+    font-size: 14px;
+    color: #1e88e5;
+    font-weight: 600;
+}
+
+.miniload-search-product-info .price del {
+    color: #999;
+    font-weight: normal;
+    margin-left: 5px;
+}
+
+/* Categories & Tags */
+.miniload-search-categories,
+.miniload-search-tags {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.miniload-search-categories li,
+.miniload-search-tags li {
+    display: inline-block;
+    margin: 5px;
+}
+
+.miniload-search-categories a,
+.miniload-search-tags a {
+    display: inline-block;
+    padding: 6px 12px;
+    background: #f0f0f0;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #666;
+    font-size: 14px;
+    transition: all 0.2s ease;
+}
+
+.miniload-search-categories a:hover,
+.miniload-search-tags a:hover {
+    background: #1e88e5;
+    color: white;
+}
+
+/* Suggestions */
+.miniload-search-suggestions ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.miniload-search-suggestions a {
+    display: block;
+    padding: 8px 10px;
+    text-decoration: none;
+    color: #666;
+    transition: all 0.2s ease;
+}
+
+.miniload-search-suggestions a:hover {
+    background: #f5f5f5;
+    color: #1e88e5;
+}
+
+.miniload-search-suggestions .popularity {
+    font-size: 12px;
+    color: #999;
+    margin-left: 5px;
+}
+
+/* Highlight */
+.miniload-search-results mark {
+    background: #ffeb3b;
+    color: inherit;
+    padding: 0 2px;
+}
+
+/* Loading */
+.miniload-search-loading {
+    padding: 30px;
+    text-align: center;
+    color: #999;
+}
+
+.miniload-search-loading:after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #1e88e5;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* No Results */
+.miniload-search-no-results {
+    padding: 30px;
+    text-align: center;
+    color: #999;
+}
+
+/* Footer */
+.miniload-search-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 15px;
+    border-top: 1px solid #f0f0f0;
+    background: #fafafa;
+    border-radius: 0 0 12px 12px;
+}
+
+.miniload-search-footer .search-time,
+.miniload-search-footer .search-results-count {
+    font-size: 12px;
+    color: #999;
+}
+
+.miniload-search-footer a {
+    font-size: 12px;
+    color: #1e88e5;
+    text-decoration: none;
+}
+
+/* Modal */
+.miniload-search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(5px);
+    z-index: 99999;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 10vh;
+}
+
+.miniload-search-modal-content {
+    width: 90%;
+    max-width: 700px;
+    animation: modalIn 0.3s ease;
+}
+
+@keyframes modalIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.miniload-search-close {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    background: white;
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.miniload-search-close:hover {
+    background: #f5f5f5;
+    transform: rotate(90deg);
+}
+
+/* Grid Layout */
+.miniload-search-wrapper[data-layout="grid"] .miniload-search-products {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+}
+
+.miniload-search-wrapper[data-layout="grid"] .miniload-search-products a {
+    flex-direction: column;
+    text-align: center;
+}
+
+.miniload-search-wrapper[data-layout="grid"] .miniload-search-products img {
+    width: 100%;
+    height: 150px;
+    margin: 0 0 10px 0;
+}
+
+/* Compact Layout */
+.miniload-search-wrapper[data-layout="compact"] .miniload-search-products a {
+    padding: 6px 10px;
+}
+
+.miniload-search-wrapper[data-layout="compact"] .miniload-search-products img {
+    width: 40px;
+    height: 40px;
+}
+
+/* Different Result Positions */
+.miniload-search-wrapper[data-results-position="overlay"] .miniload-search-results {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 800px;
+    max-height: 80vh;
+}
+
+.miniload-search-wrapper[data-results-position="modal"] {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 99999;
+}
+
+/* Popular Searches */
+.miniload-popular-searches {
+    padding: 15px;
+    background: #f8f8f8;
+    border-radius: 8px;
+    margin-top: 10px;
+}
+
+.miniload-popular-searches h4 {
+    margin: 0 0 10px;
+    font-size: 14px;
+    color: #666;
+}
+
+.miniload-popular-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.miniload-popular-tags a {
+    display: inline-block;
+    padding: 5px 12px;
+    background: white;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #333;
+    font-size: 13px;
+    transition: all 0.2s ease;
+}
+
+.miniload-popular-tags a:hover {
+    background: #1e88e5;
+    color: white;
+    border-color: #1e88e5;
+}
+
+/* Submit Button Text - Hidden by default, shown on mobile */
+.miniload-search-submit-text {
+    display: none;
+    margin-left: 5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+/* Hide text when button is icon-only */
+.miniload-search-submit:not(:hover) .miniload-search-submit-text {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0,0,0,0);
+    white-space: nowrap;
+    border: 0;
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    /* Hide category dropdown on mobile by default */
+    .miniload-search-category {
+        display: none;
+    }
+
+    /* Mobile fullscreen mode */
+    .miniload-search-wrapper[data-mobile-fullscreen="true"] {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        max-width: 100%;
+        background: white;
+        z-index: 99999;
+        display: none;
+    }
+
+    .miniload-search-wrapper[data-mobile-fullscreen="true"].miniload-search-active {
+        display: block;
+        animation: slideUp 0.3s ease;
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    /* Show mobile header in fullscreen mode */
+    .miniload-search-wrapper[data-mobile-fullscreen="true"] .miniload-mobile-header {
+        display: flex;
+    }
+
+    /* Adjust search results for mobile */
+    .miniload-search-results {
+        position: relative;
+        border-radius: 0;
+        max-height: calc(100vh - 120px);
+        overflow-y: auto;
+    }
+
+    /* Mobile-specific input styles */
+    .miniload-search-input {
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+
+    /* Show submit button text on mobile */
+    .miniload-search-submit-text {
+        display: inline;
+    }
+
+    /* Adjust floating button for mobile */
+    .miniload-search-floating-button {
+        bottom: 20px !important;
+        right: 20px !important;
+    }
+
+    /* Grid layout adjustments for mobile */
+    .miniload-search-wrapper[data-layout="grid"] .miniload-search-products {
+        grid-template-columns: 1fr;
+    }
+
+    /* Optimize touch targets */
+    .miniload-search-products a {
+        min-height: 60px;
+        padding: 12px;
+    }
+
+    .miniload-search-icon-trigger,
+    .miniload-floating-trigger {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Bottom sheet style for results */
+    .miniload-search-wrapper[data-style="mobile-first"] .miniload-search-results {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 20px 20px 0 0;
+        max-height: 70vh;
+        animation: slideUpSheet 0.3s ease;
+    }
+
+    @keyframes slideUpSheet {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+}
+
+/* Tablet Responsive */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .miniload-search-wrapper[data-layout="grid"] .miniload-search-products {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* RTL Support */
+[dir="rtl"] .miniload-search-input-wrapper {
+    direction: rtl;
+}
+
+[dir="rtl"] .miniload-search-products img {
+    margin-right: 0;
+    margin-left: 15px;
+}
+
+[dir="rtl"] .miniload-mobile-title {
+    margin-right: 0;
+    margin-left: 40px;
+}
+
+[dir="rtl"] .miniload-floating-button[data-position*="right"] {
+    right: auto;
+    left: 20px;
+}
+
+[dir="rtl"] .miniload-floating-button[data-position*="left"] {
+    left: auto;
+    right: 20px;
+}

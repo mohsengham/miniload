@@ -1,0 +1,81 @@
+/**
+ * MiniLoad Admin Styles
+ *
+ * @package MiniLoad
+ * @since 1.0.0
+ */
+
+/* Dashboard Styles */
+.miniload-dashboard {
+	max-width: 1200px;
+}
+
+.miniload-status-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+	gap: 20px;
+	margin: 20px 0;
+}
+
+.status-card {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	border-radius: 4px;
+	padding: 20px;
+	text-align: center;
+	box-shadow: 0 1px 1px rgba(0,0,0,.04);
+}
+
+.status-card h3 {
+	margin-top: 0;
+	color: #23282d;
+	font-size: 14px;
+	font-weight: 600;
+}
+
+.status-value {
+	font-size: 32px;
+	font-weight: bold;
+	margin: 10px 0;
+}
+
+.status-value .good { color: #46b450; }
+.status-value .warning { color: #ffb900; }
+.status-value .bad { color: #dc3232; }
+
+.dashicons.good { color: #46b450; }
+.dashicons.warning { color: #ffb900; }
+
+.miniload-quick-actions {
+	background: #fff;
+	border: 1px solid #ccd0d4;
+	padding: 20px;
+	margin: 20px 0;
+}
+
+.action-buttons {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
+.action-buttons .button .dashicons {
+	margin-right: 5px;
+	vertical-align: text-bottom;
+}
+
+.miniload-tips {
+	background: #f9f9f9;
+	border: 1px solid #ccd0d4;
+	border-left: 4px solid #0073aa;
+	padding: 20px;
+	margin: 20px 0;
+}
+
+.miniload-tips ul {
+	margin: 10px 0 0 20px;
+}
+
+.miniload-tips li {
+	margin: 5px 0;
+}

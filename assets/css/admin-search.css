@@ -1,0 +1,614 @@
+/**
+ * MiniLoad Admin Search - Modern Tabbed Modal
+ * Ultra-modern, clean design with smooth animations
+ */
+
+/* Modal Overlay */
+.miniload-admin-search-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(15, 23, 42, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 100000;
+    display: none;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Modal Content */
+.miniload-admin-search-content {
+    position: relative;
+    width: 90%;
+    max-width: 900px;
+    margin: 6vh auto 0;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow:
+        0 20px 60px -10px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    overflow: hidden;
+    animation: slideIn 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    display: flex;
+    flex-direction: column;
+    max-height: 85vh;
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-40px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Header */
+.miniload-admin-search-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: #1a1a1a;
+    position: relative;
+}
+
+.miniload-admin-search-header:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+}
+
+.miniload-admin-search-header h2 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.5px;
+}
+
+.miniload-admin-search-header h2:before {
+    content: '\f179';
+    font-family: dashicons;
+    font-size: 24px;
+    opacity: 0.9;
+}
+
+.miniload-admin-close-btn {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    font-size: 18px;
+    color: rgba(255, 255, 255, 0.9);
+    cursor: pointer;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.miniload-admin-close-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    color: #fff;
+    transform: rotate(90deg);
+}
+
+/* Modern Tabs */
+.miniload-admin-search-tabs {
+    display: flex;
+    background: #f8fafc;
+    padding: 8px;
+    gap: 4px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Individual Tab */
+.miniload-admin-tab {
+    flex: 1;
+    background: transparent;
+    border: 2px solid transparent;
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: #64748b;
+    font-size: 14px;
+    font-weight: 500;
+    position: relative;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Tab Hover State */
+.miniload-admin-tab:hover:not(.active) {
+    background: rgba(0, 0, 0, 0.05);
+    color: #1a1a1a;
+}
+
+/* Active Tab - Modern Style */
+.miniload-admin-tab.active {
+    background: #2a2a2a;
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Tab Icons */
+.miniload-admin-tab .dashicons {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    transition: transform 0.2s ease;
+}
+
+.miniload-admin-tab:hover .dashicons {
+    transform: scale(1.1);
+}
+
+/* Search Input Wrapper */
+.miniload-admin-search-input-wrapper {
+    position: relative;
+    padding: 24px;
+    background: linear-gradient(to bottom, #ffffff, #f8fafc);
+}
+
+.miniload-admin-search-input-wrapper .dashicons-search {
+    position: absolute;
+    left: 44px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+    pointer-events: none;
+    font-size: 20px;
+}
+
+#miniload-admin-search-input {
+    width: 100%;
+    padding: 14px 24px 14px 48px;
+    font-size: 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    outline: none;
+    background: #fff;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+#miniload-admin-search-input:focus {
+    border-color: #4a4a4a;
+    box-shadow:
+        0 0 0 3px rgba(0, 0, 0, 0.05),
+        0 1px 3px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* ESC hint removed */
+
+/* Results Container */
+#miniload-admin-search-results {
+    flex: 1;
+    overflow-y: auto;
+    background: #fff;
+    min-height: 200px;
+    padding: 8px;
+}
+
+/* Result Item - Modern Card Style */
+.miniload-admin-result {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 14px 16px;
+    margin-bottom: 6px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: all 0.15s ease;
+    border: 1px solid transparent;
+    background: #fff;
+}
+
+.miniload-admin-result:hover {
+    background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+    border-color: #e2e8f0;
+    transform: translateX(4px);
+}
+
+.miniload-admin-result.selected {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* Result Icon */
+.miniload-result-icon {
+    flex: 0 0 52px;
+    width: 52px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.miniload-result-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.miniload-result-icon .dashicons {
+    font-size: 26px;
+    color: #64748b;
+}
+
+/* Result Content */
+.miniload-result-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.miniload-result-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.miniload-result-title mark {
+    background: #f0f0f0;
+    color: inherit;
+    padding: 1px 4px;
+    border-radius: 3px;
+}
+
+.miniload-result-meta {
+    font-size: 13px;
+    color: #64748b;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Result Actions - New */
+.miniload-result-action {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* Copy Link Button */
+.miniload-copy-link {
+    background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+    border: none;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #475569;
+    transition: all 0.2s ease;
+    font-weight: 500;
+}
+
+.miniload-copy-link:hover {
+    background: #2a2a2a;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.2);
+}
+
+.miniload-copy-link .dashicons {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+}
+
+.miniload-copy-link.copied {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #fff;
+}
+
+/* Status Badge - Modern */
+.miniload-status {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.miniload-status-processing {
+    background: linear-gradient(135deg, #fef3c7, #fed7aa);
+    color: #92400e;
+}
+
+.miniload-status-completed {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.miniload-status-pending {
+    background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+    color: #1e40af;
+}
+
+.miniload-status-cancelled {
+    background: linear-gradient(135deg, #fee2e2, #fecaca);
+    color: #991b1b;
+}
+
+.miniload-status-published {
+    background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+    color: #065f46;
+}
+
+.miniload-status-draft {
+    background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+    color: #374151;
+}
+
+/* Badge */
+.miniload-badge {
+    background: #3a3a3a;
+    color: #fff;
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 600;
+}
+
+/* Footer */
+.miniload-admin-search-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px;
+    background: linear-gradient(to top, #f8fafc, #fff);
+    border-top: 1px solid #e2e8f0;
+}
+
+.miniload-admin-search-stats {
+    display: flex;
+    gap: 12px;
+    font-size: 13px;
+    color: #64748b;
+}
+
+#miniload-results-count {
+    font-weight: 600;
+    color: #475569;
+}
+
+#miniload-search-time {
+    color: #94a3b8;
+}
+
+.miniload-admin-search-shortcuts {
+    display: flex;
+    gap: 16px;
+    font-size: 12px;
+    color: #64748b;
+}
+
+.miniload-admin-search-shortcuts kbd {
+    display: inline-block;
+    padding: 3px 8px;
+    background: linear-gradient(to bottom, #fff, #f1f5f9);
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 11px;
+    font-family: 'SF Mono', Monaco, monospace;
+    box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.05);
+}
+
+/* Loading State */
+.miniload-admin-loading {
+    padding: 80px;
+    text-align: center;
+    color: #64748b;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.miniload-admin-loading .spinner {
+    float: none;
+    margin: 0;
+}
+
+/* No Results */
+.miniload-admin-no-results {
+    padding: 80px;
+    text-align: center;
+    color: #94a3b8;
+}
+
+.miniload-admin-no-results .dashicons {
+    font-size: 64px;
+    color: #e2e8f0;
+    margin-bottom: 20px;
+}
+
+.miniload-admin-no-results p {
+    font-size: 18px;
+    color: #475569;
+    margin: 12px 0;
+    font-weight: 500;
+}
+
+.miniload-admin-no-results small {
+    font-size: 14px;
+    color: #94a3b8;
+}
+
+/* Error State */
+.miniload-admin-error {
+    padding: 80px;
+    text-align: center;
+}
+
+.miniload-admin-error .dashicons {
+    font-size: 64px;
+    color: #fecaca;
+    margin-bottom: 20px;
+}
+
+.miniload-admin-error p {
+    font-size: 18px;
+    color: #dc2626;
+    margin: 12px 0;
+}
+
+/* Body Class When Open */
+body.miniload-search-open {
+    overflow: hidden;
+}
+
+/* Scrollbar Styling */
+#miniload-admin-search-results::-webkit-scrollbar {
+    width: 10px;
+}
+
+#miniload-admin-search-results::-webkit-scrollbar-track {
+    background: #f8fafc;
+    border-radius: 10px;
+}
+
+#miniload-admin-search-results::-webkit-scrollbar-thumb {
+    background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+    border-radius: 10px;
+}
+
+#miniload-admin-search-results::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(135deg, #94a3b8, #64748b);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .miniload-admin-search-content {
+        width: 95%;
+        margin: 2vh auto 0;
+        border-radius: 12px;
+    }
+
+    .miniload-admin-search-tabs {
+        overflow-x: auto;
+        padding: 6px;
+        gap: 2px;
+    }
+
+    .miniload-admin-tab {
+        padding: 10px 12px;
+        font-size: 12px;
+        white-space: nowrap;
+    }
+
+    .miniload-admin-search-input-wrapper {
+        padding: 16px;
+    }
+
+    #miniload-admin-search-input {
+        font-size: 14px;
+        padding: 12px 20px 12px 42px;
+    }
+
+    .miniload-admin-search-shortcuts {
+        display: none;
+    }
+
+    .miniload-result-icon {
+        width: 44px;
+        height: 44px;
+        flex: 0 0 44px;
+    }
+}
+
+/* Dark Mode Support */
+@media (prefers-color-scheme: dark) {
+    .miniload-admin-search-content {
+        background: #1e293b;
+    }
+
+    #miniload-admin-search-input {
+        background: #0f172a;
+        color: #e2e8f0;
+        border-color: #334155;
+    }
+
+    .miniload-admin-search-tabs {
+        background: #0f172a;
+        border-color: #334155;
+    }
+
+    .miniload-admin-tab {
+        color: #94a3b8;
+    }
+
+    .miniload-admin-tab:hover:not(.active) {
+        background: rgba(99, 102, 241, 0.1);
+    }
+
+    .miniload-result-title {
+        color: #e2e8f0;
+    }
+
+    .miniload-admin-result:hover {
+        background: #0f172a;
+        border-color: #334155;
+    }
+
+    #miniload-admin-search-results {
+        background: #1e293b;
+    }
+
+    .miniload-admin-search-footer {
+        background: #0f172a;
+        border-color: #334155;
+    }
+}
+
+/* Animations */
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.miniload-copy-link.copying {
+    animation: pulse 0.6s ease-in-out;
+}

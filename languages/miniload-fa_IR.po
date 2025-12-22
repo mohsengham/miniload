@@ -1,0 +1,1516 @@
+# Copyright (C) 2025 Minimall Team
+# This file is distributed under the GPL v2 or later.
+msgid ""
+msgstr ""
+"Project-Id-Version: MiniLoad - Performance Optimizer for WooCommerce 1.0.0\n"
+"Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/miniload\n"
+"POT-Creation-Date: 2025-12-21T07:56:01+00:00\n"
+"PO-Revision-Date: 2025-12-22 16:01+0330\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fa_IR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n==0 || n==1);\n"
+"X-Generator: Poedit 3.0.1\n"
+"X-Domain: miniload\n"
+
+#. Plugin Name of the plugin
+#: miniload.php
+msgid "MiniLoad - Performance Optimizer for WooCommerce"
+msgstr "مینی‌لود - بهینه‌ساز واقعی ووکامرس"
+
+#. Plugin URI of the plugin
+#: miniload.php
+msgid "https://github.com/mohsengham/miniload"
+msgstr "https://github.com/mohsengham/miniload"
+
+#. Description of the plugin
+#: miniload.php
+msgid ""
+"Supercharge your WooCommerce store with blazing-fast AJAX search, optimized "
+"queries, and intelligent caching."
+msgstr "با مشکلات سرعت و کارایی ووکامرس بجنگید!"
+
+#. Author of the plugin
+#: miniload.php
+msgid "Minimall Team"
+msgstr "تیم مینیال"
+
+#. Author URI of the plugin
+#: miniload.php
+msgid "https://minimall.work"
+msgstr "https://minimall.work"
+
+#: admin/admin-page.php:19
+msgid "Dashboard"
+msgstr "پیشخوان"
+
+#: admin/admin-page.php:23
+msgid "Search Settings"
+msgstr "تنظیمات جستجو"
+
+#: admin/admin-page.php:27
+msgid "Modules"
+msgstr "ماژول‌ها"
+
+#: admin/admin-page.php:31
+msgid "Tools"
+msgstr "ابزارها"
+
+#: admin/admin-page.php:35 miniload.php:674
+msgid "Settings"
+msgstr "تنظیمات"
+
+#: admin/admin-page.php:47
+msgid "Security check failed. Please try again."
+msgstr "بررسی موارد امنیتی موفقیت آمیز نبود. لطفا دوباره سعی کنید."
+
+#: admin/admin-page.php:66 admin/tabs/tab-search.php:178 miniload.php:521
+#: modules/class-ajax-search-pro.php:958 modules/class-ajax-search-pro.php:1253
+msgid "Search products..."
+msgstr "جستجوی محصولات..."
+
+#: admin/admin-page.php:129
+msgid "Settings saved successfully!"
+msgstr "تنظیمات با موفقیت ذخیر شد."
+
+#: admin/admin-page.php:149 admin/tabs/tab-tools.php:225
+#: admin/views/dashboard.php:161
+msgid "Clear Cache"
+msgstr "پاک کردن کش"
+
+#: admin/admin-page.php:215
+msgid "Tab content not found."
+msgstr "محتوایی یافت نشد"
+
+#: admin/admin-page.php:223
+msgid "Save Settings"
+msgstr "ذخیره تنظیمات"
+
+#: admin/settings-ajax-search.php:23
+msgid "AJAX Search Settings"
+msgstr "تنظیمات سرچ باکس"
+
+#: admin/settings-ajax-search.php:26
+msgid "Configure the AJAX Search module - Better than FiboSearch!"
+msgstr "تنظیمات سرچ باکس"
+
+#: admin/settings-ajax-search.php:31 admin/tabs/tab-search.php:23
+msgid "Enable AJAX Search"
+msgstr "فعال کردن سرچ باکس"
+
+#: admin/settings-ajax-search.php:35
+msgid "Enable AJAX search functionality"
+msgstr "فعال کردن ویژگی آجاکس"
+
+#: admin/settings-ajax-search.php:41 admin/tabs/tab-search.php:35
+msgid "Minimum Characters"
+msgstr "حداقل کاراکتر ورودی"
+
+#: admin/settings-ajax-search.php:44
+msgid "Minimum characters before search starts"
+msgstr "حداقل کاراکتر ورودی برای شروع فرایند جستجو"
+
+#: admin/settings-ajax-search.php:49
+msgid "Maximum Results"
+msgstr "حداکثر نتایج"
+
+#: admin/settings-ajax-search.php:52
+msgid "Maximum number of results to display"
+msgstr "تعداد نتایح نمایش داده شده در سرچ باکس"
+
+#: admin/settings-ajax-search.php:57
+msgid "Replace Default Search"
+msgstr "جایگزینی کادر جستجو"
+
+#: admin/settings-ajax-search.php:61
+msgid "Replace WordPress default search forms"
+msgstr "جایگزینی کادر جستجوی پیش‌فرض وردپرس"
+
+#: admin/settings-ajax-search.php:67
+msgid "Enable Search Modal"
+msgstr "فعال کردن سرچ باکس مدیریت"
+
+#: admin/settings-ajax-search.php:71
+msgid "Enable modal search (Ctrl+/)"
+msgstr "فعالسازی سرچ باکس مدیریت با کلیدهای Alt+l"
+
+#: admin/settings-ajax-search.php:77
+msgid "Search Content"
+msgstr "جستجوی متن"
+
+#: admin/settings-ajax-search.php:81
+msgid "Include full product descriptions in search"
+msgstr "جستجو در توضیحات کامل محصولات"
+
+#: admin/settings-ajax-search.php:84
+msgid ""
+"Unchecking this will only search in product titles, SKUs, and short "
+"descriptions for better performance."
+msgstr ""
+"با فعال نکرده این گزینه و محدود کردن جستجو به عنوان، شناسه و توضیحات کوتاه "
+"محصول، کارایی و سرعت بالاتری خواهید داشت"
+
+#: admin/settings-ajax-search.php:85
+msgid "Note: After changing this setting, you need to rebuild the search index."
+msgstr "توجه: بعد از تغییر این گزینه باید ایندکس جستجوی محصول را بازسازی کنید."
+
+#: admin/settings-ajax-search.php:90 admin/tabs/tab-dashboard.php:165
+msgid "Rebuild Search Index"
+msgstr "ساخت مجدد ایندکس جستجوی محصولات"
+
+#: admin/settings-ajax-search.php:100
+msgid "Advanced Search Features"
+msgstr "تظیمات پیشرفته جستجو"
+
+#: admin/settings-ajax-search.php:104
+msgid "Media Library Search"
+msgstr "جستجوی رسانه"
+
+#: admin/settings-ajax-search.php:108
+msgid "Enable accelerated media library search"
+msgstr "فعالسازی جستجوی بهینه رسانه"
+
+#: admin/settings-ajax-search.php:111
+msgid ""
+"Indexes media titles, alt text, captions, and metadata for faster searching."
+msgstr "ایندکس کردن اطلاعات فایل‌های آپلود شده برای جستجوی سریعتر"
+
+#: admin/settings-ajax-search.php:112
+msgid "Note: Initial indexing may take a few minutes for large media libraries."
+msgstr ""
+"توجه: فرایند ایندکس اولیه بسته به تعداد فایلها ممکن است چند دقیقه طول بکشد."
+
+#: admin/settings-ajax-search.php:117
+msgid "Rebuild Media Index"
+msgstr "ساخت مجدد ایندکس رسانه"
+
+#: admin/settings-ajax-search.php:124 admin/tabs/tab-modules.php:80
+msgid "Editor Link Builder"
+msgstr "لینک‌ساز ویرایشگر"
+
+#: admin/settings-ajax-search.php:128
+msgid "Use FULLTEXT product search in editor link dialog"
+msgstr "استفاده از سرچ بهینه در ویرایشگر ودرپرس"
+
+#: admin/settings-ajax-search.php:131
+msgid ""
+"Intercepts WordPress editor link search to use our optimized FULLTEXT product "
+"index."
+msgstr ""
+"با تغییر مکانیزم سرچ و ستفاده از ایندکسهای مینی‌لود جستجوی سریعتر در ویرایشگر "
+"خواهید داشت"
+
+#: admin/settings-ajax-search.php:132
+msgid "Makes product linking 5-10x faster when creating content."
+msgstr "خبری از تاخیر در نمایش لینکها و کوئریهای سنگین دیتابیس نخواهد بود!"
+
+#: admin/settings-ajax-search.php:133
+msgid "Requires: Product search index to be built (from main search settings)."
+msgstr "نیاز به ایندکس جستجوی محصولات داره"
+
+#: admin/settings-ajax-search.php:141
+msgid "Shortcode Examples"
+msgstr "نمونه‌ها"
+
+#: admin/settings-ajax-search.php:302
+msgid "Complete Parameters Reference"
+msgstr "لیست کامل پارامترها"
+
+#: admin/settings-ajax-search.php:317
+msgid "Parameter"
+msgstr "پارامتر"
+
+#: admin/settings-ajax-search.php:318 admin/tabs/tab-settings.php:88
+msgid "Default"
+msgstr "پیش‌فرض"
+
+#: admin/settings-ajax-search.php:319
+msgid "Description"
+msgstr "توضیحات"
+
+#: admin/settings-ajax-search.php:458
+msgid "This will rebuild the entire search index. Continue?"
+msgstr "از بازسازی کامل ایندکس مطمئنید؟"
+
+#: admin/settings-ajax-search.php:463
+msgid "Rebuilding index..."
+msgstr "در حال بازسازی ایندکس"
+
+#: admin/settings-ajax-search.php:476 admin/settings-ajax-search.php:480
+#: admin/settings-ajax-search.php:511 admin/settings-ajax-search.php:515
+msgid "Error rebuilding index"
+msgstr "خطا در عملیات بازسازی ایندکس"
+
+#: admin/settings-ajax-search.php:493
+msgid "This will rebuild the media search index. Continue?"
+msgstr "از بازسازی ایندکس رسانه مطمئنید؟"
+
+#: admin/settings-ajax-search.php:498
+msgid "Rebuilding media index..."
+msgstr "در حال بازسازی ایندکس رسانه"
+
+#: admin/tabs/tab-dashboard.php:71
+msgid "Welcome to MiniLoad"
+msgstr "به مینی‌لود خوش امدید"
+
+#: admin/tabs/tab-dashboard.php:72
+msgid ""
+"Your WooCommerce store is now supercharged with advanced search and "
+"performance optimizations."
+msgstr "از سرعت و کارایی بهتر فروشگاه ووکامرسی خود لذت ببرید!"
+
+#: admin/tabs/tab-dashboard.php:80 admin/views/dashboard.php:215
+msgid "Products Indexed"
+msgstr "محصول ایندکس شده"
+
+#: admin/tabs/tab-dashboard.php:88
+msgid "Media Indexed"
+msgstr "رسانه ایندکس شده"
+
+#: admin/tabs/tab-dashboard.php:89 admin/tabs/tab-dashboard.php:203
+#: admin/tabs/tab-dashboard.php:223 admin/views/dashboard.php:157
+#: admin/views/dashboard.php:230 admin/views/dashboard.php:245
+#: admin/views/dashboard.php:259 admin/views/dashboard.php:268
+#: admin/views/dashboard.php:277 admin/views/modules.php:61
+#: admin/views/modules.php:79 admin/views/modules.php:97
+#: admin/views/modules.php:115 admin/views/modules.php:133
+#: admin/views/modules.php:151
+msgid "Active"
+msgstr "فعال"
+
+#: admin/tabs/tab-dashboard.php:89
+msgid "Inactive"
+msgstr "غیرفعال"
+
+#: admin/tabs/tab-dashboard.php:95
+msgid "Avg Search Time"
+msgstr "میانگین زمان جستجو"
+
+#: admin/tabs/tab-dashboard.php:96
+msgid "Lightning fast"
+msgstr "فوق‌سریع"
+
+#: admin/tabs/tab-dashboard.php:121
+msgid "Related Products Cached"
+msgstr "محصولات مرتبط کش‌شده"
+
+#: admin/tabs/tab-dashboard.php:122
+msgid "24hr cache"
+msgstr "کش ۲۴ ساعته"
+
+#: admin/tabs/tab-dashboard.php:150
+msgid "Products with Reviews"
+msgstr "محصولات دارای دیدگاه"
+
+#: admin/tabs/tab-dashboard.php:151
+msgid "Pre-calculated stats"
+msgstr "آمار از پیش ساخته شده"
+
+#: admin/tabs/tab-dashboard.php:159 admin/views/dashboard.php:182
+msgid "Quick Actions"
+msgstr "عملیات سریع"
+
+#: admin/tabs/tab-dashboard.php:170 admin/tabs/tab-tools.php:200
+#: admin/views/tools.php:131
+msgid "Clear All Caches"
+msgstr "پاکسازی تمام کش"
+
+#: admin/tabs/tab-dashboard.php:175
+msgid "Configure Search"
+msgstr "پیکربندی جستجو"
+
+#: admin/tabs/tab-dashboard.php:184
+msgid "System Status"
+msgstr "وضعیت سیستم"
+
+#: admin/tabs/tab-dashboard.php:200
+msgid "Search Index Table"
+msgstr "جدول ایندکس"
+
+#: admin/tabs/tab-dashboard.php:205
+msgid "Missing"
+msgstr "عدم پشتیبانی"
+
+#: admin/tabs/tab-dashboard.php:210
+msgid "MySQL FULLTEXT Support"
+msgstr "پشتیبانی MySQL FULLTEXT"
+
+#: admin/tabs/tab-dashboard.php:213 admin/tabs/tab-tools.php:311
+msgid "Supported"
+msgstr "ردیفه!"
+
+#: admin/tabs/tab-dashboard.php:215
+msgid "Requires MySQL 5.6+"
+msgstr "به MySQL نسخه ۵.۶ یا بالاتر نیاز دارد"
+
+#: admin/tabs/tab-dashboard.php:220 admin/views/dashboard.php:138
+msgid "WooCommerce"
+msgstr "ووکامرس"
+
+#: admin/tabs/tab-dashboard.php:225 admin/tabs/tab-tools.php:297
+msgid "Not Active"
+msgstr "فعال نیست"
+
+#: admin/tabs/tab-dashboard.php:230 admin/tabs/tab-tools.php:300
+msgid "PHP Version"
+msgstr "نسخه پی اچ پی"
+
+#: admin/tabs/tab-dashboard.php:236
+msgid "Upgrade recommended"
+msgstr "نباز به ارتقا"
+
+#: admin/tabs/tab-modules.php:18
+msgid "Core Modules"
+msgstr "ماژولهای اصلی"
+
+#: admin/tabs/tab-modules.php:26
+msgid "AJAX Search"
+msgstr "سرچ باکس (آجاکس)"
+
+#: admin/tabs/tab-modules.php:33
+msgid ""
+"Real-time product search with instant results. Uses FULLTEXT indexing for "
+"lightning-fast performance."
+msgstr "جستجوی سریع و در لحظه با استفاده از ایندکسهای بهینه"
+
+#: admin/tabs/tab-modules.php:44
+msgid "Admin Quick Search"
+msgstr "سرچ باکس مخصوص مدیریت"
+
+#: admin/tabs/tab-modules.php:51
+msgid ""
+"Quick admin search modal (Alt+K) for products, posts, orders, and customers."
+msgstr ""
+"جستجوی سریع محصولات، سفارشات و کاربران در بخش مدیریت با کلیدهای ترکیبی Alt+k"
+
+#: admin/tabs/tab-modules.php:62
+msgid "Media Search"
+msgstr "جستجوی رسانه"
+
+#: admin/tabs/tab-modules.php:69
+msgid ""
+"Accelerates WordPress media library search with indexed alt text, captions, "
+"and EXIF data."
+msgstr "افزایش سرعت جستجوی رسانه با اطلاعات ایندکس شده"
+
+#: admin/tabs/tab-modules.php:87
+msgid ""
+"Enhances WordPress editor link search with product results using FULLTEXT "
+"index."
+msgstr ""
+"افزایش سرعت جستجوی لینک در ویرایشگر وردپرس با استفاده از ایندکسهای بهینه\t"
+
+#: admin/tabs/tab-modules.php:100
+msgid "Performance Modules"
+msgstr "ماژول‌های بهینه‌سازی"
+
+#: admin/tabs/tab-modules.php:108
+msgid "Query Optimizer"
+msgstr "بهینه‌ساز کوئری"
+
+#: admin/tabs/tab-modules.php:115
+msgid "Optimizes WooCommerce database queries for faster page loads."
+msgstr "بهینه‌سازی کوئری‌های ووکامرس برای افزایش سرعت لود صفحات"
+
+#: admin/tabs/tab-modules.php:126
+msgid "Cache Manager"
+msgstr "مدیریت کش"
+
+#: admin/tabs/tab-modules.php:133
+msgid "Intelligent caching system for search results and product data."
+msgstr "کش هوشمند نتایج جستجو و اطلاعات محصول"
+
+#: admin/tabs/tab-modules.php:147
+msgid "Single Product Optimization"
+msgstr "بهینه‌سازی تک محصول"
+
+#: admin/tabs/tab-modules.php:155
+msgid "Related Products Cache"
+msgstr "کش محصولات مرتبط"
+
+#: admin/tabs/tab-modules.php:162
+msgid ""
+"Caches related products, upsells, and cross-sells to speed up single product "
+"pages."
+msgstr "کش کردن محصولات مرتبط برای افزایش سرعت لود صفحات محصول"
+
+#: admin/tabs/tab-modules.php:173
+msgid "Review Stats Cache"
+msgstr "کش آمار دیدگاه محصولات"
+
+#: admin/tabs/tab-modules.php:180
+msgid ""
+"Pre-calculates and caches product ratings and review counts for instant "
+"display."
+msgstr "محاسبه و کش کردن امتیاز و تعداد دیدگاه محصولات برای نمایش سریعتر"
+
+#: admin/tabs/tab-search.php:18
+msgid "Search Configuration"
+msgstr "پیکربندی جستجو"
+
+#: admin/tabs/tab-search.php:30
+msgid "Enable real-time AJAX search with instant results"
+msgstr "فعال کردن جستجوی آجاکس"
+
+#: admin/tabs/tab-search.php:40
+msgid "Minimum characters required to trigger search"
+msgstr "حداقل کاراکتر ورودی برای شروع فرایند جستجو"
+
+#: admin/tabs/tab-search.php:45
+msgid "Search Delay (ms)"
+msgstr "تاخیر جستجو (میلی ثانیه)"
+
+#: admin/tabs/tab-search.php:50
+msgid "Delay before search triggers after typing stops"
+msgstr "زمان شروع فرایند جستجو پس از توقف تایپ"
+
+#: admin/tabs/tab-search.php:55
+msgid "Results Per Page"
+msgstr "تعداد نتایج"
+
+#: admin/tabs/tab-search.php:60
+msgid "Number of products to show in search results"
+msgstr "تعداد محصولی که سرچ باکس آجاکس نمایش میدهد"
+
+#: admin/tabs/tab-search.php:65
+msgid "Search In Product Content"
+msgstr "جستجو در توضیحات کامل محصول"
+
+#: admin/tabs/tab-search.php:72
+msgid ""
+"Include full product descriptions in search. Uncheck for better performance."
+msgstr "بهتر است برای کارایی بهتر و نتایج دقیقتر این گزینه غیرفعال باشد"
+
+#: admin/tabs/tab-search.php:82
+msgid "Search Fields"
+msgstr "گزینه‌های جستجو"
+
+#: admin/tabs/tab-search.php:87
+msgid "Search In"
+msgstr "جستجو در"
+
+#: admin/tabs/tab-search.php:92
+msgid "Product Title"
+msgstr "عنوان محصول"
+
+#: admin/tabs/tab-search.php:97
+msgid "SKU"
+msgstr "شناسه محصول"
+
+#: admin/tabs/tab-search.php:102
+msgid "Short Description"
+msgstr "توضیحات کوتاه"
+
+#: admin/tabs/tab-search.php:107
+msgid "Categories"
+msgstr "دسته‌ها"
+
+#: admin/tabs/tab-search.php:112
+msgid "Tags"
+msgstr "برچسب‌ها"
+
+#: admin/tabs/tab-search.php:123
+msgid "Search Box Appearance"
+msgstr "ظاهر سرچ باکس"
+
+#: admin/tabs/tab-search.php:128
+msgid "Show Categories Filter"
+msgstr "نمایش باکس دسته‌ها"
+
+#: admin/tabs/tab-search.php:135
+msgid "Display category filter dropdown in search box"
+msgstr "نمایش کادر کشویی دسته‌ها در سرچ باکس"
+
+#: admin/tabs/tab-search.php:140
+msgid "Show Categories in Results"
+msgstr "نمایش دسته‌های مرتبط با عبارت جستجو شده"
+
+#: admin/tabs/tab-search.php:147
+msgid "Display matching categories in search results dropdown"
+msgstr ""
+"تعداد مشخصی از دسته‌های مرتبط با کلمات کلیدی جستجو شده را در لیست نتایج جستجو "
+"نمایش میدهد"
+
+#: admin/tabs/tab-search.php:152
+msgid "Search Icon"
+msgstr "آیکون جستجو"
+
+#: admin/tabs/tab-search.php:156
+msgid "Show"
+msgstr "نمایش دادن"
+
+#: admin/tabs/tab-search.php:159
+msgid "Hide"
+msgstr "مخفی کردن"
+
+#: admin/tabs/tab-search.php:165
+msgid "When shown, the icon appears on the left side (automatic for RTL layout)"
+msgstr "برای زبانهای راست به چپ در سمت چپ سرچ باکس نمایش داده می‌شود"
+
+#: admin/tabs/tab-search.php:167
+msgid ""
+"When shown, the icon appears on the right side (automatic for LTR layout)"
+msgstr "برای زبانهای چپ به راست در سمت راست سرچ باکس نمایش داده می‌شود"
+
+#: admin/tabs/tab-search.php:175
+msgid "Placeholder Text"
+msgstr "متن پیش‌فرض سرچ باکس"
+
+#: admin/tabs/tab-search.php:183
+msgid "Show Product Price"
+msgstr "نمایش قیمت"
+
+#: admin/tabs/tab-search.php:190
+msgid "Display product prices in search results"
+msgstr "نمایش قیمت محصولات در نتایج جستجوی سرچ باکس"
+
+#: admin/tabs/tab-search.php:195
+msgid "Show Product Image"
+msgstr "نمایش تصویر"
+
+#: admin/tabs/tab-search.php:202
+msgid "Display product thumbnails in search results"
+msgstr "نمایش تامبنیل محصولات در نتایج جستجوی سرچ باکس"
+
+#: admin/tabs/tab-search.php:207
+msgid "Font Style"
+msgstr "فونت"
+
+#: admin/tabs/tab-search.php:211
+msgid "Inherit from Theme"
+msgstr "پیروی از استایل پوسته"
+
+#: admin/tabs/tab-search.php:214
+msgid "System Font Stack"
+msgstr "فونت سیستم"
+
+#: admin/tabs/tab-search.php:217
+msgid ""
+"Choose whether to use your theme's font or a system font stack for the search "
+"box"
+msgstr "فونت پوسته با سیستم بازدید کننده؟"
+
+#: admin/tabs/tab-search.php:235
+msgid "Shortcode Usage"
+msgstr "کدهای کوتاه"
+
+#: admin/tabs/tab-search.php:272
+msgid "Basic Usage (Always Visible)"
+msgstr "استفاده نرمال (نمایش همیشگی سرچ باکس)"
+
+#: admin/tabs/tab-search.php:275
+msgid "Icon Only for Headers"
+msgstr "آیکون تنها (مخصوص سربرگ)"
+
+#: admin/tabs/tab-search.php:278
+msgid "With Categories"
+msgstr "همراه با نمایش دسته‌ها"
+
+#: admin/tabs/tab-search.php:281
+msgid "Custom Placeholder"
+msgstr "متن سفارشی"
+
+#: admin/tabs/tab-settings.php:18
+msgid "General Settings"
+msgstr "تنظیمات عمومی"
+
+#: admin/tabs/tab-settings.php:23
+msgid "Enable MiniLoad"
+msgstr "فعالسازی مینی‌لود"
+
+#: admin/tabs/tab-settings.php:30
+msgid "Master switch to enable/disable all MiniLoad features"
+msgstr "فعالسازی و غسرفعالسازی کل ویژگیهای مینی‌لود"
+
+#: admin/tabs/tab-settings.php:35 admin/views/settings.php:46
+msgid "Debug Mode"
+msgstr "حالت دیباگ"
+
+#: admin/tabs/tab-settings.php:42
+msgid "Enable debug logging for troubleshooting"
+msgstr "فعالسازی حالت دیباگ برای بررسی مشکلات افزونه"
+
+#: admin/tabs/tab-settings.php:47
+msgid "Load Priority"
+msgstr "اولویت لود"
+
+#: admin/tabs/tab-settings.php:51
+msgid "Plugin load priority (lower numbers load first)"
+msgstr "اولویت لود افزونه نسبت به بقیه افزونه‌ها (عدد پایینتر=اولویت بالاتر)"
+
+#: admin/tabs/tab-settings.php:61
+msgid "Performance Settings"
+msgstr "تنظیمات بهینه‌سازی"
+
+#: admin/tabs/tab-settings.php:66
+msgid "Cache Duration"
+msgstr "زمان کش"
+
+#: admin/tabs/tab-settings.php:70
+msgid "Cache duration in seconds (default: 3600 = 1 hour)"
+msgstr "عمر کش به ثانیه (پیشفرض: ۱ ساعت)"
+
+#: admin/tabs/tab-settings.php:75
+msgid "Batch Processing Size"
+msgstr "تعداد آیتم پردازش"
+
+#: admin/tabs/tab-settings.php:79
+msgid "Number of items to process per batch during indexing"
+msgstr "تعداد آیتم برای هر مرحله از فرایند ایندکس کردن"
+
+#: admin/tabs/tab-settings.php:84 admin/tabs/tab-tools.php:318
+msgid "Memory Limit"
+msgstr "محدودیت رم"
+
+#: admin/tabs/tab-settings.php:100
+msgid "Memory limit for indexing operations"
+msgstr "میزان رم مجاز برای عملیات ایندکس کردن"
+
+#: admin/tabs/tab-settings.php:105
+msgid "Auto-index New Products"
+msgstr "ایندکس خودکار محصولات جدید"
+
+#: admin/tabs/tab-settings.php:112
+msgid "Automatically index new products when they are created"
+msgstr "ایندکس کردن خودکار محصولات در زمان انتشار"
+
+#: admin/tabs/tab-settings.php:122
+msgid "Advanced Settings"
+msgstr "تنظیمات پیشرفته"
+
+#: admin/tabs/tab-settings.php:127
+msgid "Database Prefix"
+msgstr "پیوشند دیتابیس"
+
+#: admin/tabs/tab-settings.php:131
+msgid "Database table prefix (read-only)"
+msgstr "پیشوند دیتابیس برای جدولهای مینی‌لود"
+
+#: admin/tabs/tab-settings.php:136
+msgid "Uninstall Behavior"
+msgstr "نحوه حذف افزونه"
+
+#: admin/tabs/tab-settings.php:140
+msgid "Keep data and settings"
+msgstr "نگه داشتن تنظیمات و دیتا"
+
+#: admin/tabs/tab-settings.php:143
+msgid "Remove all data and settings"
+msgstr "حذف تمام تنظیمات و دیتا"
+
+#: admin/tabs/tab-settings.php:146
+msgid "What to do with data when plugin is uninstalled"
+msgstr "عملیات مورد نظر در زمان حذف افزونه"
+
+#: admin/tabs/tab-settings.php:151
+msgid "REST API"
+msgstr "REST API"
+
+#: admin/tabs/tab-settings.php:158
+msgid "Enable REST API endpoints for search"
+msgstr "فعال سازی REST API برای جستجو"
+
+#: admin/tabs/tab-settings.php:163
+msgid "AJAX Nonce Lifetime"
+msgstr "عمر توکن امنیتی آجاکس"
+
+#: admin/tabs/tab-settings.php:167
+msgid "1 day"
+msgstr "۱ روز"
+
+#: admin/tabs/tab-settings.php:170
+msgid "2 days"
+msgstr "۲ روز"
+
+#: admin/tabs/tab-settings.php:173
+msgid "1 week"
+msgstr "۱ هفته"
+
+#: admin/tabs/tab-settings.php:176
+msgid "How long AJAX nonces remain valid"
+msgstr "مدت زمان عمر توکن‌های امنیتی آجاکس"
+
+#: admin/tabs/tab-settings.php:186
+msgid "License & Support"
+msgstr "لایسنس و پشتیبانی"
+
+#: admin/tabs/tab-settings.php:191
+msgid "License"
+msgstr "لایسنس"
+
+#: admin/tabs/tab-settings.php:192
+msgid "MiniLoad is released under the GPLv2 or later license."
+msgstr ""
+"مینی‌لود تحت لایسنس GPLv2 یا بالاتر منتشر شده و به فلسفه وردپرس احترام "
+"میگذارد..."
+
+#: admin/tabs/tab-settings.php:193
+msgid ""
+"This is free software; you can redistribute it and/or modify it under the "
+"terms of the GNU General Public License."
+msgstr ""
+"مینی‌لود یک نرم‌افزار آزاد است. شما مجاز به انجام هر کاری بر اساس GNU General "
+"Public License هستید!"
+
+#: admin/tabs/tab-settings.php:197
+msgid "Support"
+msgstr "پشتیبانی"
+
+#: admin/tabs/tab-settings.php:198
+msgid "Need help? Visit our support channels:"
+msgstr "گزارش خطا و پشتیبانی"
+
+#: admin/tabs/tab-settings.php:200
+msgid "GitHub Repository"
+msgstr "گیتهاب"
+
+#: admin/tabs/tab-settings.php:201
+msgid "WordPress.org Forums"
+msgstr "انجمن وردپرس"
+
+#: admin/tabs/tab-settings.php:202
+msgid "Documentation"
+msgstr "مستندات"
+
+#: admin/tabs/tab-settings.php:207
+msgid "Credits"
+msgstr "کردیت"
+
+#: admin/tabs/tab-settings.php:208
+msgid "Developed by MiniMall Team"
+msgstr "توسعه داده شده توسط تیم مینیمال و Claude code"
+
+#: admin/tabs/tab-settings.php:209
+msgid "Special thanks to all contributors and testers."
+msgstr "با تشکر از تمام دوستانی که به هر نحو به تولد این افزونه کمک کردند..."
+
+#: admin/tabs/tab-settings.php:210
+msgid "View Contributors"
+msgstr "نمایش توسعه دهندگان"
+
+#: admin/tabs/tab-settings.php:219
+msgid "Danger Zone"
+msgstr "مراقب باشید!"
+
+#: admin/tabs/tab-settings.php:223
+msgid "These actions are irreversible. Please proceed with caution."
+msgstr "عملیات غیرقابل برگشت!"
+
+#: admin/tabs/tab-settings.php:225
+msgid "Are you sure? This will reset all settings to defaults."
+msgstr "از بازنشانی تنظیمات پیش‌فرض اطمینان دارید؟"
+
+#: admin/tabs/tab-settings.php:226
+msgid "Reset All Settings"
+msgstr "بازنشانی تمام تنظیمات"
+
+#. translators: %d: number of products indexed
+#: admin/tabs/tab-tools.php:25
+#, php-format
+msgid "Search index rebuilt successfully. %d products indexed."
+msgstr "ایندکس جستجو با موفقیت بازسازی شد. تعداد آیتمهای ایندکس شده: %d"
+
+#. translators: %d: number of media items indexed
+#: admin/tabs/tab-tools.php:37
+#, php-format
+msgid "Media index rebuilt successfully. %d items indexed."
+msgstr "ایندکس رسانه با موفقیت بازسازی شد. تعداد آیتمهای ایندکس شده: %d"
+
+#: admin/tabs/tab-tools.php:47
+msgid "All caches cleared successfully."
+msgstr "تمام کش با موفقیت پاک شد"
+
+#: admin/tabs/tab-tools.php:65
+msgid "Database tables optimized successfully."
+msgstr "جدولهای دیتابیس با موفقیت بهینه‌سازی شدند"
+
+#: admin/tabs/tab-tools.php:103 admin/views/tools.php:64
+msgid "Index Management"
+msgstr "مدیریت ایندکس"
+
+#: admin/tabs/tab-tools.php:108
+msgid "Product Search Index"
+msgstr "ایندکس جستجوی محصولات"
+
+#: admin/tabs/tab-tools.php:109
+msgid "Rebuild the FULLTEXT search index for all products."
+msgstr "بازسازی ایندکس جستجو برای تمام محصولات"
+
+#. translators: %1$d: number of indexed products, %2$d: total number of products
+#: admin/tabs/tab-tools.php:134 admin/views/dashboard.php:113
+#, php-format
+msgid "%1$d of %2$d products indexed"
+msgstr "تعداد %1$d آیتم از %2$d محصول ایندکس شدند"
+
+#: admin/tabs/tab-tools.php:142 admin/tabs/tab-tools.php:185
+msgid "Rebuild Index"
+msgstr "بازسازی ایندکس"
+
+#: admin/tabs/tab-tools.php:147
+msgid "Media Search Index"
+msgstr "ایندکس جستجوی رسانه"
+
+#: admin/tabs/tab-tools.php:148
+msgid "Rebuild the search index for media library items."
+msgstr "بازسازی ایندکس فایلهای بخش رسانه"
+
+#. translators: %1$d: number of indexed media items, %2$d: total number of media items
+#: admin/tabs/tab-tools.php:177
+#, php-format
+msgid "%1$d of %2$d media items indexed"
+msgstr "تعداد %1$d آیتم از %2$d فایل آپلود شده ایندکس شدند"
+
+#: admin/tabs/tab-tools.php:195 admin/views/tools.php:124
+msgid "Cache Management"
+msgstr "میدیریت کش"
+
+#: admin/tabs/tab-tools.php:201
+msgid "Clear all MiniLoad caches including search results and transients."
+msgstr "پاکسازی تمام کش مینی‌لود شامل نتایج جستجو و ترنزینت‌ها"
+
+#. translators: %d: number of cached items
+#: admin/tabs/tab-tools.php:218
+#, php-format
+msgid "%d cached items"
+msgstr "%d  آیتم کش شده"
+
+#: admin/tabs/tab-tools.php:230
+msgid "Optimize Database"
+msgstr "بهینه‌سازی دیتابیس"
+
+#: admin/tabs/tab-tools.php:231
+msgid "Optimize MiniLoad database tables for better performance."
+msgstr "بهینه‌سازی جدولهای مربوط به مینی‌لود برای کارایی بیشتر"
+
+#: admin/tabs/tab-tools.php:233
+msgid "Defragment and optimize tables"
+msgstr "بهینه‌سازی و فشرده کردن جدولها"
+
+#: admin/tabs/tab-tools.php:238
+msgid "Optimize"
+msgstr "بهینه‌سازی"
+
+#: admin/tabs/tab-tools.php:248
+msgid "Import/Export"
+msgstr "درون‌ریزی و برون‌ریزی"
+
+#: admin/tabs/tab-tools.php:253 admin/tabs/tab-tools.php:258
+msgid "Export Settings"
+msgstr "برون‌بری تنظیمات"
+
+#: admin/tabs/tab-tools.php:254
+msgid "Download all MiniLoad settings as a JSON file."
+msgstr "دانلود تنظیمات مینی‌لود بصورت فایل json"
+
+#: admin/tabs/tab-tools.php:263 admin/tabs/tab-tools.php:270
+msgid "Import Settings"
+msgstr "درون‌ریزی تنظیمات"
+
+#: admin/tabs/tab-tools.php:264
+msgid "Import MiniLoad settings from a JSON file."
+msgstr "درون‌ریزی تنظیمات با استفاده از فایل json"
+
+#: admin/tabs/tab-tools.php:281
+msgid "Diagnostics"
+msgstr "اطلاعات"
+
+#: admin/tabs/tab-tools.php:288
+msgid "Plugin Version"
+msgstr "نسخه افزونه"
+
+#: admin/tabs/tab-tools.php:292
+msgid "WordPress Version"
+msgstr "نسخه وردپرس"
+
+#: admin/tabs/tab-tools.php:296
+msgid "WooCommerce Version"
+msgstr "نسخه ووکامرس"
+
+#: admin/tabs/tab-tools.php:304 admin/views/dashboard.php:122
+msgid "MySQL Version"
+msgstr "نسخه MySQL"
+
+#: admin/tabs/tab-tools.php:308
+msgid "FULLTEXT Support"
+msgstr "پشتیبانی از FULLTEXT"
+
+#: admin/tabs/tab-tools.php:313
+msgid "Not Supported"
+msgstr "عدم پشتیبانی"
+
+#: admin/views/dashboard.php:14 admin/views/modules.php:14
+#: admin/views/settings.php:14 admin/views/tools.php:14
+msgid "You do not have sufficient permissions to access this page."
+msgstr "عدم دسترسی"
+
+#: admin/views/dashboard.php:91
+msgid "MiniLoad Dashboard"
+msgstr "پیشخوان مینی‌لود"
+
+#: admin/views/dashboard.php:96
+msgid "MySQL Turbo Mode for WooCommerce - Pure MySQL Performance Optimization"
+msgstr ""
+"بهینه‌سازی خالص ووکامرس فقط با استفاده از ویژگیهای Mysql و بدون سرویس اضافه!"
+
+#: admin/views/dashboard.php:103
+msgid "Optimization Score"
+msgstr "امتیاز بهینه‌سازی"
+
+#: admin/views/dashboard.php:129
+msgid "Optimal version"
+msgstr "نسخه بهینه"
+
+#: admin/views/dashboard.php:131
+msgid "Consider upgrading"
+msgstr "نیاز به ارتقا"
+
+#: admin/views/dashboard.php:146
+msgid "HPOS enabled"
+msgstr "ویژگی HPOS فعال است"
+
+#: admin/views/dashboard.php:148
+msgid "Legacy storage"
+msgstr "مدل ذخیره‌سازی قدیمی"
+
+#: admin/views/dashboard.php:155
+msgid "Cache Status"
+msgstr "وضعیت کش"
+
+#: admin/views/dashboard.php:171
+msgid "Indexes Not Built!"
+msgstr "ایندکس ساخته نشد!"
+
+#: admin/views/dashboard.php:172
+msgid "Build indexes to enable MiniLoad optimizations."
+msgstr "ساخت ایندکس‌ها برای فعال سازی بهینه‌سازی‌های مینی‌لود"
+
+#: admin/views/dashboard.php:174
+msgid "Build Indexes Now"
+msgstr "ایندکس کن"
+
+#: admin/views/dashboard.php:187 admin/views/tools.php:105
+#: admin/views/tools.php:113
+msgid "Rebuild All Indexes"
+msgstr "بازسازی تمام ایندکس‌ها"
+
+#: admin/views/dashboard.php:192 admin/views/tools.php:152
+msgid "Analyze Tables"
+msgstr "بررسی جدولها"
+
+#: admin/views/dashboard.php:197 admin/views/tools.php:148
+msgid "Optimize Tables"
+msgstr "بهینه‌سازی جدولها"
+
+#: admin/views/dashboard.php:202
+msgid "Run Cleanup"
+msgstr "تمیزکاری"
+
+#: admin/views/dashboard.php:209
+msgid "MiniLoad Indexes"
+msgstr "ایندکسهای مینی‌لود"
+
+#: admin/views/dashboard.php:214
+msgid "Index Type"
+msgstr "نوع ایندکس"
+
+#: admin/views/dashboard.php:216 admin/views/tools.php:72
+msgid "Coverage"
+msgstr "پوشش"
+
+#: admin/views/dashboard.php:217
+msgid "Purpose"
+msgstr "هدف"
+
+#: admin/views/dashboard.php:218
+msgid "Status"
+msgstr "وضعیت"
+
+#: admin/views/dashboard.php:223 admin/views/modules.php:56
+#: admin/views/tools.php:77
+msgid "Sort Index"
+msgstr "ایندکس مرتب‌سازی محصولات"
+
+#: admin/views/dashboard.php:226
+msgid "Eliminates postmeta JOINs for sorting"
+msgstr "حذف join اضافی مرتب‌سازی محصولات"
+
+#: admin/views/dashboard.php:233 admin/views/dashboard.php:248
+msgid "Not Built"
+msgstr "ساخته نشده"
+
+#: admin/views/dashboard.php:238 admin/views/tools.php:88
+msgid "Search Index"
+msgstr "ایندکس جستجو"
+
+#: admin/views/dashboard.php:241
+msgid "FULLTEXT search with SKU instant lookup"
+msgstr "ایندکس بهینه‌شده با قابلیت جستجوی سریع شناسه محصول"
+
+#: admin/views/dashboard.php:253 admin/views/modules.php:128
+msgid "Filter Cache"
+msgstr "کش فیلتر"
+
+#: admin/views/dashboard.php:256
+msgid "Denormalized filter values"
+msgstr "بهینه‌سازی فرمت دیتای فیلترها"
+
+#: admin/views/dashboard.php:263 admin/views/modules.php:92
+msgid "Query Cache"
+msgstr "کش کوئری"
+
+#: admin/views/dashboard.php:264
+msgid "Intelligent caching"
+msgstr "کش هوشمند"
+
+#: admin/views/dashboard.php:265
+msgid "Caches expensive queries"
+msgstr "کوئری‌های سنگین را کش میکند"
+
+#: admin/views/dashboard.php:272 admin/views/modules.php:110
+msgid "Pagination Optimizer"
+msgstr "بهینه‌ساز صفحه‌بندی"
+
+#: admin/views/dashboard.php:273
+msgid "No SQL_CALC_FOUND_ROWS"
+msgstr "خبری از کوئری‌های سنگین sql calc found rows نخواهد بود"
+
+#: admin/views/dashboard.php:274
+msgid "Removes full table scans"
+msgstr "از اسکن کل جدول جلوگیری میکند"
+
+#: admin/views/dashboard.php:286 admin/views/tools.php:183
+msgid "Performance Tips"
+msgstr "نکات بهینه‌سازی"
+
+#: admin/views/dashboard.php:288
+msgid "✓ Keep all indexes active for optimal performance"
+msgstr "✓ تمام ایندکسها را برای بالارین سطح بهینه‌سازی فعال گه دارید"
+
+#: admin/views/dashboard.php:289
+msgid "✓ Run cleanup monthly to maintain database health"
+msgstr "✓ هر ماه عملیات پاکسازی را برای داشتن دیتابیس بهینه‌تر انجام دهید"
+
+#: admin/views/dashboard.php:290
+msgid "✓ Enable HPOS in WooCommerce for better scalability"
+msgstr "از قابلیت HPOS ووکامرس استفاده کنید"
+
+#: admin/views/dashboard.php:291
+msgid "✓ Consider upgrading to MySQL 5.7+ for JSON support"
+msgstr "از نسخه‌های بروز Mysql و Mariadb و percona استفاده کید"
+
+#: admin/views/modules.php:46
+msgid "MiniLoad Modules"
+msgstr "ماژولهای مینی‌لود"
+
+#: admin/views/modules.php:48
+msgid ""
+"All modules work together to deliver maximum WooCommerce performance using "
+"pure MySQL optimizations."
+msgstr ""
+"تمام ماژول‌ها با استفاده از ویژگیهای Mysql و بدون سرویس اضافه کار می‌مند تا "
+"ووکامرس شما کارایی و سرعت بالاتری داشته باشد"
+
+#: admin/views/modules.php:58
+msgid ""
+"Eliminates expensive postmeta JOINs for product sorting. Transforms queries "
+"from 400-600ms to 2-5ms."
+msgstr ""
+"افزایش سرعت پردازش کوئری‌های مرتب‌سازی محصولات با حذف فرایندهای اضافی post meta "
+"join"
+
+#: admin/views/modules.php:60 admin/views/modules.php:78
+#: admin/views/modules.php:96 admin/views/modules.php:114
+#: admin/views/modules.php:132 admin/views/modules.php:150
+msgid "Status:"
+msgstr "وضعیت:"
+
+#: admin/views/modules.php:62 admin/views/modules.php:80
+msgid "Products Indexed:"
+msgstr "محصولات ایندکس شده:"
+
+#: admin/views/modules.php:66
+msgid "Optimizes:"
+msgstr "انچه بهینه‌تر خواهد شد؛"
+
+#: admin/views/modules.php:74
+msgid "Search Optimizer"
+msgstr "بهینه‌ساز جستجو"
+
+#: admin/views/modules.php:76
+msgid ""
+"Lean FULLTEXT search index with instant SKU lookup. 30x smaller index, 10x "
+"faster search."
+msgstr "ایندکس کم‌جحم و بهینه FULLTEXT با قابلیت جستجوی آنی شناسه محصول"
+
+#: admin/views/modules.php:84
+msgid "Indexes:"
+msgstr "ایندکس‌ها:"
+
+#: admin/views/modules.php:94
+msgid ""
+"Intelligent caching of expensive queries with smart invalidation on product "
+"changes."
+msgstr "کش هوشمند کوئری‌های سنگین با قابلیت بازسازی در زمان تغییر وضعیت محصولات"
+
+#: admin/views/modules.php:98
+msgid "Cache TTL:"
+msgstr "عمر کش:"
+
+#: admin/views/modules.php:102
+msgid "Performance:"
+msgstr "کارایی:"
+
+#: admin/views/modules.php:112
+msgid ""
+"Removes SQL_CALC_FOUND_ROWS which causes full table scans. Uses fast COUNT "
+"queries."
+msgstr ""
+"استفاده از کوئری‌های بهینه و سریعتر COUNT بحای هیولای sql calc found rows"
+
+#: admin/views/modules.php:116 admin/views/modules.php:134
+msgid "Improvement:"
+msgstr "بهبود:"
+
+#: admin/views/modules.php:120
+msgid "Eliminates:"
+msgstr "خذف:"
+
+#: admin/views/modules.php:130
+msgid ""
+"Denormalized filter values for instant filter queries. Pre-calculates min/max "
+"prices."
+msgstr "بهینه‌سازی فرمت دیتای فیلترها و محاسبه زودهنگام کمترین و بیشترین قیمت"
+
+#: admin/views/modules.php:138
+msgid "Caches:"
+msgstr "کش‌ها:"
+
+#: admin/views/modules.php:146
+msgid "Database Indexes"
+msgstr "ایندکسهای دیتابیس"
+
+#: admin/views/modules.php:148
+msgid ""
+"Strategic MySQL indexes for WooCommerce tables. Covers postmeta, taxonomies, "
+"and HPOS."
+msgstr "ایندکسهای کاربردی Mysql شامل postmeta و HOPS و taxonomies"
+
+#: admin/views/modules.php:152
+msgid "Tables Optimized:"
+msgstr "حدولهای بهینه‌شده:"
+
+#: admin/views/modules.php:156
+msgid "Impact:"
+msgstr "تاثیر"
+
+#: admin/views/modules.php:163
+msgid "Module Performance"
+msgstr "کارایی ماژول"
+
+#: admin/views/modules.php:164
+msgid ""
+"All modules are currently active and working together to optimize your "
+"WooCommerce store:"
+msgstr ""
+"تمام ماژول‌های برای بهینه‌سازی هر چه بیشتر فروشگاه ووکامرسی شما فعال هستند:"
+
+#: admin/views/modules.php:166
+msgid "✓ Product sorting: 100x faster (postmeta JOINs eliminated)"
+msgstr ""
+"✓ مرتب‌سازی محصولات: تا ۱۰۰ برابر کوئری سریعتر با حذف کوئری‌های اضافه postmeta "
+"join"
+
+#: admin/views/modules.php:167
+msgid "✓ Product search: 50x faster (FULLTEXT index)"
+msgstr "✓ جستجوی محصولات: تا ۵۰ برابر کوئری سریعتر با ایندکس بهینه و مدرن"
+
+#: admin/views/modules.php:168
+msgid "✓ Pagination: 2-5x faster (no SQL_CALC_FOUND_ROWS)"
+msgstr ""
+"✓ صفحه‌بندی: ۲ تا ۵ برابر کوئری سریعتر با بهینه‌سازی یا حذف sql cacl found rows"
+
+#: admin/views/modules.php:169
+msgid "✓ Filters: 10x faster (denormalized values)"
+msgstr "✓ فیلترها: تا ۱۰ برابر کوئری سریعتر با بهینه‌سازی فرمت دیتای فیلترها"
+
+#: admin/views/modules.php:170
+msgid "✓ Repeated queries: Instant (intelligent caching)"
+msgstr "کوئری‌های تکراری: آنی به کمک کش هوشمند"
+
+#: admin/views/settings.php:22
+msgid "MiniLoad Settings"
+msgstr "تنظیمات مینی‌لود"
+
+#: admin/views/settings.php:31
+msgid "Cache TTL"
+msgstr "عمر کش"
+
+#: admin/views/settings.php:38
+msgid "Cache time-to-live in seconds (60-3600)"
+msgstr "عمر کش به ثانیه (۶۰ تا ۳۶۰۰)"
+
+#: admin/views/settings.php:53
+msgid "Enable debug logging"
+msgstr "فعالسازی حالت دیباگ"
+
+#: admin/views/settings.php:61
+msgid "Order Search Max Results"
+msgstr "حداکثر نتایج جستجوی سفارشات"
+
+#: admin/views/settings.php:68
+msgid "Maximum number of orders to return in search results (100-999999)"
+msgstr "حداکثر آیتم‌های نمایش داده شده در جستجوی سفارشات (بین ۱۰۰ تا ۹۹۹۹۹۹)"
+
+#: admin/views/settings.php:69
+msgid "Set to 999999 for unlimited results. Default: 5000"
+msgstr "پیش‌فرض: ۵۰۰۰ محصول. برای بینهایت عدد ۹۹۹۹۹۹ را وارد کنید"
+
+#: admin/views/settings.php:70
+msgid "Note:"
+msgstr "نکته:"
+
+#: admin/views/settings.php:70
+msgid "Higher values may impact performance on the orders page."
+msgstr ""
+"هر چه مقدار پایینتری وارد کنید کارایی و سرعت بیشتری در صفحه نتایج سفارشات "
+"خواهید داشت"
+
+#: admin/views/tools.php:58
+msgid "MiniLoad Tools"
+msgstr "ابزارهای مینی‌لود"
+
+#: admin/views/tools.php:60
+msgid "Maintenance and optimization tools for MiniLoad."
+msgstr "ابزارهای بهینه‌سازی مینی‌لود"
+
+#: admin/views/tools.php:69
+msgid "Index"
+msgstr "ایندکس"
+
+#: admin/views/tools.php:70
+msgid "Indexed"
+msgstr "ایندکس‌شده"
+
+#: admin/views/tools.php:71
+msgid "Total"
+msgstr "در محموع"
+
+#: admin/views/tools.php:108
+msgid "Warning: Indexes are incomplete. Rebuild to achieve full optimization."
+msgstr "هشدار: ایندکسها نیاز به بازسازی دارند"
+
+#: admin/views/tools.php:116
+msgid "All indexes are complete"
+msgstr "تمام ایندکسها کامل هستند"
+
+#: admin/views/tools.php:126
+msgid "Current cache entries:"
+msgstr "تعداد آیتمهای کش‌شده:"
+
+#: admin/views/tools.php:134
+msgid "Clears query cache, filter cache, and transients"
+msgstr "پاک کردن کش کوئری‌ها، فیلترها و ترنزینتها"
+
+#: admin/views/tools.php:141
+msgid "Database Optimization"
+msgstr "بهینه‌سازی دیتابیس"
+
+#: admin/views/tools.php:143
+msgid "Optimize database tables for better performance."
+msgstr "بهینه‌سازی جدولهای دیتابیس برای کارایی بیشتر"
+
+#: admin/views/tools.php:159
+msgid "Quick Commands"
+msgstr "دستورهای خط فرمان"
+
+#: admin/views/tools.php:161
+msgid "Run these commands via SSH for manual operations:"
+msgstr ""
+"برای انجام دستی فرایندهای ایندکس و کش این دستورات را در خط فرمان وارد کنید:"
+
+#: admin/views/tools.php:164
+msgid "Index all products:"
+msgstr "ایندکس کردن تمام محصولات"
+
+#: admin/views/tools.php:169
+msgid "Quick index (first 1000 products):"
+msgstr "ایندکس سریع (فقط ۱۰۰۰ محصول اول، برای تست)"
+
+#: admin/views/tools.php:174
+msgid "Test MiniLoad status:"
+msgstr "تست وضعبت مینی‌اود:"
+
+#: admin/views/tools.php:185
+msgid "Run index rebuild after importing new products"
+msgstr "بازسازی ایندکس بعد از ایمپورت کردن محصولات جدید"
+
+#: admin/views/tools.php:186
+msgid "Clear cache after major product updates"
+msgstr "پاک کردن کش بعد از بروزرسانی‌های اساسی محصولات"
+
+#: admin/views/tools.php:187
+msgid "Monitor index coverage - aim for 100%"
+msgstr "مانیتور کردن پوشش ایندکس‌ها"
+
+#: admin/views/tools.php:188
+msgid "Use the full indexer for complete optimization"
+msgstr "ایندکسر کامل برای بهره بردن از تمام بهینه‌سازی‌ها"
+
+#. translators: %s: PHP version
+#: miniload.php:61
+#, php-format
+msgid "MiniLoad requires PHP version %s or higher."
+msgstr "مینی‌لود به نسخه %s یا بالاتر PHP نیاز دارد"
+
+#. translators: %s: WordPress version
+#: miniload.php:71
+#, php-format
+msgid "MiniLoad requires WordPress version %s or higher."
+msgstr "مینی‌لود به نسخه %s یا بالاتر وردپرس نیاز دارد"
+
+#: miniload.php:237
+msgid "MiniLoad requires WooCommerce to be installed and activated."
+msgstr "مینی‌لود به فعال بودن ووکامرس نیاز دارد"
+
+#: miniload.php:455 miniload.php:456
+msgid "MiniLoad"
+msgstr "مینی‌لود"
+
+#: miniload.php:658
+msgid "Are you sure you want to rebuild indexes? This may take a while."
+msgstr "از ساخت مجدد ایندکسها مطمئن هستید؟"
+
+#: miniload.php:659
+msgid "Processing..."
+msgstr "در حال پردازش..."
+
+#: miniload.php:660
+msgid "Success!"
+msgstr "با موفقیت انجام شد!"
+
+#: miniload.php:661
+msgid "An error occurred."
+msgstr "خطایی رخ داد!"
+
+#: miniload.php:686
+msgid "Security check failed"
+msgstr "بررسی امنیتی موفقیت آمیز نبود"
+
+#: miniload.php:691 modules/class-query-cache.php:416
+msgid "Permission denied"
+msgstr "عدم دسترسی"
+
+#: miniload.php:710
+msgid "Invalid action"
+msgstr "عملیات نامعتبر"
+
+#: miniload.php:724
+msgid "Indexes rebuilt successfully"
+msgstr "ایندکسها با موفقیت بازسازی شدند"
+
+#: miniload.php:737
+msgid "Cache cleared successfully"
+msgstr "کش با موفقیت پاک شد"
+
+#: miniload.php:750
+msgid "Cleanup completed successfully"
+msgstr "تمیزکاری با موفقیت انجام شد"
+
+#: modules/class-ajax-search-pro.php:1049
+msgid "Open search"
+msgstr "باز کردن"
+
+#: modules/class-ajax-search-pro.php:1072 modules/class-ajax-search-pro.php:1077
+#: modules/class-ajax-search-pro.php:1102 modules/class-ajax-search-pro.php:1115
+#: modules/class-ajax-search-pro.php:1181
+msgid "Search"
+msgstr "جستجو"
+
+#: modules/class-ajax-search-pro.php:1097
+msgid "Close search"
+msgstr "بستن"
+
+#: modules/class-ajax-search-pro.php:1120
+msgid "Voice search"
+msgstr "جستجوی صوتی"
+
+#: modules/class-ajax-search-pro.php:1132
+msgid "All Categories"
+msgstr "دسته‌ها"
+
+#: modules/class-ajax-search-pro.php:1166
+msgid "Clear search"
+msgstr "پاک کردن"
+
+#: modules/class-ajax-search-pro.php:1197
+msgid "Popular Searches"
+msgstr "کلمات جستجوشده محبوب"
+
+#: modules/class-ajax-search-pro.php:1254 modules/class-ajax-search-pro.php:1382
+msgid "Searching..."
+msgstr "در حال جستجو..."
+
+#: modules/class-ajax-search-pro.php:1255
+msgid "No results found"
+msgstr "نتیجه‌ای یافت نشد"
+
+#: modules/class-ajax-search-pro.php:1256
+msgid "View all results"
+msgstr "نمایش تمام نتایج"
+
+#: modules/class-ajax-search-pro.php:1383
+msgid "Search everything... (products, orders, users)"
+msgstr "جستجوی محصولات، سفارشات و کاربران"
+
+#: modules/class-ajax-search-pro.php:1384
+msgid "Press Alt+K to search"
+msgstr "باز شدن سرچ باکس مدیریت با کلیدهای Alt+k"
+
+#: modules/class-filter-cache.php:586
+msgid "Filter cache rebuilt successfully"
+msgstr "کش فبلترها با موقیت ساخته شد"
+
+#: modules/class-media-search-optimizer.php:371
+msgid "Media"
+msgstr "رسانه"
+
+#. translators: %1$d: number of indexed media items, %2$s: time taken in seconds
+#: modules/class-media-search-optimizer.php:427
+#, php-format
+msgid "Indexed %1$d media items in %2$s seconds"
+msgstr "تمام %1$d رسانه موجود در %2$s ثانیه ایندکس شدند"
+
+#: modules/class-order-search-optimizer.php:655
+msgid "Order search index rebuilt successfully"
+msgstr "ایندکس سفارشات با موقیت ساخته شد"
+
+#: modules/class-pagination-optimizer.php:545
+msgid "SQL_CALC_FOUND_ROWS removed by MiniLoad"
+msgstr "حذف کوئری SQL_CALC_FOUND_ROWS توسط مینی‌لود"
+
+#: modules/class-query-cache.php:403
+msgid "Clear MiniLoad Cache"
+msgstr "پاک کردن کش مینی‌لود"
+
+#: modules/class-query-cache.php:406
+msgid "Clear all MiniLoad query caches"
+msgstr "پاک کردن کش تمام کوئری‌های مربوط به مینی‌لود"
+
+#. translators: %1$d: number of successfully indexed products, %2$d: number of failed products, %3$s: time taken in seconds
+#: modules/class-search-indexer.php:252
+#, php-format
+msgid "Indexed %1$d products successfully, %2$d failed. Time: %3$s seconds"
+msgstr ""
+"محصولات ایندکس شده: %1$d مورد. موارد ناموفق: %2$d محصول. زمان انجام فرایند: "
+"%3$s ثانیه"
+
+#: modules/class-search-optimizer.php:514
+msgid "Search index rebuilt successfully"
+msgstr "ایندکس جستجوی محصولات با موفقیت ساخته شد"
+
+#: modules/class-sort-index.php:314
+msgid "Sort index rebuilt successfully"
+msgstr "ایندکس مرتب‌سازی محصولات با موقیت ساخته شد"

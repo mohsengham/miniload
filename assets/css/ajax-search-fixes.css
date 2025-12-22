@@ -1,0 +1,143 @@
+/**
+ * MiniLoad AJAX Search - Additional Fixes
+ * Ensures proper styling across different themes
+ */
+
+/* Reset box-sizing for all search elements */
+.miniload-search-wrapper *,
+.miniload-search-wrapper *::before,
+.miniload-search-wrapper *::after {
+    box-sizing: border-box;
+}
+
+/* Ensure proper flex layout */
+.miniload-search-input-wrapper {
+    display: flex !important;
+    flex-direction: row !important;
+    flex-wrap: nowrap !important;
+}
+
+/* Fix input field to take available space */
+.miniload-search-input {
+    flex: 1 1 auto !important;
+    width: auto !important;
+    min-width: 150px !important;
+}
+
+/* Ensure category dropdown doesn't break layout */
+.miniload-search-category {
+    flex: 0 0 auto !important;
+    max-width: 180px !important;
+}
+
+/* Ensure submit button stays circular */
+.miniload-search-submit {
+    flex: 0 0 auto !important;
+    width: 48px !important;
+    height: 48px !important;
+    padding: 0 !important;
+    border-radius: 50% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+}
+
+/* Hide button text on desktop */
+@media (min-width: 769px) {
+    .miniload-search-submit-text {
+        display: none !important;
+    }
+}
+
+/* Fix for themes that add margins */
+.miniload-search-form input,
+.miniload-search-form select,
+.miniload-search-form button {
+    margin-top: 0 !important;
+    margin-bottom: 0 !important;
+}
+
+/* Fix for themes with aggressive button styles */
+.miniload-search-submit:focus,
+.miniload-search-submit:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Ensure smooth hover effects */
+.miniload-search-submit {
+    transition: background-color 0.3s ease, transform 0.2s ease !important;
+}
+
+/* Fix z-index issues with results */
+.miniload-search-results {
+    z-index: 9999 !important;
+}
+
+/* Ensure wrapper doesn't overflow */
+.miniload-search-wrapper {
+    overflow: visible !important;
+}
+
+/* Fix alignment for RTL languages */
+[dir="rtl"] .miniload-search-input-wrapper {
+    flex-direction: row-reverse !important;
+}
+
+[dir="rtl"] .miniload-search-category {
+    border-right: none !important;
+    border-left: 1px solid #e0e0e0 !important;
+}
+
+/* Ensure category dropdown arrow shows correctly */
+.miniload-search-category {
+    background-color: transparent !important;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23666' d='M6 9L1 4h10z'/%3E%3C/svg%3E") !important;
+    background-repeat: no-repeat !important;
+    background-position: right 10px center !important;
+}
+
+[dir="rtl"] .miniload-search-category {
+    background-position: left 10px center !important;
+}
+
+/* Better focus styles */
+.miniload-search-input:focus {
+    background-color: transparent !important;
+    border: none !important;
+    outline: none !important;
+}
+
+.miniload-search-category:focus {
+    outline: none !important;
+    background-color: rgba(0,0,0,0.02) !important;
+}
+
+/* Inherit theme font - removed forced font-family to respect theme styles */
+.miniload-search-wrapper {
+    /* font-family inherited from theme */
+}
+
+/* Ensure proper height for all elements */
+.miniload-search-input,
+.miniload-search-category {
+    height: auto !important;
+    line-height: normal !important;
+}
+
+/* Fix padding issues */
+.miniload-search-input {
+    padding: 12px 15px !important;
+}
+
+.miniload-search-category {
+    padding: 12px 35px 12px 15px !important;
+}
+
+/* Ensure buttons are clickable */
+.miniload-search-submit,
+.miniload-search-clear,
+.miniload-voice-search {
+    pointer-events: all !important;
+    cursor: pointer !important;
+}
