@@ -4,7 +4,9 @@ Tags: woocommerce, performance, optimization, ajax search, speed
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.1
+WC requires at least: 3.0
+WC tested up to: 10.4.3
+Stable tag: 1.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -12,7 +14,7 @@ Supercharge your WooCommerce store with blazing-fast AJAX search, optimized quer
 
 == Description ==
 
-**MiniLoad** is a comprehensive WooCommerce performance optimization plugin that dramatically improves your store's speed and user experience.
+**MiniLoad** is a comprehensive WooCommerce performance optimization plugin that dramatically improves your store's speed and user experience. Fully compatible with WooCommerce HPOS (High-Performance Order Storage).
 
 = 🚀 Key Features =
 
@@ -95,6 +97,13 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 
 == Changelog ==
 
+= 1.0.2 =
+* Fixed RTL/LTR admin margin alignment issues using CSS logical properties (fixes GitHub issue #2)
+* Added HPOS (High-Performance Order Storage) compatibility declaration
+* Updated WooCommerce tested version to 10.4.3
+* Updated WordPress tested version to 6.9
+* Improved CSS for better bidirectional text support
+
 = 1.0.1 =
 * Fixed critical bug where module settings (Related Products Cache, Review Stats Cache) weren't saving properly
 * Fixed array notation handling for checkbox names in modules tab
@@ -121,6 +130,9 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 * Modern tabbed admin interface
 
 == Upgrade Notice ==
+
+= 1.0.2 =
+Improves RTL/LTR support and adds WooCommerce HPOS compatibility. Recommended update for all users, especially those using RTL languages.
 
 = 1.0.1 =
 Critical update: Fixes module settings save issues, WordPress Plugin Check compliance, keyboard shortcut conflicts with WordPress 6.7+, and includes important security improvements.

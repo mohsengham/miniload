@@ -11,7 +11,7 @@
  * Plugin Name:       MiniLoad - Performance Optimizer for WooCommerce
  * Plugin URI:        https://github.com/mohsengham/miniload
  * Description:       Supercharge your WooCommerce store with blazing-fast AJAX search, optimized queries, and intelligent caching.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Requires at least: 5.0
  * Requires PHP:      7.4
  * Author:            Minimall Team
@@ -21,7 +21,8 @@
  * License:           GPL v2 or later
  * License URI:       https://www.gnu.org/licenses/gpl-2.0.html
  * WC requires at least: 3.0
- * WC tested up to:   10.4.2
+ * WC tested up to:   10.4.3
+ * Requires Plugins:  woocommerce
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +39,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define plugin constants
-define( 'MINILOAD_VERSION', '1.0.1' );
+define( 'MINILOAD_VERSION', '1.0.2' );
 define( 'MINILOAD_PLUGIN_FILE', __FILE__ );
 define( 'MINILOAD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MINILOAD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -159,6 +160,9 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 			// Check if WooCommerce is active
 			add_action( 'plugins_loaded', array( $this, 'check_woocommerce' ), 1 );
 
+			// Declare HPOS compatibility
+			add_action( 'before_woocommerce_init', array( $this, 'declare_hpos_compatibility' ) );
+
 			// WordPress 4.6+ automatically loads translations for plugins on WordPress.org
 			// No need to manually load text domain
 
@@ -242,6 +246,15 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 				return false;
 			}
 			return true;
+		}
+
+		/**
+		 * Declare compatibility with WooCommerce HPOS (High-Performance Order Storage)
+		 */
+		public function declare_hpos_compatibility() {
+			if ( class_exists( '\Automattic\WooCommerce\Utilities\FeaturesUtil' ) ) {
+				\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', MINILOAD_PLUGIN_FILE, true );
+			}
 		}
 
 		/**

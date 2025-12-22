@@ -1,7 +1,7 @@
 # MiniLoad - WooCommerce Performance Optimizer
 
-[![WordPress Version](https://img.shields.io/badge/WordPress-5.0%2B-blue)](https://wordpress.org)
-[![WooCommerce Version](https://img.shields.io/badge/WooCommerce-3.0%2B-purple)](https://woocommerce.com)
+[![WordPress Version](https://img.shields.io/badge/WordPress-6.9-blue)](https://wordpress.org)
+[![WooCommerce Version](https://img.shields.io/badge/WooCommerce-10.4.3-purple)](https://woocommerce.com)
 [![PHP Version](https://img.shields.io/badge/PHP-7.2%2B-green)](https://php.net)
 [![License](https://img.shields.io/badge/License-GPL%20v2-red)](https://www.gnu.org/licenses/gpl-2.0.html)
 
@@ -24,6 +24,7 @@ MySQL Turbo Mode for WooCommerce - Optimize your store with pure MySQL performan
 - **Mobile-optimized** search interface
 
 ### Advanced Optimizations
+- **HPOS Compatible** - Full compatibility with WooCommerce High-Performance Order Storage
 - **Sort Index Module** - Eliminates postmeta JOINs
 - **Filter Cache Module** - Instant layered navigation
 - **Related Products Cache** - Pre-calculated relationships
@@ -142,12 +143,12 @@ add_filter( 'miniload_index_content', function( $content, $product_id ) {
 ### Minimum Requirements
 - WordPress 5.0 or higher
 - WooCommerce 3.0 or higher
-- PHP 7.2 or higher
+- PHP 7.4 or higher
 - MySQL 5.6 or higher (for FULLTEXT support)
 
 ### Recommended
-- WordPress 6.0+
-- WooCommerce 8.0+
+- WordPress 6.9+
+- WooCommerce 10.4.3+
 - PHP 8.0+
 - MySQL 8.0+
 - Memory limit: 256M or higher
@@ -179,6 +180,13 @@ npm run build
 ```
 
 ## 📝 Changelog
+
+### Version 1.0.2 (2024-12-22)
+- Fixed RTL/LTR admin margin alignment issues using CSS logical properties (fixes GitHub issue #2)
+- Added HPOS (High-Performance Order Storage) compatibility declaration
+- Updated WooCommerce tested version to 10.4.3
+- Updated WordPress tested version to 6.9
+- Improved CSS for better bidirectional text support
 
 ### Version 1.0.1 (2024-12-22)
 - Fixed critical bug where module settings (Related Products Cache, Review Stats Cache) weren't saving properly

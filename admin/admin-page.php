@@ -136,7 +136,7 @@ $tabs = array(
 	<div class="miniload-admin-header">
 		<div class="miniload-logo">
 			<h1>
-				<img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/images/logo.png' ); ?>" alt="MiniLoad" style="height: 30px; vertical-align: middle; margin-right: 10px;">
+				<img src="<?php echo esc_url( plugin_dir_url( dirname( __FILE__ ) ) . 'assets/images/logo.png' ); ?>" alt="MiniLoad" style="height: 30px; vertical-align: middle; margin-inline-end: 10px;">
 				<?php echo esc_html( get_admin_page_title() ); ?>
 			</h1>
 			<span class="miniload-version">v<?php echo esc_html( MINILOAD_VERSION ); ?></span>
@@ -156,7 +156,8 @@ $tabs = array(
 			font-size: 16px;
 			width: 16px;
 			height: 16px;
-			margin-right: 5px;
+			/* Using logical property for better RTL support */
+			margin-inline-end: 5px;
 			vertical-align: text-bottom;
 			line-height: 1;
 		}
@@ -168,16 +169,8 @@ $tabs = array(
 			width: 16px;
 			height: 16px;
 			line-height: 1;
-			margin-right: 3px;
-		}
-		/* RTL adjustments */
-		body.rtl .miniload-nav-tabs .nav-tab .dashicons {
-			margin-right: 0;
-			margin-left: 5px;
-		}
-		body.rtl .miniload-header-actions .button .dashicons {
-			margin-right: 0;
-			margin-left: 3px;
+			/* Using logical property for better RTL support */
+			margin-inline-end: 3px;
 		}
 	</style>
 
@@ -222,7 +215,7 @@ $tabs = array(
 					<button type="button" id="miniload-save-button" class="button button-primary button-hero">
 						<?php esc_html_e( 'Save Settings', 'miniload' ); ?>
 					</button>
-					<span id="miniload-save-status" style="margin-left: 20px; display: none;"></span>
+					<span id="miniload-save-status" style="margin-inline-start: 20px; display: none;"></span>
 				</div>
 			<?php endif; ?>
 		</form>
@@ -304,7 +297,11 @@ $tabs = array(
 
 /* Modern Admin Styles - Black/White/Gray Theme */
 .miniload-admin-wrap {
-	margin: 20px 20px 0 0;
+	/* Using logical properties for better RTL/LTR support */
+	margin-block-start: 20px;
+	margin-inline-start: 0;
+	margin-inline-end: 20px;
+	margin-block-end: 0;
 	background: #f0f0f1;
 }
 
@@ -337,7 +334,7 @@ $tabs = array(
 .miniload-version {
 	color: #999;
 	font-size: 14px;
-	margin-left: 15px;
+	margin-inline-start: 15px;
 	background: rgba(255,255,255,0.1);
 	padding: 4px 12px;
 	border-radius: 20px;
@@ -399,7 +396,7 @@ $tabs = array(
 
 .miniload-icon {
 	display: inline-block;
-	margin-right: 8px;
+	margin-inline-end: 8px;
 	vertical-align: middle;
 }
 
@@ -417,7 +414,7 @@ $tabs = array(
 	height: 18px !important;
 	line-height: 1 !important;
 	vertical-align: middle !important;
-	margin-right: 5px !important;
+	margin-inline-end: 5px !important;
 	display: inline-block !important;
 }
 
