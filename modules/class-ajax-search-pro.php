@@ -65,7 +65,7 @@ class Ajax_Search_Pro {
 		add_action( 'wp_ajax_miniload_ajax_search', array( $this, 'handle_ajax_search' ) );
 		add_action( 'wp_ajax_nopriv_miniload_ajax_search', array( $this, 'handle_ajax_search' ) );
 
-		// Admin AJAX search (Ctrl+K)
+		// Admin AJAX search (Alt+K)
 		add_action( 'wp_ajax_miniload_admin_search', array( $this, 'handle_admin_search' ) );
 		add_action( 'wp_ajax_miniload_admin_tabbed_search', array( $this, 'handle_admin_tabbed_search' ) );
 
@@ -655,7 +655,7 @@ class Ajax_Search_Pro {
 	}
 
 	/**
-	 * Handle admin search (Ctrl+K) - DEPRECATED
+	 * Handle admin search (Alt+K) - DEPRECATED
 	 */
 	public function handle_admin_search() {
 		// Redirect to new tabbed search

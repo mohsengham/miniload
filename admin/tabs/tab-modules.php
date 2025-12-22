@@ -8,6 +8,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Get the miniload_settings for the array-based module options
+$miniload_settings = get_option( 'miniload_settings', array() );
 ?>
 
 <div class="miniload-modules">
@@ -25,7 +28,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<span class="dashicons dashicons-search"></span>
 					<h4><?php esc_html_e( 'AJAX Search', 'miniload' ); ?></h4>
 					<label class="miniload-toggle">
-						<input type="checkbox" name="miniload_ajax_search_module" value="1"
+						<input type="checkbox" name="miniload_ajax_search_enabled" value="1"
 							<?php checked( '1', get_option( 'miniload_ajax_search_enabled', '1' ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
@@ -155,7 +158,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<h4><?php esc_html_e( 'Related Products Cache', 'miniload' ); ?></h4>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_modules[related_products_cache]" value="1"
-							<?php checked( ! isset( $miniload_settings['modules']['related_products_cache'] ) || $miniload_settings['modules']['related_products_cache'] !== false ); ?>>
+							<?php
+							// Module is enabled by default if not set, or if explicitly set to truthy value
+							$is_checked = ! isset( $miniload_settings['modules']['related_products_cache'] ) ||
+							              ! empty( $miniload_settings['modules']['related_products_cache'] );
+							checked( true, $is_checked );
+							?>>
 						<span class="miniload-toggle-slider"></span>
 					</label>
 				</div>
@@ -173,7 +181,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 					<h4><?php esc_html_e( 'Review Stats Cache', 'miniload' ); ?></h4>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_modules[review_stats_cache]" value="1"
-							<?php checked( ! isset( $miniload_settings['modules']['review_stats_cache'] ) || $miniload_settings['modules']['review_stats_cache'] !== false ); ?>>
+							<?php
+							// Module is enabled by default if not set, or if explicitly set to truthy value
+							$is_checked = ! isset( $miniload_settings['modules']['review_stats_cache'] ) ||
+							              ! empty( $miniload_settings['modules']['review_stats_cache'] );
+							checked( true, $is_checked );
+							?>>
 						<span class="miniload-toggle-slider"></span>
 					</label>
 				</div>

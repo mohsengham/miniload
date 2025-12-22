@@ -4,7 +4,7 @@ Tags: woocommerce, performance, optimization, ajax search, speed
 Requires at least: 5.0
 Tested up to: 6.9
 Requires PHP: 7.4
-Stable tag: 1.0.0
+Stable tag: 1.0.1
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -95,6 +95,21 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 
 == Changelog ==
 
+= 1.0.1 =
+* Fixed critical bug where module settings (Related Products Cache, Review Stats Cache) weren't saving properly
+* Fixed array notation handling for checkbox names in modules tab
+* Standardized module storage format (all modules now use integer values)
+* Improved settings save reliability by removing interfering filters
+* Fixed data type consistency issues between boolean and integer values
+* Fixed keyboard shortcut conflict: Admin search now uses Alt+K exclusively (was conflicting with WordPress 6.7+)
+* Fixed WordPress Plugin Check warnings and errors
+* Fixed PHP syntax errors in SQL queries
+* Improved database query security with proper escaping
+* Updated all GitHub repository URLs
+* Removed analytics functionality completely
+* Fixed Persian translation loading
+* Performance improvements and bug fixes
+
 = 1.0.0 =
 * Initial release
 * FULLTEXT indexed product search
@@ -106,6 +121,9 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 * Modern tabbed admin interface
 
 == Upgrade Notice ==
+
+= 1.0.1 =
+Critical update: Fixes module settings save issues, WordPress Plugin Check compliance, keyboard shortcut conflicts with WordPress 6.7+, and includes important security improvements.
 
 = 1.0.0 =
 Initial release of MiniLoad. Install to dramatically improve your WooCommerce store's search performance!

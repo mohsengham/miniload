@@ -259,8 +259,6 @@ $tabs = array(
 					}
 				});
 
-				console.log('Settings to save:', settings);
-
 				// Use the direct save that works
 				$.ajax({
 					url: ajaxurl,
@@ -277,7 +275,7 @@ $tabs = array(
 							location.reload();
 						}, 1000);
 					},
-					error: function() {
+					error: function(xhr, status, error) {
 						$status.html('<span style="color: red;">✗ Failed to save settings</span>');
 					},
 					complete: function() {

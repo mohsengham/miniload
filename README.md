@@ -180,6 +180,21 @@ npm run build
 
 ## 📝 Changelog
 
+### Version 1.0.1 (2024-12-22)
+- Fixed critical bug where module settings (Related Products Cache, Review Stats Cache) weren't saving properly
+- Fixed array notation handling for checkbox names in modules tab
+- Standardized module storage format (all modules now use integer values)
+- Improved settings save reliability by removing interfering filters
+- Fixed data type consistency issues between boolean and integer values
+- Fixed keyboard shortcut conflict: Admin search now uses Alt+K exclusively (was conflicting with WordPress 6.7+)
+- Fixed WordPress Plugin Check warnings and errors
+- Fixed PHP syntax errors in SQL queries
+- Improved database query security with proper escaping
+- Updated all GitHub repository URLs
+- Removed analytics functionality completely
+- Fixed Persian translation loading
+- Performance improvements and bug fixes
+
 ### Version 1.0.0 (2024-12-20)
 - Initial release
 - MySQL Turbo Mode implementation
