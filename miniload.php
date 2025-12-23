@@ -11,7 +11,7 @@
  * Plugin Name:       MiniLoad - Performance Optimizer for WooCommerce
  * Plugin URI:        https://github.com/mohsengham/miniload
  * Description:       Supercharge your WooCommerce store with blazing-fast AJAX search, optimized queries, and intelligent caching.
- * Version:           1.0.5
+ * Version:           1.0.6
  * Requires at least: 5.0
  * Requires PHP:      7.4
  * Author:            Minimall Team

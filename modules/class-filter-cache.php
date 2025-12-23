@@ -27,6 +27,20 @@ class Filter_Cache {
 	private $table_name;
 
 	/**
+	 * Track if filter is already applied
+	 *
+	 * @var bool
+	 */
+	private $filter_applied = false;
+
+	/**
+	 * Cached product IDs for current request
+	 *
+	 * @var array|null
+	 */
+	private $current_filter_ids = null;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -74,20 +88,22 @@ class Filter_Cache {
 	 * @return array
 	 */
 	public function optimize_meta_filters( $meta_query, $wc_query ) {
+		// Prevent multiple filter applications in the same request
+		if ( $this->filter_applied ) {
+			return $meta_query;
+		}
+
 		// Check if we have cached filter data
 		$cache_key = $this->get_filter_cache_key( $meta_query );
 		$cached = $this->get_cached_filter_results( $cache_key );
 
 		if ( $cached !== false ) {
-			// Modify query to use cached product IDs
-			add_filter( 'posts_where', function( $where ) use ( $cached ) {
-				global $wpdb;
-				if ( ! empty( $cached['product_ids'] ) ) {
-					$ids = implode( ',', array_map( 'intval', $cached['product_ids'] ) );
-					$where .= " AND {$wpdb->posts}.ID IN ({$ids})";
-				}
-				return $where;
-			}, 100 );
+			// Store IDs for use in filter
+			$this->current_filter_ids = isset( $cached['product_ids'] ) ? $cached['product_ids'] : array();
+			$this->filter_applied = true;
+
+			// Add filter using a named method
+			add_filter( 'posts_where', array( $this, 'apply_cached_filter_ids' ), 100 );
 
 			miniload_log( sprintf( 'Filter cache hit: %s', $cache_key ), 'debug' );
 
@@ -99,6 +115,27 @@ class Filter_Cache {
 	}
 
 	/**
+	 * Apply cached filter IDs to query
+	 *
+	 * @param string $where Where clause
+	 * @return string
+	 */
+	public function apply_cached_filter_ids( $where ) {
+		global $wpdb;
+
+		if ( ! empty( $this->current_filter_ids ) ) {
+			$ids = implode( ',', array_map( 'intval', $this->current_filter_ids ) );
+			$where .= " AND {$wpdb->posts}.ID IN ({$ids})";
+		}
+
+		// Remove filter after applying to prevent multiple applications
+		remove_filter( 'posts_where', array( $this, 'apply_cached_filter_ids' ), 100 );
+		$this->filter_applied = false;
+
+		return $where;
+	}
+
+	/**
 	 * Optimize taxonomy filters
 	 *
 	 * @param array $tax_query Tax query
@@ -106,22 +143,22 @@ class Filter_Cache {
 	 * @return array
 	 */
 	public function optimize_tax_filters( $tax_query, $wc_query ) {
+		// Prevent multiple filter applications in the same request
+		if ( $this->filter_applied ) {
+			return $tax_query;
+		}
+
 		// For simple taxonomy queries, use our optimized lookup
 		if ( $this->is_simple_tax_query( $tax_query ) ) {
 			$product_ids = $this->get_products_by_tax_fast( $tax_query );
 
 			if ( $product_ids !== false ) {
-				// Add filter to use these IDs
-				add_filter( 'posts_where', function( $where ) use ( $product_ids ) {
-					global $wpdb;
-					if ( ! empty( $product_ids ) ) {
-						$ids = implode( ',', array_map( 'intval', $product_ids ) );
-						$where .= " AND {$wpdb->posts}.ID IN ({$ids})";
-					} else {
-						$where .= " AND 1=0"; // No products match
-					}
-					return $where;
-				}, 100 );
+				// Store IDs for use in filter
+				$this->current_filter_ids = $product_ids;
+				$this->filter_applied = true;
+
+				// Add filter using the same named method
+				add_filter( 'posts_where', array( $this, 'apply_cached_filter_ids' ), 100 );
 
 				// Return empty tax query
 				return array();

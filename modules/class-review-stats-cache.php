@@ -74,21 +74,14 @@ class Review_Stats_Cache {
 
 		// Direct database query with caching
 		$cache_key = 'miniload_' . md5(  "SHOW TABLES LIKE '{$this->table_name}'"  );
-		$cached = wp_cache_get( $cache_key );
-		if ( false === $cached ) {
-		// Direct database query with caching
-		$cache_key = 'miniload_' . md5(  "SHOW TABLES LIKE '{$this->table_name}'"  );
-		$cached = wp_cache_get( $cache_key );
-		if ( false === $cached ) {
+		$table_exists = wp_cache_get( $cache_key );
+		if ( false === $table_exists ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-			$cached = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->table_name ) );
-			wp_cache_set( $cache_key, $cached, '', 3600 );
-		}
-		$cached = $cached;
-			wp_cache_set( $cache_key, $cached, '', 3600 );
+			$table_exists = $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $this->table_name ) );
+			wp_cache_set( $cache_key, $table_exists, '', 3600 );
 		}
 
-		if ( ! isset( $table_exists ) || $table_exists !== $this->table_name ) {
+		if ( $table_exists !== $this->table_name ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			$charset_collate = $wpdb->get_charset_collate();

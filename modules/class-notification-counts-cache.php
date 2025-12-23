@@ -209,7 +209,7 @@ class Notification_Counts_Cache {
 	public function cache_menu_counts( $menu ) {
 		// This runs when WordPress builds the admin menu
 		// We can pre-cache counts here
-		$this->get_all_notification_counts();
+		// Removed to prevent duplicate calls - counts are fetched when needed
 		return $menu;
 	}
 
@@ -217,7 +217,11 @@ class Notification_Counts_Cache {
 	 * Get cached menu count for WooCommerce
 	 */
 	public function get_cached_menu_count( $count, $type ) {
-		$counts = $this->get_all_notification_counts();
+		// Use a static variable to cache counts for the current request
+		static $counts = null;
+		if ( null === $counts ) {
+			$counts = $this->get_all_notification_counts();
+		}
 
 		switch ( $type ) {
 			case 'orders':

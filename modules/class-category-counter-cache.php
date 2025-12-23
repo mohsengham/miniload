@@ -229,6 +229,9 @@ class Category_Counter_Cache {
 			return $terms;
 		}
 
+		// Use static cache to prevent repeated queries in the same request
+		static $request_cache = array();
+
 		global $wpdb;
 
 		// Get all term IDs
@@ -243,27 +246,39 @@ class Category_Counter_Cache {
 			return $terms;
 		}
 
-		// Fetch cached counts
-		// Direct database query with caching
-		$cache_key = 'miniload_' . md5(  $wpdb->prepare(
-			"SELECT term_id, product_count, visible_count
-			FROM " . esc_sql( $this->table_name ) . "
-			WHERE term_id IN (" . implode( ',', array_fill( 0, count( $term_ids ), '%d' ) ) . ")
-			AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
-			array_merge( $term_ids, array( $this->cache_duration ) )
-		), OBJECT_K  );
-		$cached = wp_cache_get( $cache_key );
-		if ( false === $cached ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-			$cached = $wpdb->get_results( $wpdb->prepare(
-			"SELECT term_id, product_count, visible_count
-			FROM " . esc_sql( $this->table_name ) . "
-			WHERE term_id IN (" . implode( ',', array_fill( 0, count( $term_ids ), '%d' ) ) . ")
-			AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
-			array_merge( $term_ids, array( $this->cache_duration ) )
-		), OBJECT_K );
-			wp_cache_set( $cache_key, $cached, '', 3600 );
+		// Create a cache key for this specific set of term IDs
+		$request_key = md5( implode( ',', $term_ids ) );
+
+		// Check if we already have these counts in the request cache
+		if ( ! isset( $request_cache[ $request_key ] ) ) {
+			// Fetch cached counts
+			// Direct database query with caching
+			$cache_key = 'miniload_' . md5(  $wpdb->prepare(
+				"SELECT term_id, product_count, visible_count
+				FROM " . esc_sql( $this->table_name ) . "
+				WHERE term_id IN (" . implode( ',', array_fill( 0, count( $term_ids ), '%d' ) ) . ")
+				AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
+				array_merge( $term_ids, array( $this->cache_duration ) )
+			), OBJECT_K  );
+			$cached = wp_cache_get( $cache_key );
+			if ( false === $cached ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
+				$cached = $wpdb->get_results( $wpdb->prepare(
+				"SELECT term_id, product_count, visible_count
+				FROM " . esc_sql( $this->table_name ) . "
+				WHERE term_id IN (" . implode( ',', array_fill( 0, count( $term_ids ), '%d' ) ) . ")
+				AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
+				array_merge( $term_ids, array( $this->cache_duration ) )
+			), OBJECT_K );
+				wp_cache_set( $cache_key, $cached, '', 3600 );
+			}
+
+			// Store in request cache
+			$request_cache[ $request_key ] = $cached;
 		}
+
+		// Get cached counts from request cache
+		$cached_counts = $request_cache[ $request_key ];
 
 		// Update term counts
 		foreach ( $terms as &$term ) {
