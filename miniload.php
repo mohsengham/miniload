@@ -11,7 +11,7 @@
  * Plugin Name:       MiniLoad - Performance Optimizer for WooCommerce
  * Plugin URI:        https://github.com/mohsengham/miniload
  * Description:       Supercharge your WooCommerce store with blazing-fast AJAX search, optimized queries, and intelligent caching.
- * Version:           1.0.2
+ * Version:           1.0.5
  * Requires at least: 5.0
  * Requires PHP:      7.4
  * Author:            Minimall Team
@@ -39,7 +39,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define plugin constants
-define( 'MINILOAD_VERSION', '1.0.2' );
+define( 'MINILOAD_VERSION', '1.0.5' );
 define( 'MINILOAD_PLUGIN_FILE', __FILE__ );
 define( 'MINILOAD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MINILOAD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -169,6 +169,11 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 			// Load modules after WooCommerce
 			add_action( 'plugins_loaded', array( $this, 'load_modules' ), 20 );
 
+			// For AJAX requests, load modules immediately to ensure handlers are registered
+			if ( wp_doing_ajax() ) {
+				add_action( 'init', array( $this, 'load_modules' ), 5 );
+			}
+
 			// Admin hooks
 			if ( is_admin() ) {
 				add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
@@ -261,10 +266,18 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 		 * Load modules
 		 */
 		public function load_modules() {
+			// Prevent loading modules twice
+			static $modules_loaded = false;
+			if ( $modules_loaded ) {
+				return;
+			}
+
 			// Only load if WooCommerce is active
 			if ( ! class_exists( 'WooCommerce' ) ) {
 				return;
 			}
+
+			$modules_loaded = true;
 
 			// Get enabled modules from settings
 			$enabled_modules = $this->get_enabled_modules();
@@ -319,6 +332,33 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 		 */
 		private function load_module( $module_id, $module_class ) {
 			try {
+				// Map module class names to file names
+				$module_files = array(
+					'Database_Indexes' => 'class-database-indexes.php',
+					'Query_Cache' => 'class-query-cache.php',
+					'Pagination_Optimizer' => 'class-pagination-optimizer.php',
+					'Sort_Index' => 'class-sort-index.php',
+					'Filter_Cache' => 'class-filter-cache.php',
+					'Search_Optimizer' => 'class-search-optimizer.php',
+					'Order_Search_Optimizer' => 'class-order-search-optimizer.php',
+					'Admin_Counts_Cache' => 'class-admin-counts-cache.php',
+					'Category_Counter_Cache' => 'class-category-counter-cache.php',
+					'Admin_Dashboard_Cache' => 'class-admin-dashboard-cache.php',
+					'Related_Products_Cache' => 'class-related-products-cache.php',
+					'Review_Stats_Cache' => 'class-review-stats-cache.php',
+					'Notification_Counts_Cache' => 'class-notification-counts-cache.php',
+					'Frontend_Counts_Cache' => 'class-frontend-counts-cache.php',
+					'Ajax_Search_Pro' => 'class-ajax-search-pro.php',
+				);
+
+				// Include the file if it exists and isn't already loaded
+				if ( isset( $module_files[ $module_class ] ) ) {
+					$file_path = MINILOAD_PLUGIN_DIR . 'modules/' . $module_files[ $module_class ];
+					if ( file_exists( $file_path ) ) {
+						require_once $file_path;
+					}
+				}
+
 				$full_class = 'MiniLoad\\Modules\\' . $module_class;
 
 				if ( class_exists( $full_class ) ) {
@@ -425,6 +465,11 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 				'type' => 'boolean',
 				'sanitize_callback' => 'rest_sanitize_boolean',
 				'default' => false
+			) );
+			register_setting( 'miniload_search_settings', 'miniload_index_batch_size', array(
+				'type' => 'integer',
+				'sanitize_callback' => 'absint',
+				'default' => 100
 			) );
 
 			// Additional search settings that were missing
@@ -552,6 +597,28 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 				'sanitize_callback' => 'absint',
 				'default' => 3600
 			) );
+
+			// Register Order Search settings
+			register_setting( 'miniload_order_search_settings', 'miniload_enable_order_search', array(
+				'type' => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default' => true
+			) );
+			register_setting( 'miniload_order_search_settings', 'miniload_auto_index_orders', array(
+				'type' => 'boolean',
+				'sanitize_callback' => 'rest_sanitize_boolean',
+				'default' => true
+			) );
+			register_setting( 'miniload_order_search_settings', 'miniload_order_search_method', array(
+				'type' => 'string',
+				'sanitize_callback' => 'sanitize_text_field',
+				'default' => 'trigram'
+			) );
+			register_setting( 'miniload_order_search_settings', 'miniload_order_index_batch_size', array(
+				'type' => 'integer',
+				'sanitize_callback' => 'absint',
+				'default' => 100
+			) );
 		}
 
 		/**
@@ -645,17 +712,19 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 			// Save based on tab
 			switch ( $tab ) {
 				case 'search':
-					update_option( 'miniload_ajax_search_enabled', isset( $form_data['miniload_ajax_search_enabled'] ) ? '1' : '0' );
+					// Handle checkbox values correctly (they come as '1' or '0' from JS)
+					update_option( 'miniload_ajax_search_enabled', ! empty( $form_data['miniload_ajax_search_enabled'] ) && $form_data['miniload_ajax_search_enabled'] !== '0' ? '1' : '0' );
 					update_option( 'miniload_search_min_chars', absint( $form_data['miniload_search_min_chars'] ?? 3 ) );
 					update_option( 'miniload_search_delay', absint( $form_data['miniload_search_delay'] ?? 300 ) );
 					update_option( 'miniload_search_results_count', absint( $form_data['miniload_search_results_count'] ?? 8 ) );
-					update_option( 'miniload_search_in_content', isset( $form_data['miniload_search_in_content'] ) ? '1' : '0' );
-					update_option( 'miniload_search_in_title', isset( $form_data['miniload_search_in_title'] ) ? '1' : '0' );
-					update_option( 'miniload_search_in_sku', isset( $form_data['miniload_search_in_sku'] ) ? '1' : '0' );
-					update_option( 'miniload_search_in_short_desc', isset( $form_data['miniload_search_in_short_desc'] ) ? '1' : '0' );
-					update_option( 'miniload_search_in_categories', isset( $form_data['miniload_search_in_categories'] ) ? '1' : '0' );
-					update_option( 'miniload_search_in_tags', isset( $form_data['miniload_search_in_tags'] ) ? '1' : '0' );
-					update_option( 'miniload_show_categories', isset( $form_data['miniload_show_categories'] ) ? '1' : '0' );
+					update_option( 'miniload_search_in_content', ! empty( $form_data['miniload_search_in_content'] ) && $form_data['miniload_search_in_content'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_search_in_title', ! empty( $form_data['miniload_search_in_title'] ) && $form_data['miniload_search_in_title'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_search_in_sku', ! empty( $form_data['miniload_search_in_sku'] ) && $form_data['miniload_search_in_sku'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_search_in_short_desc', ! empty( $form_data['miniload_search_in_short_desc'] ) && $form_data['miniload_search_in_short_desc'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_search_in_categories', ! empty( $form_data['miniload_search_in_categories'] ) && $form_data['miniload_search_in_categories'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_search_in_tags', ! empty( $form_data['miniload_search_in_tags'] ) && $form_data['miniload_search_in_tags'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_show_categories', ! empty( $form_data['miniload_show_categories'] ) && $form_data['miniload_show_categories'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_show_categories_results', ! empty( $form_data['miniload_show_categories_results'] ) && $form_data['miniload_show_categories_results'] !== '0' ? '1' : '0' );
 					// Migrate old icon position values to new format
 					$icon_position = sanitize_text_field( $form_data['miniload_search_icon_position'] ?? 'show' );
 					if ( in_array( $icon_position, array( 'left', 'right', 'both' ) ) ) {
@@ -665,8 +734,8 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 					}
 					update_option( 'miniload_search_icon_position', $icon_position );
 					update_option( 'miniload_search_placeholder', sanitize_text_field( $form_data['miniload_search_placeholder'] ?? __( 'Search products...', 'miniload' ) ) );
-					update_option( 'miniload_show_price', isset( $form_data['miniload_show_price'] ) ? '1' : '0' );
-					update_option( 'miniload_show_image', isset( $form_data['miniload_show_image'] ) ? '1' : '0' );
+					update_option( 'miniload_show_price', ! empty( $form_data['miniload_show_price'] ) && $form_data['miniload_show_price'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_show_image', ! empty( $form_data['miniload_show_image'] ) && $form_data['miniload_show_image'] !== '0' ? '1' : '0' );
 					break;
 
 				case 'modules':
@@ -675,15 +744,16 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 					break;
 
 				case 'settings':
-					update_option( 'miniload_enabled', isset( $form_data['miniload_enabled'] ) ? '1' : '0' );
-					update_option( 'miniload_debug_mode', isset( $form_data['miniload_debug_mode'] ) ? '1' : '0' );
+					// Handle checkbox values correctly (they come as '1' or '0' from JS)
+					update_option( 'miniload_enabled', ! empty( $form_data['miniload_enabled'] ) && $form_data['miniload_enabled'] !== '0' ? '1' : '0' );
+					update_option( 'miniload_debug_mode', ! empty( $form_data['miniload_debug_mode'] ) && $form_data['miniload_debug_mode'] !== '0' ? '1' : '0' );
 					update_option( 'miniload_priority', absint( $form_data['miniload_priority'] ?? 10 ) );
 					update_option( 'miniload_cache_duration', absint( $form_data['miniload_cache_duration'] ?? 3600 ) );
 					update_option( 'miniload_batch_size', absint( $form_data['miniload_batch_size'] ?? 100 ) );
 					update_option( 'miniload_memory_limit', sanitize_text_field( $form_data['miniload_memory_limit'] ?? 'default' ) );
-					update_option( 'miniload_auto_index', isset( $form_data['miniload_auto_index'] ) ? '1' : '0' );
+					update_option( 'miniload_auto_index', ! empty( $form_data['miniload_auto_index'] ) && $form_data['miniload_auto_index'] !== '0' ? '1' : '0' );
 					update_option( 'miniload_uninstall_behavior', sanitize_text_field( $form_data['miniload_uninstall_behavior'] ?? 'keep' ) );
-					update_option( 'miniload_rest_api_enabled', isset( $form_data['miniload_rest_api_enabled'] ) ? '1' : '0' );
+					update_option( 'miniload_rest_api_enabled', ! empty( $form_data['miniload_rest_api_enabled'] ) && $form_data['miniload_rest_api_enabled'] !== '0' ? '1' : '0' );
 					update_option( 'miniload_nonce_lifetime', sanitize_text_field( $form_data['miniload_nonce_lifetime'] ?? '1' ) );
 					break;
 

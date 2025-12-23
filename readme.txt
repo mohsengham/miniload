@@ -6,7 +6,7 @@ Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 3.0
 WC tested up to: 10.4.3
-Stable tag: 1.0.2
+Stable tag: 1.0.5
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -97,6 +97,31 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 
 == Changelog ==
 
+= 1.0.5 =
+* Fixed keyboard shortcut text from Ctrl+/ to Alt+K in admin settings and language files
+* Updated JavaScript comment to reflect correct keyboard shortcut
+* Fixed Alt+K shortcut working without checkbox being enabled - now respects the "Enable modal search" setting
+* Added progress bar for index rebuilding operations to show real-time progress
+* Implemented batch processing for both Product and Media index rebuilding to prevent timeouts
+* Added configurable batch size setting (25-500 items) for index operations
+* Fixed timeout issues during index rebuilding - now processes in configurable batches (default: 100)
+* Fixed duplicate search icons showing in search box - added proper CSS rules for icon visibility
+* Added fallback search when index is empty - now shows products even before index is built
+
+= 1.0.4 =
+* Removed hardcoded Persian text from JavaScript ("نمایش" and "نتیجه یافت شد")
+* Fixed search results counter to display in English
+* Improved internationalization support
+
+= 1.0.3 =
+* Fixed critical table name inconsistency bug (miniload_search_index vs miniload_product_search)
+* Fixed search functionality not working due to incorrect table references
+* Updated all modules to use correct table name
+* Fixed index rebuild functionality
+* Fixed AJAX search column mismatch (search_text vs content)
+* Added missing database columns (content, stock_status, last_indexed)
+* Fixed fulltext index for proper search functionality
+
 = 1.0.2 =
 * Fixed RTL/LTR admin margin alignment issues using CSS logical properties (fixes GitHub issue #2)
 * Added HPOS (High-Performance Order Storage) compatibility declaration
@@ -130,6 +155,15 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 * Modern tabbed admin interface
 
 == Upgrade Notice ==
+
+= 1.0.5 =
+Fixes keyboard shortcut text display to correctly show Alt+K instead of Ctrl+/.
+
+= 1.0.4 =
+Fixes hardcoded Persian text in search results. All text now displays in English by default.
+
+= 1.0.3 =
+Critical bug fix: Resolves table name inconsistency that prevented search from working. All users should update immediately.
 
 = 1.0.2 =
 Improves RTL/LTR support and adds WooCommerce HPOS compatibility. Recommended update for all users, especially those using RTL languages.

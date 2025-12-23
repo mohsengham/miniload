@@ -621,19 +621,33 @@ class Order_Search_Optimizer {
 			}
 		}
 
-		// Get total count
-		$total_orders = wc_get_orders( array(
-			'type'   => 'shop_order',
-			'limit'  => -1,
-			'return' => 'count',
-		) );
+		// Get total count - handle HPOS compatibility
+		global $wpdb;
+		if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) &&
+		     \Automattic\WooCommerce\Utilities\OrderUtil::custom_orders_table_usage_is_enabled() ) {
+			// HPOS is enabled - count from custom table
+			$table_name = $wpdb->prefix . 'wc_orders';
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$total_orders = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name} WHERE type = 'shop_order'" );
+		} else {
+			// Legacy mode
+			$total_orders_raw = wc_get_orders( array(
+				'type'   => 'shop_order',
+				'limit'  => -1,
+				'return' => 'count',
+			) );
+			$total_orders = is_array( $total_orders_raw ) ? count( $total_orders_raw ) : (int) $total_orders_raw;
+		}
+
+		$processed_so_far = $offset + count( $order_ids );
+		$is_completed = $processed_so_far >= $total_orders || count( $order_ids ) < $batch_size;
 
 		return array(
-			'completed'   => false,
+			'completed'   => $is_completed,
 			'processed'   => count( $order_ids ),
 			'total'       => $total_orders,
 			'next_offset' => $offset + $batch_size,
-			'progress'    => min( 100, round( ( ( $offset + count( $order_ids ) ) / $total_orders ) * 100 ) ),
+			'progress'    => $total_orders > 0 ? min( 100, round( ( $processed_so_far / $total_orders ) * 100 ) ) : 100,
 		);
 	}
 
@@ -642,21 +656,35 @@ class Order_Search_Optimizer {
 	 */
 	public function ajax_rebuild_index() {
 		// Security check
-		if ( ! check_ajax_referer( 'miniload-ajax', 'nonce', false ) ||
-		     ! current_user_can( 'manage_options' ) ) {
-			wp_die( -1 );
+		if ( ! check_ajax_referer( 'miniload-ajax', 'nonce', false ) ) {
+			wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
+			return;
 		}
 
-		$offset = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
-		$miniload_result = $this->rebuild_index( $offset );
+		if ( ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Permission denied' ) );
+			return;
+		}
 
-		if ( $miniload_result['completed'] ) {
-			wp_send_json_success( array(
-				'message'   => __( 'Order search index rebuilt successfully', 'miniload' ),
-				'completed' => true,
+		try {
+			$offset = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
+			$batch_size = get_option( 'miniload_order_index_batch_size', 100 );
+			$miniload_result = $this->rebuild_index( $offset, $batch_size );
+
+			if ( $miniload_result['completed'] ) {
+				wp_send_json_success( array(
+					'message'   => __( 'Order search index rebuilt successfully', 'miniload' ),
+					'completed' => true,
+					'total'     => $miniload_result['total'],
+					'processed' => $miniload_result['processed']
+				) );
+			} else {
+				wp_send_json_success( $miniload_result );
+			}
+		} catch ( \Exception $e ) {
+			wp_send_json_error( array(
+				'message' => 'Error rebuilding index: ' . $e->getMessage()
 			) );
-		} else {
-			wp_send_json_success( $result );
 		}
 	}
 

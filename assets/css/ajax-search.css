@@ -349,12 +349,14 @@
     margin-right: 10px;
     margin-left: 3px;
     order: 1; /* Place at beginning */
+    display: inline-flex; /* Always show when rendered */
 }
 
 .miniload-search-submit-right {
     margin-left: 3px;
     margin-right: 3px;
     order: 10; /* Place at end */
+    display: inline-flex; /* Always show when rendered */
 }
 
 /* When button is on both sides */

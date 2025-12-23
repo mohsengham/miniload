@@ -28,7 +28,7 @@ function miniload_log( $miniload_message, $level = 'info' ) {
 		'[%s] [%s] %s',
 		current_time( 'mysql' ),
 		strtoupper( $level ),
-		$message
+		$miniload_message
 	);
 
 	// Log to error log if WP_DEBUG_LOG is enabled

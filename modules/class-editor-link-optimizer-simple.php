@@ -42,7 +42,7 @@ class Editor_Link_Optimizer {
 
 		global $wpdb;
 		$search_term = $query['s'];
-		$search_table = $wpdb->prefix . 'miniload_product_search';
+		$search_table = $wpdb->prefix . 'miniload_search_index';
 		$escaped_search_table = esc_sql( $search_table );
 
 		// Check if our search table exists

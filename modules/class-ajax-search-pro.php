@@ -50,7 +50,7 @@ class Ajax_Search_Pro {
 	 */
 	public function __construct() {
 		global $wpdb;
-		$this->search_table = $wpdb->prefix . 'miniload_product_search';
+		$this->search_table = $wpdb->prefix . 'miniload_search_index';
 		$this->analytics_table = $wpdb->prefix . 'miniload_search_analytics';
 		$this->suggestions_table = $wpdb->prefix . 'miniload_search_suggestions';
 
@@ -258,6 +258,14 @@ class Ajax_Search_Pro {
 
 		// Search products using our optimized index with improved performance
 		if ( $type === 'all' || $type === 'product' ) {
+			// Check if index has data
+			$index_count = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->search_table}" );
+
+			// If index is empty, fall back to regular WP search
+			if ( $index_count == 0 ) {
+				return $this->perform_fallback_search( $term, $type );
+			}
+
 			// First, get the total count for accurate display
 			// Direct database query with caching
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be parameterized
@@ -267,7 +275,7 @@ class Ajax_Search_Pro {
 				INNER JOIN {$wpdb->posts} post ON p.product_id = post.ID
 					AND post.post_status = 'publish'
 				WHERE
-					(MATCH(p.search_text) AGAINST(%s IN BOOLEAN MODE)
+					(MATCH(p.content) AGAINST(%s IN BOOLEAN MODE)
 					OR p.sku = %s
 					OR post.post_title LIKE %s)
 			", $term, $term, $term . '%' )  );
@@ -282,7 +290,7 @@ class Ajax_Search_Pro {
 				INNER JOIN {$wpdb->posts} post ON p.product_id = post.ID
 					AND post.post_status = 'publish'
 				WHERE
-					(MATCH(p.search_text) AGAINST(%s IN BOOLEAN MODE)
+					(MATCH(p.content) AGAINST(%s IN BOOLEAN MODE)
 					OR p.sku = %s
 					OR post.post_title LIKE %s)
 			", $term, $term, $term . '%' ) );
@@ -304,7 +312,7 @@ class Ajax_Search_Pro {
 					pm1.meta_value as price,
 					pm2.meta_value as sale_price,
 					pm3.meta_value as image_id,
-					MATCH(p.search_text) AGAINST(%s IN BOOLEAN MODE) as relevance
+					MATCH(p.content) AGAINST(%s IN BOOLEAN MODE) as relevance
 				FROM {$this->search_table} p
 				INNER JOIN {$wpdb->posts} post ON p.product_id = post.ID
 					AND post.post_status = 'publish'
@@ -315,7 +323,7 @@ class Ajax_Search_Pro {
 				LEFT JOIN {$wpdb->postmeta} pm3 ON p.product_id = pm3.post_id
 					AND pm3.meta_key = '_thumbnail_id'
 				WHERE
-					(MATCH(p.search_text) AGAINST(%s IN BOOLEAN MODE)
+					(MATCH(p.content) AGAINST(%s IN BOOLEAN MODE)
 					OR p.sku = %s
 					OR post.post_title LIKE %s)
 				ORDER BY
@@ -350,7 +358,7 @@ class Ajax_Search_Pro {
 					pm1.meta_value as price,
 					pm2.meta_value as sale_price,
 					pm3.meta_value as image_id,
-					MATCH(p.search_text) AGAINST(%s IN BOOLEAN MODE) as relevance
+					MATCH(p.content) AGAINST(%s IN BOOLEAN MODE) as relevance
 				FROM {$this->search_table} p
 				INNER JOIN {$wpdb->posts} post ON p.product_id = post.ID
 					AND post.post_status = 'publish'
@@ -361,7 +369,7 @@ class Ajax_Search_Pro {
 				LEFT JOIN {$wpdb->postmeta} pm3 ON p.product_id = pm3.post_id
 					AND pm3.meta_key = '_thumbnail_id'
 				WHERE
-					(MATCH(p.search_text) AGAINST(%s IN BOOLEAN MODE)
+					(MATCH(p.content) AGAINST(%s IN BOOLEAN MODE)
 					OR p.sku = %s
 					OR post.post_title LIKE %s)
 				ORDER BY
@@ -460,6 +468,126 @@ class Ajax_Search_Pro {
 					'type' => $post->post_type,
 					'url' => get_permalink( $post->ID )
 				);
+			}
+		}
+
+		return $results;
+	}
+
+	/**
+	 * Perform fallback search when index is empty
+	 */
+	private function perform_fallback_search( $term, $type = 'product' ) {
+		global $wpdb;
+
+		$results = array(
+			'products' => array(),
+			'categories' => array(),
+			'tags' => array(),
+			'posts' => array()
+		);
+
+		// Search products using regular WP/WC queries
+		if ( $type === 'all' || $type === 'product' ) {
+			// Query products directly from posts and postmeta
+			$products = $wpdb->get_results( $wpdb->prepare( "
+				SELECT DISTINCT p.ID as product_id, p.post_title as title, p.post_excerpt as excerpt,
+					   pm_sku.meta_value as sku,
+					   pm_price.meta_value as price,
+					   pm_sale.meta_value as sale_price,
+					   pm_thumb.meta_value as image_id
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$wpdb->postmeta} pm_sku ON p.ID = pm_sku.post_id AND pm_sku.meta_key = '_sku'
+				LEFT JOIN {$wpdb->postmeta} pm_price ON p.ID = pm_price.post_id AND pm_price.meta_key = '_price'
+				LEFT JOIN {$wpdb->postmeta} pm_sale ON p.ID = pm_sale.post_id AND pm_sale.meta_key = '_sale_price'
+				LEFT JOIN {$wpdb->postmeta} pm_thumb ON p.ID = pm_thumb.post_id AND pm_thumb.meta_key = '_thumbnail_id'
+				WHERE p.post_type IN ('product', 'product_variation')
+				AND p.post_status = 'publish'
+				AND (
+					p.post_title LIKE %s
+					OR p.post_content LIKE %s
+					OR p.post_excerpt LIKE %s
+					OR pm_sku.meta_value LIKE %s
+				)
+				ORDER BY
+					CASE
+						WHEN pm_sku.meta_value = %s THEN 1
+						WHEN p.post_title = %s THEN 2
+						WHEN p.post_title LIKE %s THEN 3
+						ELSE 4
+					END
+				LIMIT %d
+			",
+			'%' . $wpdb->esc_like( $term ) . '%',
+			'%' . $wpdb->esc_like( $term ) . '%',
+			'%' . $wpdb->esc_like( $term ) . '%',
+			'%' . $wpdb->esc_like( $term ) . '%',
+			$term,
+			$term,
+			$term . '%',
+			$this->max_results ) );
+
+			foreach ( $products as $product ) {
+				// Get product object
+				$product_obj = wc_get_product( $product->product_id );
+				if ( ! $product_obj ) continue;
+
+				// Format price
+				$price_html = '';
+				if ( $product->sale_price && $product->sale_price < $product->price ) {
+					$price_html = '<del>' . wc_price( $product->price ) . '</del> ' . wc_price( $product->sale_price );
+				} elseif ( $product->price ) {
+					$price_html = wc_price( $product->price );
+				}
+
+				// Get image
+				$image_url = '';
+				if ( $product->image_id ) {
+					$image_url = wp_get_attachment_image_url( $product->image_id, 'thumbnail' );
+				} elseif ( function_exists( 'wc_placeholder_img_src' ) ) {
+					$image_url = wc_placeholder_img_src( 'thumbnail' );
+				}
+
+				// Get categories
+				$categories = wp_get_post_terms( $product->product_id, 'product_cat', array( 'fields' => 'names' ) );
+				$category_string = ! empty( $categories ) ? implode( ', ', $categories ) : '';
+
+				$results['products'][] = array(
+					'id' => $product->product_id,
+					'title' => $product->title,
+					'excerpt' => wp_trim_words( $product->excerpt, 20 ),
+					'price' => $price_html,
+					'price_raw' => $product->price,
+					'sku' => $product->sku,
+					'image' => $image_url,
+					'categories' => $category_string,
+					'url' => get_permalink( $product->product_id ),
+					'in_stock' => $product_obj->is_in_stock()
+				);
+			}
+
+			// Set total count
+			$results['total_products'] = count( $results['products'] );
+		}
+
+		// Search categories if enabled
+		if ( ( $type === 'all' || $type === 'category' ) && get_option( 'miniload_show_categories_results', true ) ) {
+			$categories = get_terms( array(
+				'taxonomy' => 'product_cat',
+				'hide_empty' => true,
+				'name__like' => $term,
+				'number' => 5
+			) );
+
+			foreach ( $categories as $cat ) {
+				if ( ! is_wp_error( $cat ) ) {
+					$results['categories'][] = array(
+						'id' => $cat->term_id,
+						'title' => $cat->name,
+						'count' => $cat->count,
+						'url' => get_term_link( $cat )
+					);
+				}
 			}
 		}
 
@@ -1108,7 +1236,8 @@ class Ajax_Search_Pro {
 			<form class="miniload-search-form" action="<?php echo esc_url( home_url( '/' ) ); ?>" method="get">
 				<div class="miniload-search-input-wrapper" data-submit-position="<?php echo esc_attr( $atts['submit_position'] ); ?>">
 
-					<?php // Always render LEFT button - CSS will control visibility ?>
+					<?php // Only render LEFT button when needed ?>
+					<?php if ( in_array( $atts['submit_position'], array( 'left', 'both' ) ) ) : ?>
 					<button type="submit" class="miniload-search-submit miniload-search-submit-left">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
 							<circle cx="11" cy="11" r="8"/>
@@ -1116,6 +1245,7 @@ class Ajax_Search_Pro {
 						</svg>
 						<span class="miniload-search-submit-text"><?php esc_html_e( 'Search', 'miniload' ); ?></span>
 					</button>
+					<?php endif; ?>
 
 					<?php // Voice search button ?>
 					<?php if ( $atts['voice_search'] ) : ?>
@@ -1174,7 +1304,8 @@ class Ajax_Search_Pro {
 						</button>
 					<?php endif; ?>
 
-					<?php // Always render RIGHT button - CSS will control visibility ?>
+					<?php // Only render RIGHT button when needed ?>
+					<?php if ( in_array( $atts['submit_position'], array( 'show', 'right', 'both' ) ) ) : ?>
 					<button type="submit" class="miniload-search-submit miniload-search-submit-right">
 						<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
 							<circle cx="11" cy="11" r="8"/>
@@ -1182,6 +1313,7 @@ class Ajax_Search_Pro {
 						</svg>
 						<span class="miniload-search-submit-text"><?php esc_html_e( 'Search', 'miniload' ); ?></span>
 					</button>
+					<?php endif; ?>
 				</div>
 
 				<div class="miniload-search-results <?php echo esc_attr( $atts['results_class'] ); ?>"
@@ -1224,7 +1356,7 @@ class Ajax_Search_Pro {
 			'miniload-ajax-search',
 			MINILOAD_PLUGIN_URL . 'assets/css/ajax-search.css',
 			array(),
-			MINILOAD_VERSION . '.4.0'
+			MINILOAD_VERSION . '.6.0'
 		);
 
 		// Additional fixes for theme compatibility
@@ -1232,7 +1364,7 @@ class Ajax_Search_Pro {
 			'miniload-ajax-search-fixes',
 			MINILOAD_PLUGIN_URL . 'assets/css/ajax-search-fixes.css',
 			array( 'miniload-ajax-search' ),
-			MINILOAD_VERSION . '.4.0'
+			MINILOAD_VERSION . '.6.0'
 		);
 
 		wp_enqueue_script(
@@ -1255,7 +1387,17 @@ class Ajax_Search_Pro {
 			'placeholder' => get_option( 'miniload_search_placeholder', __( 'Search products...', 'miniload' ) ),
 			'searching' => __( 'Searching...', 'miniload' ),
 			'no_results' => __( 'No results found', 'miniload' ),
-			'view_all' => __( 'View all results', 'miniload' )
+			'view_all' => __( 'View all results', 'miniload' ),
+			// Additional translatable strings for search results
+			'products_label' => __( 'Products', 'miniload' ),
+			'categories_label' => __( 'Categories', 'miniload' ),
+			'showing_results' => __( 'Showing %1$d of %2$d results', 'miniload' ),
+			'results_found' => __( '%d results found', 'miniload' ),
+			'see_all_products' => __( 'See all products', 'miniload' ),
+			'search_for' => __( 'Search for "%s"', 'miniload' ),
+			'sku_label' => __( 'SKU:', 'miniload' ),
+			'did_you_mean' => __( 'Did you mean?', 'miniload' ),
+			'searches_count' => __( '%d searches', 'miniload' )
 		) );
 
 		// Add critical inline CSS to fix spacing issues
@@ -1374,7 +1516,7 @@ class Ajax_Search_Pro {
 			'miniload-admin-search',
 			MINILOAD_PLUGIN_URL . 'assets/js/admin-search.js',
 			array( 'jquery' ),
-			MINILOAD_VERSION . '.10.0',
+			MINILOAD_VERSION . '.10.1',
 			true
 		);
 
@@ -1383,7 +1525,8 @@ class Ajax_Search_Pro {
 			'nonce' => wp_create_nonce( 'miniload_admin_search_nonce' ),
 			'searching' => __( 'Searching...', 'miniload' ),
 			'placeholder' => __( 'Search everything... (products, orders, users)', 'miniload' ),
-			'shortcut' => __( 'Press Alt+K to search', 'miniload' )
+			'shortcut' => __( 'Press Alt+K to search', 'miniload' ),
+			'enable_modal' => get_option( 'miniload_enable_search_modal', false ) ? 'true' : 'false'
 		) );
 	}
 
@@ -1692,7 +1835,7 @@ class Ajax_Search_Pro {
 	}
 
 	/**
-	 * AJAX handler to rebuild search index
+	 * AJAX handler to rebuild search index (with batch processing)
 	 */
 	public function ajax_rebuild_search_index() {
 		// Check nonce
@@ -1705,17 +1848,22 @@ class Ajax_Search_Pro {
 			wp_send_json_error( 'Insufficient permissions' );
 		}
 
+		// Get batch parameters
+		$offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		$batch_size = isset( $_POST['batch_size'] ) ? absint( $_POST['batch_size'] ) : 50;
+		$clear_first = isset( $_POST['clear_first'] ) ? ( $_POST['clear_first'] === 'true' ) : ( $offset === 0 );
+
 		// Load the indexer
 		require_once MINILOAD_PLUGIN_DIR . 'modules/class-search-indexer.php';
 		$miniload_indexer = new \MiniLoad\Modules\Search_Indexer();
 
-		// Rebuild the index
-		$miniload_result = $miniload_indexer->rebuild_index();
+		// Process batch
+		$miniload_result = $miniload_indexer->rebuild_index_batch( $offset, $batch_size, $clear_first );
 
 		if ( $miniload_result['success'] ) {
 			wp_send_json_success( $miniload_result );
 		} else {
-			wp_send_json_error( $miniload_result['message'] );
+			wp_send_json_error( isset( $miniload_result['message'] ) ? $miniload_result['message'] : 'Unknown error' );
 		}
 	}
 

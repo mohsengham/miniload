@@ -19,7 +19,7 @@ if ( $miniload_uninstall_behavior === 'remove' ) {
 
 	// Drop custom tables
 	$miniload_tables = array(
-		$wpdb->prefix . 'miniload_product_search',
+		$wpdb->prefix . 'miniload_search_index',
 		// Analytics removed - no tracking tables
 		$wpdb->prefix . 'miniload_media_search'
 	);

@@ -144,7 +144,7 @@ class Price_Filter_Optimizer {
 		}
 
 		$search_term = $matches[1];
-		$search_table = $wpdb->prefix . 'miniload_product_search';
+		$search_table = $wpdb->prefix . 'miniload_search_index';
 
 		// Check if our search table exists
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization

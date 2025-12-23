@@ -88,7 +88,7 @@ class Review_Stats_Cache {
 			wp_cache_set( $cache_key, $cached, '', 3600 );
 		}
 
-		if ( $table_exists !== $this->table_name ) {
+		if ( ! isset( $table_exists ) || $table_exists !== $this->table_name ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			$charset_collate = $wpdb->get_charset_collate();

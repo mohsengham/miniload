@@ -51,7 +51,7 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 				// Optimize database tables
 				global $wpdb;
 				$miniload_tables = array(
-					$wpdb->prefix . 'miniload_product_search',
+					$wpdb->prefix . 'miniload_search_index',
 					$wpdb->prefix . 'miniload_search_analytics',
 					$wpdb->prefix . 'miniload_media_search'
 				);
@@ -110,11 +110,11 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 				<?php
 				global $wpdb;
 				// Direct database query with caching
-		$miniload_cache_key1 = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_product_search"  );
+		$miniload_cache_key1 = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_search_index"  );
 		$miniload_cached1 = wp_cache_get( $miniload_cache_key1 );
 		if ( false === $miniload_cached1 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-			$miniload_cached1 = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_product_search" );
+			$miniload_cached1 = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_search_index" );
 			wp_cache_set( $miniload_cache_key1, $miniload_cached1, '', 3600 );
 		}
 		$miniload_indexed = $miniload_cached1;

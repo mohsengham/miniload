@@ -25,7 +25,7 @@ class Editor_Link_Optimizer {
 	 */
 	public function __construct() {
 		global $wpdb;
-		$this->search_table = $wpdb->prefix . 'miniload_product_search';
+		$this->search_table = $wpdb->prefix . 'miniload_search_index';
 
 		// Only run if enabled
 		if ( ! get_option( 'miniload_editor_link_enabled', false ) ) {

@@ -181,6 +181,29 @@ npm run build
 
 ## 📝 Changelog
 
+### Version 1.0.5 (2024-12-22)
+- Fixed keyboard shortcut text from Ctrl+/ to Alt+K in admin settings and language files
+- Updated JavaScript comment to reflect correct keyboard shortcut
+- Fixed Alt+K shortcut working without checkbox being enabled - now respects the "Enable modal search" setting
+- Added progress bar for index rebuilding operations to show real-time progress
+- Implemented batch processing for both Product and Media index rebuilding to prevent timeouts
+- Added configurable batch size setting (25-500 items) for index operations
+- Fixed timeout issues during index rebuilding - now processes in configurable batches (default: 100)
+
+### Version 1.0.4 (2024-12-22)
+- Removed hardcoded Persian text from JavaScript
+- Fixed search results counter to display in English
+- Improved internationalization support
+
+### Version 1.0.3 (2024-12-22)
+- Fixed critical table name inconsistency bug (miniload_search_index vs miniload_product_search)
+- Fixed search functionality not working due to incorrect table references
+- Updated all modules to use correct table name
+- Fixed index rebuild functionality
+- Fixed AJAX search column mismatch (search_text vs content)
+- Added missing database columns (content, stock_status, last_indexed)
+- Fixed fulltext index for proper search functionality
+
 ### Version 1.0.2 (2024-12-22)
 - Fixed RTL/LTR admin margin alignment issues using CSS logical properties (fixes GitHub issue #2)
 - Added HPOS (High-Performance Order Storage) compatibility declaration

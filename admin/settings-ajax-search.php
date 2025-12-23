@@ -68,7 +68,7 @@ $miniload_enable_modal = get_option( 'miniload_enable_search_modal', false );
 			<td>
 				<label>
 					<input type="checkbox" name="miniload_enable_search_modal" value="1" <?php checked( $miniload_enable_modal, true ); ?>>
-					<?php esc_html_e( 'Enable modal search (Ctrl+/)', 'miniload' ); ?>
+					<?php esc_html_e( 'Enable modal search (Alt+K)', 'miniload' ); ?>
 				</label>
 			</td>
 		</tr>
@@ -91,6 +91,14 @@ $miniload_enable_modal = get_option( 'miniload_enable_search_modal', false );
 					</button>
 					<span id="rebuild-search-status" style="margin-left: 10px;"></span>
 				</p>
+				<div id="rebuild-search-progress" style="display: none; margin-top: 10px;">
+					<div style="background: #f0f0f1; border-radius: 3px; height: 20px; position: relative; overflow: hidden;">
+						<div id="rebuild-search-progress-bar" style="background: #2271b1; height: 100%; width: 0%; transition: width 0.3s ease; position: relative;">
+							<span id="rebuild-search-progress-text" style="position: absolute; right: 5px; line-height: 20px; color: white; font-size: 11px; font-weight: bold;"></span>
+						</div>
+					</div>
+					<p id="rebuild-search-progress-message" style="margin-top: 5px; font-style: italic;"></p>
+				</div>
 			</td>
 		</tr>
 	</table>
@@ -100,6 +108,20 @@ $miniload_enable_modal = get_option( 'miniload_enable_search_modal', false );
 	<h3><?php esc_html_e( 'Advanced Search Features', 'miniload' ); ?></h3>
 
 	<table class="form-table">
+		<tr>
+			<th scope="row"><?php esc_html_e( 'Index Batch Size', 'miniload' ); ?></th>
+			<td>
+				<input type="number" name="miniload_index_batch_size" id="miniload_index_batch_size"
+					value="<?php echo esc_attr( get_option( 'miniload_index_batch_size', 100 ) ); ?>"
+					min="25" max="500" step="25" />
+				<p class="description">
+					<?php esc_html_e( 'Number of items to process per batch during index rebuilding.', 'miniload' ); ?><br>
+					<?php esc_html_e( 'Higher values are faster but may timeout on slower servers. Default: 100', 'miniload' ); ?><br>
+					<strong><?php esc_html_e( 'Recommended:', 'miniload' ); ?></strong>
+					<?php esc_html_e( '25-50 for shared hosting, 100-200 for VPS, 200-500 for dedicated servers', 'miniload' ); ?>
+				</p>
+			</td>
+		</tr>
 		<tr>
 			<th scope="row"><?php esc_html_e( 'Media Library Search', 'miniload' ); ?></th>
 			<td>
@@ -118,6 +140,14 @@ $miniload_enable_modal = get_option( 'miniload_enable_search_modal', false );
 					</button>
 					<span id="rebuild-media-status" style="margin-left: 10px;"></span>
 				</p>
+				<div id="rebuild-media-progress" style="display: none; margin-top: 10px;">
+					<div style="background: #f0f0f1; border-radius: 3px; height: 20px; position: relative; overflow: hidden;">
+						<div id="rebuild-media-progress-bar" style="background: #2271b1; height: 100%; width: 0%; transition: width 0.3s ease; position: relative;">
+							<span id="rebuild-media-progress-text" style="position: absolute; right: 5px; line-height: 20px; color: white; font-size: 11px; font-weight: bold;"></span>
+						</div>
+					</div>
+					<p id="rebuild-media-progress-message" style="margin-top: 5px; font-style: italic;"></p>
+				</div>
 			</td>
 		</tr>
 		<tr>
@@ -454,70 +484,178 @@ $miniload_enable_modal = get_option( 'miniload_enable_search_modal', false );
 		$('#miniload-rebuild-search-index').on('click', function() {
 			var $button = $(this);
 			var $status = $('#rebuild-search-status');
+			var $progress = $('#rebuild-search-progress');
+			var $progressBar = $('#rebuild-search-progress-bar');
+			var $progressText = $('#rebuild-search-progress-text');
+			var $progressMessage = $('#rebuild-search-progress-message');
 
 			if (!confirm('<?php echo esc_js( __( 'This will rebuild the entire search index. Continue?', 'miniload' ) ); ?>')) {
 				return;
 			}
 
 			$button.prop('disabled', true);
-			$status.html('<span class="spinner is-active" style="float: none;"></span> <?php echo esc_js( __( 'Rebuilding index...', 'miniload' ) ); ?>');
+			$status.html('');
+			$progress.show();
+			$progressBar.css('width', '0%');
+			$progressText.text('0%');
+			$progressMessage.text('<?php echo esc_js( __( 'Starting index rebuild...', 'miniload' ) ); ?>');
 
-			$.ajax({
-				url: ajaxurl,
-				type: 'POST',
-				data: {
-					action: 'miniload_rebuild_search_index',
-					nonce: '<?php echo esc_attr( wp_create_nonce( 'miniload_rebuild_search' ) ); ?>'
-				},
-				success: function(response) {
-					if (response.success) {
-						$status.html('<span style="color: green;">✓ ' + response.data.message + '</span>');
-					} else {
-						$status.html('<span style="color: red;">✗ ' + (response.data || '<?php echo esc_js( __( 'Error rebuilding index', 'miniload' ) ); ?>') + '</span>');
-					}
-				},
-				error: function() {
-					$status.html('<span style="color: red;">✗ <?php echo esc_js( __( 'Error rebuilding index', 'miniload' ) ); ?></span>');
-				},
-				complete: function() {
-					$button.prop('disabled', false);
-				}
-			});
+			var totalIndexed = 0;
+			var totalFailed = 0;
+			var batchSize = parseInt($('#miniload_index_batch_size').val()) || 100;
+
+			function processBatch(offset) {
+				$.ajax({
+					url: ajaxurl,
+					type: 'POST',
+					data: {
+						action: 'miniload_rebuild_search_index',
+						nonce: '<?php echo esc_attr( wp_create_nonce( 'miniload_rebuild_search' ) ); ?>',
+						offset: offset,
+						batch_size: batchSize,
+						clear_first: offset === 0
+					},
+					success: function(response) {
+						if (response.success && response.data) {
+							var data = response.data;
+
+							// Update totals
+							totalIndexed += data.batch_indexed || 0;
+							totalFailed += data.batch_failed || 0;
+
+							// Update progress bar
+							var progress = data.progress || 0;
+							$progressBar.css('width', progress + '%');
+							$progressText.text(progress + '%');
+							$progressMessage.html(data.message || '');
+
+							if (!data.completed && data.batch_count > 0) {
+								// Process next batch immediately for dedicated servers
+								setTimeout(function() {
+									processBatch(data.next_offset);
+								}, 10); // Reduced delay from 100ms to 10ms
+							} else {
+								// Completed
+								$progress.hide();
+								var finalMessage = '<?php echo esc_js( __( 'Index rebuild completed!', 'miniload' ) ); ?> ';
+								finalMessage += '<?php echo esc_js( __( 'Indexed:', 'miniload' ) ); ?> ' + totalIndexed;
+								if (totalFailed > 0) {
+									finalMessage += ', <?php echo esc_js( __( 'Failed:', 'miniload' ) ); ?> ' + totalFailed;
+								}
+								$status.html('<span style="color: green;">✓ ' + finalMessage + '</span>');
+								$button.prop('disabled', false);
+							}
+						} else {
+							// Error
+							$progress.hide();
+							$status.html('<span style="color: red;">✗ ' + (response.data || '<?php echo esc_js( __( 'Error rebuilding index', 'miniload' ) ); ?>') + '</span>');
+							$button.prop('disabled', false);
+						}
+					},
+					error: function(xhr, status, error) {
+						$progress.hide();
+						var errorMsg = '<?php echo esc_js( __( 'Error rebuilding index', 'miniload' ) ); ?>';
+						if (status === 'timeout') {
+							errorMsg = '<?php echo esc_js( __( 'Request timed out. Please try again with a smaller batch size.', 'miniload' ) ); ?>';
+						}
+						$status.html('<span style="color: red;">✗ ' + errorMsg + '</span>');
+						$button.prop('disabled', false);
+					},
+					timeout: 30000 // 30 second timeout per batch
+				});
+			}
+
+			// Start processing from offset 0
+			processBatch(0);
 		});
 
-		// Media index rebuild
+		// Media index rebuild with progress bar
 		$('#miniload-rebuild-media-index').on('click', function() {
 			var $button = $(this);
 			var $status = $('#rebuild-media-status');
+			var $progress = $('#rebuild-media-progress');
+			var $progressBar = $('#rebuild-media-progress-bar');
+			var $progressText = $('#rebuild-media-progress-text');
+			var $progressMessage = $('#rebuild-media-progress-message');
 
 			if (!confirm('<?php echo esc_js( __( 'This will rebuild the media search index. Continue?', 'miniload' ) ); ?>')) {
 				return;
 			}
 
 			$button.prop('disabled', true);
-			$status.html('<span class="spinner is-active" style="float: none;"></span> <?php echo esc_js( __( 'Rebuilding media index...', 'miniload' ) ); ?>');
+			$status.html('');
+			$progress.show();
+			$progressBar.css('width', '0%');
+			$progressText.text('0%');
+			$progressMessage.text('<?php echo esc_js( __( 'Starting media index rebuild...', 'miniload' ) ); ?>');
 
-			$.ajax({
-				url: ajaxurl,
-				type: 'POST',
-				data: {
-					action: 'miniload_rebuild_media_index',
-					nonce: '<?php echo esc_attr( wp_create_nonce( 'miniload_rebuild_media' ) ); ?>'
-				},
-				success: function(response) {
-					if (response.success) {
-						$status.html('<span style="color: green;">✓ ' + response.data.message + '</span>');
-					} else {
-						$status.html('<span style="color: red;">✗ ' + (response.data || '<?php echo esc_js( __( 'Error rebuilding index', 'miniload' ) ); ?>') + '</span>');
-					}
-				},
-				error: function() {
-					$status.html('<span style="color: red;">✗ <?php echo esc_js( __( 'Error rebuilding index', 'miniload' ) ); ?></span>');
-				},
-				complete: function() {
-					$button.prop('disabled', false);
-				}
-			});
+			var totalIndexed = 0;
+			var totalFailed = 0;
+			var batchSize = parseInt($('#miniload_index_batch_size').val()) || 100;
+
+			function processMediaBatch(offset) {
+				$.ajax({
+					url: ajaxurl,
+					type: 'POST',
+					data: {
+						action: 'miniload_rebuild_media_index',
+						nonce: '<?php echo esc_attr( wp_create_nonce( 'miniload_rebuild_media' ) ); ?>',
+						offset: offset,
+						batch_size: batchSize,
+						clear_first: offset === 0
+					},
+					success: function(response) {
+						if (response.success && response.data) {
+							var data = response.data;
+
+							// Update totals
+							totalIndexed += data.batch_indexed || 0;
+							totalFailed += data.batch_failed || 0;
+
+							// Update progress bar
+							var progress = data.progress || 0;
+							$progressBar.css('width', progress + '%');
+							$progressText.text(progress + '%');
+							$progressMessage.html(data.message || '');
+
+							if (!data.completed && data.batch_count > 0) {
+								// Process next batch immediately for dedicated servers
+								setTimeout(function() {
+									processMediaBatch(data.next_offset);
+								}, 10); // Reduced delay from 100ms to 10ms
+							} else {
+								// Completed
+								$progress.hide();
+								var finalMessage = '<?php echo esc_js( __( 'Media index rebuild completed!', 'miniload' ) ); ?> ';
+								finalMessage += '<?php echo esc_js( __( 'Indexed:', 'miniload' ) ); ?> ' + totalIndexed;
+								if (totalFailed > 0) {
+									finalMessage += ', <?php echo esc_js( __( 'Failed:', 'miniload' ) ); ?> ' + totalFailed;
+								}
+								$status.html('<span style="color: green;">✓ ' + finalMessage + '</span>');
+								$button.prop('disabled', false);
+							}
+						} else {
+							// Error
+							$progress.hide();
+							$status.html('<span style="color: red;">✗ ' + (response.data || '<?php echo esc_js( __( 'Error rebuilding media index', 'miniload' ) ); ?>') + '</span>');
+							$button.prop('disabled', false);
+						}
+					},
+					error: function(xhr, status, error) {
+						$progress.hide();
+						var errorMsg = '<?php echo esc_js( __( 'Error rebuilding media index', 'miniload' ) ); ?>';
+						if (status === 'timeout') {
+							errorMsg = '<?php echo esc_js( __( 'Request timed out. Please try again with a smaller batch size.', 'miniload' ) ); ?>';
+						}
+						$status.html('<span style="color: red;">✗ ' + errorMsg + '</span>');
+						$button.prop('disabled', false);
+					},
+					timeout: 30000 // 30 second timeout per batch
+				});
+			}
+
+			// Start processing from offset 0
+			processMediaBatch(0);
 		});
 	});
 	</script>

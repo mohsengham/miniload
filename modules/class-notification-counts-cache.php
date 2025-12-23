@@ -95,22 +95,22 @@ class Notification_Counts_Cache {
 
 		// Pending orders
 		$counts['pending_orders'] = $this->get_cached_count( 'pending_orders', function() {
-			return wc_get_order_count( 'pending' );
+			return count( wc_get_orders( array( 'status' => 'pending', 'return' => 'ids', 'limit' => -1 ) ) );
 		}, $this->cache_durations['pending_orders'] );
 
 		// Processing orders
 		$counts['processing_orders'] = $this->get_cached_count( 'processing_orders', function() {
-			return wc_get_order_count( 'processing' );
+			return count( wc_get_orders( array( 'status' => 'processing', 'return' => 'ids', 'limit' => -1 ) ) );
 		}, $this->cache_durations['processing_orders'] );
 
 		// On-hold orders
 		$counts['on_hold_orders'] = $this->get_cached_count( 'on_hold_orders', function() {
-			return wc_get_order_count( 'on-hold' );
+			return count( wc_get_orders( array( 'status' => 'on-hold', 'return' => 'ids', 'limit' => -1 ) ) );
 		}, $this->cache_durations['on_hold_orders'] );
 
 		// Failed orders
 		$counts['failed_orders'] = $this->get_cached_count( 'failed_orders', function() {
-			return wc_get_order_count( 'failed' );
+			return count( wc_get_orders( array( 'status' => 'failed', 'return' => 'ids', 'limit' => -1 ) ) );
 		}, $this->cache_durations['failed_orders'] );
 
 		// Pending reviews

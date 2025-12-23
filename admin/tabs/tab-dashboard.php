@@ -23,11 +23,11 @@ global $wpdb;
 		}
 		$miniload_total_products = $miniload_cached1;
 // Direct database query with caching
-		$miniload_cache_key2 = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_product_search"  );
+		$miniload_cache_key2 = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_search_index"  );
 		$miniload_cached2 = wp_cache_get( $miniload_cache_key2 );
 		if ( false === $miniload_cached2 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-			$miniload_cached2 = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_product_search" );
+			$miniload_cached2 = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->prefix}miniload_search_index" );
 			wp_cache_set( $miniload_cache_key2, $miniload_cached2, '', 3600 );
 		}
 		$miniload_indexed_products = $miniload_cached2;
@@ -54,11 +54,11 @@ if ( $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}miniload_media_search'" )
 
 // Performance metrics
 // Direct database query with caching
-		$miniload_cache_key6 = 'miniload_' . md5(  "SELECT AVG(CHAR_LENGTH(search_text)) FROM {$wpdb->prefix}miniload_product_search"  );
+		$miniload_cache_key6 = 'miniload_' . md5(  "SELECT AVG(CHAR_LENGTH(content)) FROM {$wpdb->prefix}miniload_search_index"  );
 		$miniload_cached6 = wp_cache_get( $miniload_cache_key6 );
 		if ( false === $miniload_cached6 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-			$miniload_cached6 = $wpdb->get_var( "SELECT AVG(CHAR_LENGTH(search_text)) FROM {$wpdb->prefix}miniload_product_search" );
+			$miniload_cached6 = $wpdb->get_var( "SELECT AVG(CHAR_LENGTH(content)) FROM {$wpdb->prefix}miniload_search_index" );
 			wp_cache_set( $miniload_cache_key6, $miniload_cached6, '', 3600 );
 		}
 		$miniload_avg_index_size = $miniload_cached6;
@@ -160,7 +160,7 @@ $miniload_cache_size = size_format( strlen( serialize( wp_cache_get( 'miniload_c
 			<?php
 			$miniload_status_checks = array(
 				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-				'search_table' => $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}miniload_product_search'" ) ? 'good' : 'error',
+				'search_table' => $wpdb->get_var( "SHOW TABLES LIKE '{$wpdb->prefix}miniload_search_index'" ) ? 'good' : 'error',
 				'fulltext_support' => version_compare( $wpdb->db_version(), '5.6', '>=' ) ? 'good' : 'warning',
 				'woocommerce' => class_exists( 'WooCommerce' ) ? 'good' : 'error',
 				'php_version' => version_compare( PHP_VERSION, '7.2', '>=' ) ? 'good' : 'warning',

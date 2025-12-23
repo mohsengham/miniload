@@ -23,6 +23,10 @@ $tabs = array(
 		'title' => __( 'Search Settings', 'miniload' ),
 		'icon' => 'dashicons-search'
 	),
+	'order_search' => array(
+		'title' => __( 'Order Search', 'miniload' ),
+		'icon' => 'dashicons-clipboard'
+	),
 	'modules' => array(
 		'title' => __( 'Modules', 'miniload' ),
 		'icon' => 'dashicons-admin-plugins'
@@ -176,18 +180,11 @@ $tabs = array(
 
 	<nav class="nav-tab-wrapper miniload-nav-tabs">
 		<?php
-		$miniload_dashicon_classes = array(
-			'dashboard' => 'dashicons-chart-area',
-			'search' => 'dashicons-search',
-			'modules' => 'dashicons-admin-plugins',
-			'tools' => 'dashicons-admin-tools',
-			'settings' => 'dashicons-admin-generic'
-		);
 		foreach ( $tabs as $miniload_tab_key => $tab ) :
 		?>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=miniload&tab=' . $miniload_tab_key ) ); ?>"
 			   class="nav-tab <?php echo $miniload_current_tab === $miniload_tab_key ? 'nav-tab-active' : ''; ?>">
-				<span class="dashicons <?php echo esc_attr( $miniload_dashicon_classes[$miniload_tab_key] ); ?>"></span>
+				<span class="dashicons <?php echo esc_attr( $tab['icon'] ); ?>"></span>
 				<?php echo esc_html( $tab['title'] ); ?>
 			</a>
 		<?php endforeach; ?>
@@ -210,7 +207,7 @@ $tabs = array(
 				?>
 			</div>
 
-			<?php if ( in_array( $miniload_current_tab, array( 'search', 'modules', 'settings' ) ) ) : ?>
+			<?php if ( in_array( $miniload_current_tab, array( 'search', 'modules', 'settings', 'order_search' ) ) ) : ?>
 				<div class="miniload-submit-wrapper">
 					<button type="button" id="miniload-save-button" class="button button-primary button-hero">
 						<?php esc_html_e( 'Save Settings', 'miniload' ); ?>

@@ -24,7 +24,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_ajax_search_enabled" value="1"
-							<?php checked( '1', get_option( 'miniload_ajax_search_enabled', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_ajax_search_enabled', 1 ) ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
 					<p class="description"><?php esc_html_e( 'Enable real-time AJAX search with instant results', 'miniload' ); ?></p>
@@ -66,7 +66,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_search_in_content" value="1"
-							<?php checked( '1', get_option( 'miniload_search_in_content', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_search_in_content', 1 ) ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
 					<p class="description"><?php esc_html_e( 'Include full product descriptions in search. Uncheck for better performance.', 'miniload' ); ?></p>
@@ -88,27 +88,27 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label>
 						<input type="checkbox" name="miniload_search_in_title" value="1"
-							<?php checked( '1', get_option( 'miniload_search_in_title', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_search_in_title', 1 ) ) ); ?> />
 						<?php esc_html_e( 'Product Title', 'miniload' ); ?>
 					</label><br>
 					<label>
 						<input type="checkbox" name="miniload_search_in_sku" value="1"
-							<?php checked( '1', get_option( 'miniload_search_in_sku', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_search_in_sku', 1 ) ) ); ?> />
 						<?php esc_html_e( 'SKU', 'miniload' ); ?>
 					</label><br>
 					<label>
 						<input type="checkbox" name="miniload_search_in_short_desc" value="1"
-							<?php checked( '1', get_option( 'miniload_search_in_short_desc', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_search_in_short_desc', 1 ) ) ); ?> />
 						<?php esc_html_e( 'Short Description', 'miniload' ); ?>
 					</label><br>
 					<label>
 						<input type="checkbox" name="miniload_search_in_categories" value="1"
-							<?php checked( '1', get_option( 'miniload_search_in_categories', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_search_in_categories', 1 ) ) ); ?> />
 						<?php esc_html_e( 'Categories', 'miniload' ); ?>
 					</label><br>
 					<label>
 						<input type="checkbox" name="miniload_search_in_tags" value="1"
-							<?php checked( '1', get_option( 'miniload_search_in_tags', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_search_in_tags', 1 ) ) ); ?> />
 						<?php esc_html_e( 'Tags', 'miniload' ); ?>
 					</label>
 				</td>
@@ -129,7 +129,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_show_categories" value="1"
-							<?php checked( '1', get_option( 'miniload_show_categories', '0' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_show_categories', 0 ) ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
 					<p class="description"><?php esc_html_e( 'Display category filter dropdown in search box', 'miniload' ); ?></p>
@@ -141,7 +141,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_show_categories_results" value="1"
-							<?php checked( '1', get_option( 'miniload_show_categories_results', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_show_categories_results', 1 ) ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
 					<p class="description"><?php esc_html_e( 'Display matching categories in search results dropdown', 'miniload' ); ?></p>
@@ -184,7 +184,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_show_price" value="1"
-							<?php checked( '1', get_option( 'miniload_show_price', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_show_price', 1 ) ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
 					<p class="description"><?php esc_html_e( 'Display product prices in search results', 'miniload' ); ?></p>
@@ -196,7 +196,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 				<td>
 					<label class="miniload-toggle">
 						<input type="checkbox" name="miniload_show_image" value="1"
-							<?php checked( '1', get_option( 'miniload_show_image', '1' ) ); ?> />
+							<?php checked( 1, absint( get_option( 'miniload_show_image', 1 ) ) ); ?> />
 						<span class="miniload-toggle-slider"></span>
 					</label>
 					<p class="description"><?php esc_html_e( 'Display product thumbnails in search results', 'miniload' ); ?></p>

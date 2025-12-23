@@ -78,17 +78,20 @@
         bindEvents: function() {
             var self = this;
 
-            // Use Alt+K instead of Ctrl+K to avoid conflicts
-            $(document).on('keydown', function(e) {
-                // Alt+K or Ctrl+Shift+K to open (avoiding conflict)
-                if ((e.altKey && e.keyCode === 75) ||
-                    (e.ctrlKey && e.shiftKey && e.keyCode === 75)) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    self.toggle();
-                    return false;
-                }
-            });
+            // Only bind keyboard shortcut if enabled in settings
+            if (window.miniload_admin_search && window.miniload_admin_search.enable_modal === 'true') {
+                // Use Alt+K instead of Ctrl+K to avoid conflicts
+                $(document).on('keydown', function(e) {
+                    // Alt+K or Ctrl+Shift+K to open (avoiding conflict)
+                    if ((e.altKey && e.keyCode === 75) ||
+                        (e.ctrlKey && e.shiftKey && e.keyCode === 75)) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        self.toggle();
+                        return false;
+                    }
+                });
+            }
 
             // ESC to close
             $(document).on('keydown', function(e) {

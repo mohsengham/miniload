@@ -177,7 +177,7 @@
             // Products
             if (data.results.products && data.results.products.length > 0) {
                 html += '<div class="miniload-search-section">';
-                html += '<h4>Products</h4>';
+                html += '<h4>' + miniload_ajax_search.products_label + '</h4>';
                 html += '<ul class="miniload-search-products">';
 
                 $.each(data.results.products, function(i, product) {
@@ -193,7 +193,7 @@
                     html += '<span class="title">' + self.highlightTerm(product.title, data.term) + '</span>';
 
                     if (product.sku) {
-                        html += '<span class="sku">SKU: ' + self.highlightTerm(product.sku, data.term) + '</span>';
+                        html += '<span class="sku">' + miniload_ajax_search.sku_label + ' ' + self.highlightTerm(product.sku, data.term) + '</span>';
                     }
 
                     // Show price only if enabled in settings
@@ -217,7 +217,7 @@
             // Categories - only show if enabled in settings
             if (data.results.categories && data.results.categories.length > 0 && miniload_ajax_search.show_categories_results !== '0') {
                 html += '<div class="miniload-search-section">';
-                html += '<h4>Categories</h4>';
+                html += '<h4>' + miniload_ajax_search.categories_label + '</h4>';
                 html += '<ul class="miniload-search-categories">';
 
                 $.each(data.results.categories, function(i, cat) {
@@ -235,7 +235,7 @@
             // Suggestions
             if (data.suggestions && data.suggestions.length > 0) {
                 html += '<div class="miniload-search-section miniload-search-suggestions">';
-                html += '<h4>Did you mean?</h4>';
+                html += '<h4>' + miniload_ajax_search.did_you_mean + '</h4>';
                 html += '<ul>';
 
                 $.each(data.suggestions, function(i, suggestion) {
@@ -243,7 +243,8 @@
                     html += '<a href="#" class="miniload-suggestion" data-term="' + suggestion.term + '">';
                     html += suggestion.term;
                     if (suggestion.popularity) {
-                        html += ' <span class="popularity">(' + suggestion.popularity + ' searches)</span>';
+                        var searchesText = miniload_ajax_search.searches_count.replace('%d', suggestion.popularity);
+                        html += ' <span class="popularity">(' + searchesText + ')</span>';
                     }
                     html += '</a>';
                     html += '</li>';
@@ -289,10 +290,12 @@
 
                     if (totalProducts > displayedProducts && displayedProducts > 0) {
                         // We're showing only some of the results
-                        html += '<span class="search-results-count">نمایش ' + displayedProducts + ' از ' + totalResults + ' نتیجه</span>';
+                        var showingText = miniload_ajax_search.showing_results.replace('%1$d', displayedProducts).replace('%2$d', totalResults);
+                        html += '<span class="search-results-count">' + showingText + '</span>';
                     } else {
                         // We're showing all results
-                        html += '<span class="search-results-count">' + totalResults + ' نتیجه یافت شد</span>';
+                        var resultsText = miniload_ajax_search.results_found.replace('%d', totalResults);
+                        html += '<span class="search-results-count">' + resultsText + '</span>';
                     }
 
                     html += '<a href="' + $input.closest('form').attr('action') + '?s=' + encodeURIComponent(data.term) + '&post_type=product">' + miniload_ajax_search.view_all + '</a>';
@@ -381,7 +384,7 @@
         initKeyboardShortcuts: function() {
             var self = this;
 
-            // Ctrl+/ or Cmd+/ to focus search
+            // Alt+K to focus search
             $(document).on('keydown', function(e) {
                 if ((e.ctrlKey || e.metaKey) && e.keyCode === 191) {
                     e.preventDefault();

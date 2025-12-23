@@ -373,7 +373,7 @@ class Media_Search_Optimizer {
 	}
 
 	/**
-	 * Rebuild media index
+	 * Rebuild media index (with batch processing)
 	 */
 	public function ajax_rebuild_index() {
 		check_ajax_referer( 'miniload_rebuild_media', 'nonce' );
@@ -382,12 +382,91 @@ class Media_Search_Optimizer {
 			wp_send_json_error( 'Permission denied' );
 		}
 
-		$miniload_result = $this->rebuild_index();
+		// Get batch parameters
+		$offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
+		$batch_size = isset( $_POST['batch_size'] ) ? absint( $_POST['batch_size'] ) : 50;
+		$clear_first = isset( $_POST['clear_first'] ) ? ( $_POST['clear_first'] === 'true' ) : ( $offset === 0 );
+
+		// Process batch
+		$miniload_result = $this->rebuild_index_batch( $offset, $batch_size, $clear_first );
 		wp_send_json_success( $miniload_result );
 	}
 
 	/**
-	 * Rebuild entire media index
+	 * Rebuild media index (batch processing version)
+	 *
+	 * @param int $offset Start offset
+	 * @param int $batch_size Number of items to process per batch
+	 * @param bool $clear_first Whether to clear the index first
+	 * @return array Results
+	 */
+	public function rebuild_index_batch( $offset = 0, $batch_size = 50, $clear_first = false ) {
+		global $wpdb;
+
+		$start_time = microtime( true );
+
+		// Clear existing index on first batch
+		if ( $clear_first || $offset === 0 ) {
+			$wpdb->query( "TRUNCATE TABLE " . esc_sql( $this->media_table ) );
+		}
+
+		// Get total media count
+		$total_media = $wpdb->get_var( "
+			SELECT COUNT(*)
+			FROM {$wpdb->posts}
+			WHERE post_type = 'attachment'
+			AND post_status = 'inherit'
+		" );
+
+		// Get batch of attachments
+		$attachments = get_posts( array(
+			'post_type' => 'attachment',
+			'posts_per_page' => $batch_size,
+			'offset' => $offset,
+			'post_status' => 'inherit',
+			'fields' => 'ids',
+			'orderby' => 'ID',
+			'order' => 'ASC'
+		) );
+
+		$batch_count = count( $attachments );
+		$indexed = 0;
+		$failed = 0;
+
+		foreach ( $attachments as $attachment_id ) {
+			if ( $this->index_media_item( $attachment_id ) ) {
+				$indexed++;
+			} else {
+				$failed++;
+			}
+		}
+
+		// Clear caches periodically
+		wp_cache_flush();
+
+		$time_taken = round( microtime( true ) - $start_time, 2 );
+		$progress = $total_media > 0 ? round( ( ( $offset + $batch_count ) / $total_media ) * 100, 1 ) : 100;
+		$completed = ( $offset + $batch_count >= $total_media );
+
+		return array(
+			'success' => true,
+			'batch_indexed' => $indexed,
+			'batch_failed' => $failed,
+			'batch_count' => $batch_count,
+			'offset' => $offset,
+			'next_offset' => $offset + $batch_size,
+			'total' => $total_media,
+			'progress' => $progress,
+			'completed' => $completed,
+			'time' => $time_taken,
+			'message' => $completed ?
+				sprintf( __( 'Media index rebuild completed! Processed %d items.', 'miniload' ), $total_media ) :
+				sprintf( __( 'Processing... %d of %d media items (%d%%)', 'miniload' ), $offset + $batch_count, $total_media, $progress )
+		);
+	}
+
+	/**
+	 * Rebuild entire media index (legacy - for backward compatibility)
 	 */
 	public function rebuild_index() {
 		global $wpdb;
