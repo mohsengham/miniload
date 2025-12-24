@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MiniLoad - Performance Optimizer for WooCommerce 1.0.5\n"
+"Project-Id-Version: MiniLoad - Performance Optimizer for WooCommerce 1.1.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/miniload\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-23T08:19:29+00:00\n"
+"POT-Creation-Date: 2025-12-24T07:50:07+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: miniload\n"
@@ -60,7 +60,7 @@ msgid "Tools"
 msgstr ""
 
 #: admin/admin-page.php:39
-#: miniload.php:939
+#: miniload.php:977
 msgid "Settings"
 msgstr ""
 
@@ -70,9 +70,9 @@ msgstr ""
 
 #: admin/admin-page.php:70
 #: admin/tabs/tab-search.php:178
-#: miniload.php:736
-#: modules/class-ajax-search-pro.php:1088
-#: modules/class-ajax-search-pro.php:1387
+#: miniload.php:774
+#: modules/class-ajax-search-pro.php:1175
+#: modules/class-ajax-search-pro.php:1474
 msgid "Search products..."
 msgstr ""
 
@@ -170,7 +170,7 @@ msgid "Advanced Search Features"
 msgstr ""
 
 #: admin/settings-ajax-search.php:112
-#: admin/settings-order-search.php:179
+#: admin/settings-order-search.php:200
 msgid "Index Batch Size"
 msgstr ""
 
@@ -301,150 +301,194 @@ msgstr ""
 msgid "Error rebuilding media index"
 msgstr ""
 
-#: admin/settings-order-search.php:51
+#: admin/settings-order-search.php:52
 msgid "Order Search Status"
 msgstr ""
 
-#: admin/settings-order-search.php:57
+#: admin/settings-order-search.php:58
 msgid "Indexed Orders"
 msgstr ""
 
-#: admin/settings-order-search.php:61
+#: admin/settings-order-search.php:62
 msgid "Total Orders"
 msgstr ""
 
-#: admin/settings-order-search.php:65
+#: admin/settings-order-search.php:66
 #: admin/views/dashboard.php:216
 #: admin/views/tools.php:72
 msgid "Coverage"
 msgstr ""
 
-#: admin/settings-order-search.php:70
+#: admin/settings-order-search.php:71
 msgid "HPOS Enabled"
 msgstr ""
 
-#: admin/settings-order-search.php:79
+#: admin/settings-order-search.php:80
 #, php-format
 msgid "<strong>Index Incomplete:</strong> Only %d%% of orders are indexed. Click \"Rebuild Order Index\" below for optimal search performance."
 msgstr ""
 
-#: admin/settings-order-search.php:88
+#: admin/settings-order-search.php:89
 msgid "<strong>Index Complete:</strong> All orders are indexed and searchable!"
 msgstr ""
 
-#: admin/settings-order-search.php:98
+#: admin/settings-order-search.php:99
 #: admin/tabs/tab-tools.php:103
 #: admin/views/tools.php:64
 msgid "Index Management"
 msgstr ""
 
-#: admin/settings-order-search.php:102
-msgid "Rebuilding Order Search Index..."
+#: admin/settings-order-search.php:105
+msgid "Maximum Search Results"
 msgstr ""
 
-#: admin/settings-order-search.php:114
-msgid "Rebuild Order Index"
+#: admin/settings-order-search.php:115
+msgid "Maximum number of orders to return in search results. Higher values may slow down the search. Default: 5000"
 msgstr ""
 
 #: admin/settings-order-search.php:118
+#: admin/settings-order-search.php:288
+#: admin/settings-order-search.php:304
+msgid "Save Limit"
+msgstr ""
+
+#: admin/settings-order-search.php:123
+msgid "Rebuilding Order Search Index..."
+msgstr ""
+
+#: admin/settings-order-search.php:135
+msgid "Rebuild Order Index"
+msgstr ""
+
+#: admin/settings-order-search.php:139
 msgid "Rebuilds the search index for all orders. Run this if search results seem incomplete or after importing orders."
 msgstr ""
 
-#: admin/settings-order-search.php:126
+#: admin/settings-order-search.php:147
 #: admin/tabs/tab-search.php:18
 msgid "Search Configuration"
 msgstr ""
 
-#: admin/settings-order-search.php:131
+#: admin/settings-order-search.php:152
 msgid "Enable Order Search"
 msgstr ""
 
-#: admin/settings-order-search.php:139
+#: admin/settings-order-search.php:160
 msgid "Enable ultra-fast order search optimization"
 msgstr ""
 
-#: admin/settings-order-search.php:145
+#: admin/settings-order-search.php:166
 msgid "Auto-index New Orders"
 msgstr ""
 
-#: admin/settings-order-search.php:153
+#: admin/settings-order-search.php:174
 msgid "Automatically index new and updated orders for instant search"
 msgstr ""
 
-#: admin/settings-order-search.php:159
+#: admin/settings-order-search.php:180
 msgid "Search Method"
 msgstr ""
 
-#: admin/settings-order-search.php:163
+#: admin/settings-order-search.php:184
 msgid "Trigram (Fastest, supports partial matching)"
 msgstr ""
 
-#: admin/settings-order-search.php:166
+#: admin/settings-order-search.php:187
 msgid "Fulltext (Fast, exact words)"
 msgstr ""
 
-#: admin/settings-order-search.php:169
+#: admin/settings-order-search.php:190
 msgid "Hybrid (Best accuracy)"
 msgstr ""
 
-#: admin/settings-order-search.php:173
+#: admin/settings-order-search.php:194
 msgid "Choose the search algorithm. Trigram is recommended for best performance."
 msgstr ""
 
-#: admin/settings-order-search.php:185
+#: admin/settings-order-search.php:206
 msgid "Number of orders to process per batch when rebuilding index. Higher values are faster but use more memory."
 msgstr ""
 
-#: admin/settings-order-search.php:196
+#: admin/settings-order-search.php:217
 msgid "Features"
 msgstr ""
 
-#: admin/settings-order-search.php:202
+#: admin/settings-order-search.php:223
 msgid "Lightning Fast"
 msgstr ""
 
-#: admin/settings-order-search.php:203
+#: admin/settings-order-search.php:224
 msgid "Searches complete in milliseconds, even with millions of orders"
 msgstr ""
 
-#: admin/settings-order-search.php:207
+#: admin/settings-order-search.php:228
 msgid "Multi-field Search"
 msgstr ""
 
-#: admin/settings-order-search.php:208
+#: admin/settings-order-search.php:229
 msgid "Search by order #, email, phone, SKU, customer name, and more"
 msgstr ""
 
-#: admin/settings-order-search.php:212
+#: admin/settings-order-search.php:233
 msgid "Partial Matching"
 msgstr ""
 
-#: admin/settings-order-search.php:213
+#: admin/settings-order-search.php:234
 msgid "Find orders with incomplete information using trigram matching"
 msgstr ""
 
-#: admin/settings-order-search.php:217
+#: admin/settings-order-search.php:238
 msgid "Product Search"
 msgstr ""
 
-#: admin/settings-order-search.php:218
+#: admin/settings-order-search.php:239
 msgid "Find orders containing specific products by SKU or name"
 msgstr ""
 
-#: admin/settings-order-search.php:222
+#: admin/settings-order-search.php:243
 msgid "Auto-indexing"
 msgstr ""
 
-#: admin/settings-order-search.php:223
+#: admin/settings-order-search.php:244
 msgid "New orders are indexed automatically in real-time"
 msgstr ""
 
-#: admin/settings-order-search.php:227
+#: admin/settings-order-search.php:248
 msgid "HPOS Compatible"
 msgstr ""
 
-#: admin/settings-order-search.php:228
+#: admin/settings-order-search.php:249
 msgid "Works seamlessly with High-Performance Order Storage"
+msgstr ""
+
+#: admin/settings-order-search.php:263
+msgid "Saving..."
+msgstr ""
+
+#: admin/settings-order-search.php:276
+msgid "Saved!"
+msgstr ""
+
+#: admin/settings-order-search.php:279
+#: miniload.php:963
+msgid "Success!"
+msgstr ""
+
+#: admin/settings-order-search.php:279
+msgid "Order search limit updated to"
+msgstr ""
+
+#: admin/settings-order-search.php:279
+msgid "orders"
+msgstr ""
+
+#: admin/settings-order-search.php:292
+#: admin/settings-order-search.php:295
+msgid "Error!"
+msgstr ""
+
+#: admin/settings-order-search.php:295
+msgid "Failed to update order search limit. Please try again."
 msgstr ""
 
 #: admin/tabs/tab-dashboard.php:71
@@ -682,7 +726,7 @@ msgid "Short Description"
 msgstr ""
 
 #: admin/tabs/tab-search.php:107
-#: modules/class-ajax-search-pro.php:1393
+#: modules/class-ajax-search-pro.php:1480
 msgid "Categories"
 msgstr ""
 
@@ -1032,6 +1076,7 @@ msgstr ""
 
 #: admin/tabs/tab-tools.php:195
 #: admin/views/tools.php:124
+#: admin/views/tools.php:216
 msgid "Cache Management"
 msgstr ""
 
@@ -1259,7 +1304,7 @@ msgid "Removes full table scans"
 msgstr ""
 
 #: admin/views/dashboard.php:286
-#: admin/views/tools.php:183
+#: admin/views/tools.php:255
 msgid "Performance Tips"
 msgstr ""
 
@@ -1479,38 +1524,122 @@ msgid "Optimize database tables for better performance."
 msgstr ""
 
 #: admin/views/tools.php:159
-msgid "Quick Commands"
+msgid "WP-CLI Commands Reference"
 msgstr ""
 
 #: admin/views/tools.php:161
-msgid "Run these commands via SSH for manual operations:"
+msgid "Run these commands via SSH/terminal. Requires WP-CLI to be installed."
 msgstr ""
 
-#: admin/views/tools.php:164
-msgid "Index all products:"
+#: admin/views/tools.php:165
+msgid "Status & Information"
 msgstr ""
 
-#: admin/views/tools.php:169
-msgid "Quick index (first 1000 products):"
+#: admin/views/tools.php:167
+msgid "Check all indexes status:"
 msgstr ""
 
-#: admin/views/tools.php:174
-msgid "Test MiniLoad status:"
+#: admin/views/tools.php:170
+msgid "Check order index status:"
+msgstr ""
+
+#: admin/views/tools.php:173
+msgid "Check product index status:"
+msgstr ""
+
+#: admin/views/tools.php:176
+msgid "View cache statistics:"
+msgstr ""
+
+#: admin/views/tools.php:183
+msgid "Index Rebuilding (Recommended)"
 msgstr ""
 
 #: admin/views/tools.php:185
-msgid "Run index rebuild after importing new products"
-msgstr ""
-
-#: admin/views/tools.php:186
-msgid "Clear cache after major product updates"
-msgstr ""
-
-#: admin/views/tools.php:187
-msgid "Monitor index coverage - aim for 100%"
+msgid "Rebuild product index (FAST):"
 msgstr ""
 
 #: admin/views/tools.php:188
+msgid "Rebuild order index (TURBO mode - FASTEST):"
+msgstr ""
+
+#: admin/views/tools.php:191
+msgid "Rebuild order index (Normal mode):"
+msgstr ""
+
+#: admin/views/tools.php:194
+msgid "Rebuild all indexes:"
+msgstr ""
+
+#: admin/views/tools.php:201
+msgid "Advanced Options"
+msgstr ""
+
+#: admin/views/tools.php:203
+msgid "Clear index before rebuilding:"
+msgstr ""
+
+#: admin/views/tools.php:206
+msgid "Show progress bar:"
+msgstr ""
+
+#: admin/views/tools.php:209
+msgid "Custom batch size:"
+msgstr ""
+
+#: admin/views/tools.php:218
+msgid "Clear all MiniLoad caches:"
+msgstr ""
+
+#: admin/views/tools.php:221
+msgid "Clear specific cache type:"
+msgstr ""
+
+#: admin/views/tools.php:223
+msgid "Types: query, filter, search, all"
+msgstr ""
+
+#: admin/views/tools.php:229
+msgid "Search Testing"
+msgstr ""
+
+#: admin/views/tools.php:231
+msgid "Test product search:"
+msgstr ""
+
+#: admin/views/tools.php:234
+msgid "Search with limit:"
+msgstr ""
+
+#: admin/views/tools.php:241
+msgid "💡 Common Usage Examples"
+msgstr ""
+
+#: admin/views/tools.php:243
+msgid "After importing products:"
+msgstr ""
+
+#: admin/views/tools.php:245
+msgid "Complete reindex (products + orders):"
+msgstr ""
+
+#: admin/views/tools.php:247
+msgid "Fresh start (clear + rebuild):"
+msgstr ""
+
+#: admin/views/tools.php:257
+msgid "Run index rebuild after importing new products"
+msgstr ""
+
+#: admin/views/tools.php:258
+msgid "Clear cache after major product updates"
+msgstr ""
+
+#: admin/views/tools.php:259
+msgid "Monitor index coverage - aim for 100%"
+msgstr ""
+
+#: admin/views/tools.php:260
 msgid "Use the full indexer for complete optimization"
 msgstr ""
 
@@ -1526,146 +1655,142 @@ msgstr ""
 msgid "MiniLoad requires WordPress version %s or higher."
 msgstr ""
 
-#: miniload.php:247
+#: miniload.php:250
 msgid "MiniLoad requires WooCommerce to be installed and activated."
 msgstr ""
 
-#: miniload.php:664
-#: miniload.php:665
+#: miniload.php:685
+#: miniload.php:686
 msgid "MiniLoad"
 msgstr ""
 
-#: miniload.php:923
+#: miniload.php:961
 msgid "Are you sure you want to rebuild indexes? This may take a while."
 msgstr ""
 
-#: miniload.php:924
+#: miniload.php:962
 msgid "Processing..."
 msgstr ""
 
-#: miniload.php:925
-msgid "Success!"
-msgstr ""
-
-#: miniload.php:926
+#: miniload.php:964
 msgid "An error occurred."
 msgstr ""
 
-#: miniload.php:951
+#: miniload.php:1007
 msgid "Security check failed"
 msgstr ""
 
-#: miniload.php:956
+#: miniload.php:1012
 #: modules/class-query-cache.php:416
 msgid "Permission denied"
 msgstr ""
 
-#: miniload.php:975
+#: miniload.php:1031
 msgid "Invalid action"
 msgstr ""
 
-#: miniload.php:989
+#: miniload.php:1045
 msgid "Indexes rebuilt successfully"
 msgstr ""
 
-#: miniload.php:1002
+#: miniload.php:1058
 msgid "Cache cleared successfully"
 msgstr ""
 
-#: miniload.php:1015
+#: miniload.php:1071
 msgid "Cleanup completed successfully"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1179
+#: modules/class-ajax-search-pro.php:1266
 msgid "Open search"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1202
-#: modules/class-ajax-search-pro.php:1207
-#: modules/class-ajax-search-pro.php:1232
-#: modules/class-ajax-search-pro.php:1246
-#: modules/class-ajax-search-pro.php:1314
+#: modules/class-ajax-search-pro.php:1289
+#: modules/class-ajax-search-pro.php:1294
+#: modules/class-ajax-search-pro.php:1319
+#: modules/class-ajax-search-pro.php:1333
+#: modules/class-ajax-search-pro.php:1401
 msgid "Search"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1227
+#: modules/class-ajax-search-pro.php:1314
 msgid "Close search"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1252
+#: modules/class-ajax-search-pro.php:1339
 msgid "Voice search"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1264
+#: modules/class-ajax-search-pro.php:1351
 msgid "All Categories"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1298
+#: modules/class-ajax-search-pro.php:1385
 msgid "Clear search"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1331
+#: modules/class-ajax-search-pro.php:1418
 msgid "Popular Searches"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1388
-#: modules/class-ajax-search-pro.php:1526
+#: modules/class-ajax-search-pro.php:1475
+#: modules/class-ajax-search-pro.php:1613
 msgid "Searching..."
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1389
+#: modules/class-ajax-search-pro.php:1476
 msgid "No results found"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1390
+#: modules/class-ajax-search-pro.php:1477
 msgid "View all results"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1392
+#: modules/class-ajax-search-pro.php:1479
 msgid "Products"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1394
+#: modules/class-ajax-search-pro.php:1481
 #, php-format
 msgid "Showing %1$d of %2$d results"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1395
+#: modules/class-ajax-search-pro.php:1482
 #, php-format
 msgid "%d results found"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1396
+#: modules/class-ajax-search-pro.php:1483
 msgid "See all products"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1397
+#: modules/class-ajax-search-pro.php:1484
 #, php-format
 msgid "Search for \"%s\""
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1398
+#: modules/class-ajax-search-pro.php:1485
 msgid "SKU:"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1399
+#: modules/class-ajax-search-pro.php:1486
 msgid "Did you mean?"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1400
+#: modules/class-ajax-search-pro.php:1487
 #, php-format
 msgid "%d searches"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1527
+#: modules/class-ajax-search-pro.php:1614
 msgid "Search everything... (products, orders, users)"
 msgstr ""
 
-#: modules/class-ajax-search-pro.php:1528
+#: modules/class-ajax-search-pro.php:1615
 msgid "Press Alt+K to search"
 msgstr ""
 
-#: modules/class-filter-cache.php:586
+#: modules/class-filter-cache.php:637
 msgid "Filter cache rebuilt successfully"
 msgstr ""
 
@@ -1689,7 +1814,7 @@ msgstr ""
 msgid "Indexed %1$d media items in %2$s seconds"
 msgstr ""
 
-#: modules/class-order-search-optimizer.php:676
+#: modules/class-order-search-optimizer.php:948
 msgid "Order search index rebuilt successfully"
 msgstr ""
 
@@ -1721,7 +1846,11 @@ msgstr ""
 msgid "Indexed %1$d products successfully, %2$d failed. Time: %3$s seconds"
 msgstr ""
 
-#: modules/class-search-optimizer.php:514
+#: modules/class-search-optimizer.php:671
+msgid "Every 30 Minutes"
+msgstr ""
+
+#: modules/class-search-optimizer.php:936
 msgid "Search index rebuilt successfully"
 msgstr ""
 

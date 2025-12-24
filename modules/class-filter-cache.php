@@ -247,26 +247,29 @@ class Filter_Cache {
 	 * @return int
 	 */
 	public function get_cached_term_count( $count, $term, $taxonomy ) {
-		$cache_key = 'miniload_term_count_' . $taxonomy . '_' . $term->term_id;
-		$cached = get_transient( $cache_key );
+		// Handle different types of $term parameter
+		if ( is_numeric( $term ) ) {
+			// If term is passed as ID, get the term object
+			$term = get_term( $term, $taxonomy );
+		} elseif ( is_string( $term ) ) {
+			// If term is passed as slug, get the term object
+			$term = get_term_by( 'slug', $term, $taxonomy );
+		}
 
-		if ( $cached === false ) {
+		// Ensure $term is an object with the properties we need
+		if ( ! is_object( $term ) || ! isset( $term->term_id ) || ! isset( $term->term_taxonomy_id ) ) {
+			return $count;
+		}
+
+		$transient_key = 'miniload_term_count_' . $taxonomy . '_' . $term->term_id;
+		$cached_count = get_transient( $transient_key );
+
+		if ( $cached_count === false ) {
 			global $wpdb;
 
 			// Fast count using direct query
 			// Direct database query with caching
-		$cache_key = 'miniload_' . md5(  $wpdb->prepare( "
-				SELECT COUNT(DISTINCT p.ID)
-				FROM {$wpdb->posts} p
-				INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
-				WHERE p.post_type = 'product'
-				AND p.post_status = 'publish'
-				AND tr.term_taxonomy_id = %d
-			", $term->term_taxonomy_id )  );
-		$cached = wp_cache_get( $cache_key );
-		if ( false === $cached ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-			$cached = $wpdb->get_var( $wpdb->prepare( "
+			$wp_cache_key = 'miniload_' . md5( $wpdb->prepare( "
 				SELECT COUNT(DISTINCT p.ID)
 				FROM {$wpdb->posts} p
 				INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
@@ -274,13 +277,25 @@ class Filter_Cache {
 				AND p.post_status = 'publish'
 				AND tr.term_taxonomy_id = %d
 			", $term->term_taxonomy_id ) );
-			wp_cache_set( $cache_key, $cached, '', 3600 );
+
+			$cached_count = wp_cache_get( $wp_cache_key );
+			if ( false === $cached_count ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
+				$cached_count = $wpdb->get_var( $wpdb->prepare( "
+					SELECT COUNT(DISTINCT p.ID)
+					FROM {$wpdb->posts} p
+					INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+					WHERE p.post_type = 'product'
+					AND p.post_status = 'publish'
+					AND tr.term_taxonomy_id = %d
+				", $term->term_taxonomy_id ) );
+				wp_cache_set( $wp_cache_key, $cached_count, '', 3600 );
+			}
+
+			set_transient( $transient_key, $cached_count, 3600 ); // 1 hour
 		}
 
-			set_transient( $cache_key, $cached, 3600 ); // 1 hour
-		}
-
-		return intval( $cached );
+		return intval( $cached_count );
 	}
 
 	/**
@@ -419,26 +434,25 @@ class Filter_Cache {
 
 		// Try database cache
 		// Direct database query with caching
-		$cache_key = 'miniload_' . md5(  $wpdb->prepare( "
-			SELECT filter_data
-			FROM " . esc_sql( $this->table_name ) . "
-			WHERE cache_key = %s
-			AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
-		", $cache_key )  );
-		$cached = wp_cache_get( $cache_key );
-		if ( false === $cached ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-			$cached = $wpdb->get_var( $wpdb->prepare( "
+		$db_cache_key = 'miniload_' . md5( $wpdb->prepare( "
 			SELECT filter_data
 			FROM " . esc_sql( $this->table_name ) . "
 			WHERE cache_key = %s
 			AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
 		", $cache_key ) );
-			wp_cache_set( $cache_key, $cached, '', 3600 );
+		$db_cached = wp_cache_get( $db_cache_key );
+		if ( false === $db_cached ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
+			$db_cached = $wpdb->get_var( $wpdb->prepare( "
+				SELECT filter_data
+				FROM " . esc_sql( $this->table_name ) . "
+				WHERE cache_key = %s
+				AND created_at > DATE_SUB(NOW(), INTERVAL 1 HOUR)
+			", $cache_key ) );
+			wp_cache_set( $db_cache_key, $db_cached, '', 3600 );
 		}
-
-		if ( $result ) {
-			$data = maybe_unserialize( $result );
+		if ( $db_cached ) {
+			$data = maybe_unserialize( $db_cached );
 			wp_cache_set( $cache_key, $data, 'miniload_filters', 300 );
 			return $data;
 		}

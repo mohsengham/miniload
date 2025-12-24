@@ -6,7 +6,7 @@ Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 3.0
 WC tested up to: 10.4.3
-Stable tag: 1.0.5
+Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,35 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 5. Mobile-optimized search interface
 
 == Changelog ==
+
+= 1.1.0 =
+* MAJOR PERFORMANCE UPGRADE: 50-100x faster indexing with optimized SQL queries
+* Replaced individual WooCommerce API calls with bulk SQL operations
+* Product indexing: Reduced from 3000+ queries to 3 queries per batch
+* Order indexing: Reduced from 6000+ queries to 3 queries per batch
+* Admin AJAX batch sizes: Products 100→500, Orders 50→1000
+* Fixed plugin settings link in plugins list
+* Fixed order index admin notice to exclude draft orders
+* Increased MU plugin order search limit from 5000 to 20000
+* Removed hardcoded server paths from admin tools page
+* Updated version to 1.1.0 across all files
+
+= 1.0.7 =
+* CRITICAL FIX: Resolved 75,000+ database queries per page issue
+* Fixed WP_Term to string conversion errors on category pages
+* Fixed duplicate database queries in notification counts
+* Fixed variable name collisions and undefined variables
+* Fixed category counter cache recreating table on every page load
+* Replaced slow WP_Query calls with optimized direct SQL queries
+* Added request-level caching to prevent repeated queries
+* Fixed filter accumulation issue causing memory leaks
+* Made all AJAX search strings translatable
+* Major performance improvements - reduced queries from 75k+ to under 200 per page
+
+= 1.0.6 =
+* Added Order Search optimization feature for ultra-fast order searching
+* Fixed HPOS compatibility issues
+* Updated language files with new translations
 
 = 1.0.5 =
 * Fixed keyboard shortcut text from Ctrl+/ to Alt+K in admin settings and language files

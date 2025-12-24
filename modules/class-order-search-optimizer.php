@@ -40,6 +40,35 @@ class Order_Search_Optimizer {
 
 		// Create tables on admin_init to avoid issues
 		add_action( 'admin_init', array( $this, 'maybe_create_tables' ) );
+
+		// Debug: Log that the module is loaded
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'MiniLoad: Order_Search_Optimizer module loaded' );
+		}
+	}
+
+	/**
+	 * Get search limit from settings
+	 *
+	 * @return int
+	 */
+	private function get_search_limit() {
+		// Use direct option as per admin settings page
+		return absint( get_option( 'miniload_order_search_limit', 5000 ) );
+	}
+
+	/**
+	 * Override the final limit before wc_get_orders() is called
+	 *
+	 * @param array $query_args Query arguments
+	 * @return array
+	 */
+	public function override_final_limit( $query_args ) {
+		// Override limit ONLY for search queries
+		if ( ! empty( $query_args['s'] ) ) {
+			$query_args['limit'] = $this->get_search_limit();
+		}
+		return $query_args;
 	}
 
 	/**
@@ -51,6 +80,10 @@ class Order_Search_Optimizer {
 		add_filter( 'posts_search', array( $this, 'optimize_order_search' ), 100, 2 );
 		add_filter( 'posts_clauses', array( $this, 'modify_order_search_clauses' ), 100, 2 );
 
+		// HPOS search limit override - hook into the FINAL query args filter before wc_get_orders()
+		add_filter( 'woocommerce_order_list_table_prepare_items_query_args', array( $this, 'override_final_limit' ), 999 );
+		add_filter( 'woocommerce_shop_order_list_table_prepare_items_query_args', array( $this, 'override_final_limit' ), 999 );
+
 		// Index orders when created/updated
 		add_action( 'woocommerce_new_order', array( $this, 'index_order' ), 10, 2 );
 		add_action( 'woocommerce_update_order', array( $this, 'index_order' ), 10, 2 );
@@ -58,6 +91,13 @@ class Order_Search_Optimizer {
 
 		// HPOS compatibility
 		add_action( 'woocommerce_after_order_object_save', array( $this, 'index_hpos_order' ), 10, 2 );
+
+		// BULK ACTIONS SUPPORT - Update index when order meta changes
+		add_action( 'updated_post_meta', array( $this, 'maybe_update_order_on_meta_change' ), 10, 4 );
+		add_action( 'added_post_meta', array( $this, 'maybe_update_order_on_meta_change' ), 10, 4 );
+
+		// Handle order status changes (including bulk status changes)
+		add_action( 'woocommerce_order_status_changed', array( $this, 'update_order_on_status_change' ), 10, 4 );
 
 		// Admin AJAX
 		add_action( 'wp_ajax_miniload_rebuild_order_index', array( $this, 'ajax_rebuild_index' ) );
@@ -209,7 +249,7 @@ class Order_Search_Optimizer {
 			GROUP BY order_id
 			HAVING match_count = {$trigram_count}
 			ORDER BY match_count DESC
-			LIMIT 200
+			LIMIT " . $this->get_search_limit() . "
 		";
 
 		// Direct database query with caching
@@ -248,7 +288,7 @@ class Order_Search_Optimizer {
 			WHERE order_number = %s
 			   OR customer_email = %s
 			   OR billing_phone = %s
-			LIMIT 100
+			LIMIT " . $this->get_search_limit() . "
 		", $search_term, $search_term, $search_term );
 		$cache_key = 'miniload_' . md5( $exact_query );
 		$cached = wp_cache_get( $cache_key );
@@ -270,7 +310,7 @@ class Order_Search_Optimizer {
 			SELECT order_id
 			FROM {$escaped_table}
 			WHERE MATCH(searchable_text) AGAINST(%s IN NATURAL LANGUAGE MODE)
-			LIMIT 100
+			LIMIT " . $this->get_search_limit() . "
 		", $search_term );
 		$cache_key = 'miniload_' . md5( $fulltext_query );
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
@@ -290,7 +330,7 @@ class Order_Search_Optimizer {
 				SELECT order_id
 				FROM {$escaped_table}
 				WHERE searchable_text LIKE %s
-				LIMIT 100
+				LIMIT " . $this->get_search_limit() . "
 			", $like_term );
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
 			$cache_key = 'miniload_' . md5( $like_query );
@@ -571,6 +611,74 @@ class Order_Search_Optimizer {
 	 *
 	 * @param int $post_id Post ID
 	 */
+	/**
+	 * Maybe update order index when meta changes (for bulk actions)
+	 *
+	 * @param int    $meta_id    Meta ID
+	 * @param int    $post_id    Post ID
+	 * @param string $meta_key   Meta key
+	 * @param mixed  $meta_value Meta value
+	 */
+	public function maybe_update_order_on_meta_change( $meta_id, $post_id, $meta_key, $meta_value ) {
+		// Check if it's an order
+		if ( get_post_type( $post_id ) !== 'shop_order' ) {
+			return;
+		}
+
+		// Important order meta keys that should trigger reindex
+		$important_keys = array(
+			'_billing_email',
+			'_billing_phone',
+			'_billing_first_name',
+			'_billing_last_name',
+			'_order_total',
+			'_customer_user',
+			'_order_key',
+			'_billing_company',
+			'_shipping_first_name',
+			'_shipping_last_name',
+			'_shipping_company',
+		);
+
+		// Check if this is an important meta key
+		if ( in_array( $meta_key, $important_keys, true ) ) {
+			// Use a short delay to batch multiple meta updates
+			$hook_name = 'miniload_delayed_order_index_' . $post_id;
+
+			// Remove any existing scheduled update for this order
+			wp_clear_scheduled_hook( $hook_name );
+
+			// Schedule update in 2 seconds (to batch multiple meta changes)
+			wp_schedule_single_event( time() + 2, $hook_name, array( $post_id ) );
+
+			// Add the action handler if not already added
+			if ( ! has_action( $hook_name ) ) {
+				add_action( $hook_name, array( $this, 'index_order' ), 10, 1 );
+			}
+
+			miniload_log( sprintf( 'Scheduled index update for order #%d due to %s change', $post_id, $meta_key ), 'debug' );
+		}
+	}
+
+	/**
+	 * Update order index when status changes (handles bulk status changes)
+	 *
+	 * @param int    $order_id   Order ID
+	 * @param string $old_status Old status
+	 * @param string $new_status New status
+	 * @param object $order      Order object
+	 */
+	public function update_order_on_status_change( $order_id, $old_status, $new_status, $order = null ) {
+		// Index the order with new status
+		if ( $order && is_object( $order ) ) {
+			$this->index_order( $order_id, $order );
+		} else {
+			$this->index_order( $order_id );
+		}
+
+		miniload_log( sprintf( 'Order #%d index updated: status changed from %s to %s', $order_id, $old_status, $new_status ), 'debug' );
+	}
+
 	public function delete_order_index( $post_id ) {
 		if ( get_post_type( $post_id ) !== 'shop_order' ) {
 			return;
@@ -594,7 +702,12 @@ class Order_Search_Optimizer {
 	 * @return array Results
 	 */
 	public function rebuild_index( $offset = 0, $batch_size = 100 ) {
-		// Get orders
+		// Debug logging
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'MiniLoad rebuild_index: Starting with offset=' . $offset . ', batch_size=' . $batch_size );
+		}
+
+		// Get orders - exclude auto-draft orders
 		$args = array(
 			'type'     => 'shop_order',
 			'limit'    => $batch_size,
@@ -602,9 +715,23 @@ class Order_Search_Optimizer {
 			'orderby'  => 'id',
 			'order'    => 'ASC',
 			'return'   => 'ids',
+			'status'   => array( 'pending', 'processing', 'on-hold', 'completed', 'cancelled', 'refunded', 'failed' ),
 		);
 
 		$order_ids = wc_get_orders( $args );
+
+		// Check if wc_get_orders returned a valid result
+		if ( ! is_array( $order_ids ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'MiniLoad rebuild_index: wc_get_orders returned non-array: ' . var_export( $order_ids, true ) );
+			}
+			// Convert to empty array to continue gracefully
+			$order_ids = array();
+		}
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'MiniLoad rebuild_index: Found ' . count( $order_ids ) . ' orders to process' );
+		}
 
 		if ( empty( $order_ids ) ) {
 			return array(
@@ -613,12 +740,125 @@ class Order_Search_Optimizer {
 			);
 		}
 
-		// Process each order
-		foreach ( $order_ids as $order_id ) {
-			$order = wc_get_order( $order_id );
-			if ( $order ) {
-				$this->index_order_data( $order );
+		// ULTRA-OPTIMIZED: Bulk process orders using direct SQL to avoid WooCommerce overhead
+		global $wpdb;
+		$processed_count = 0;
+
+		if ( ! empty( $order_ids ) ) {
+			$order_ids_str = implode( ',', array_map( 'intval', $order_ids ) );
+
+			// Get all order data in one query
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$orders_data = $wpdb->get_results(
+				"SELECT p.ID as order_id,
+				        p.ID as order_number,
+				        p.post_status as order_status,
+				        p.post_date as order_date,
+				        MAX(CASE WHEN pm.meta_key = '_billing_email' THEN pm.meta_value END) as customer_email,
+				        MAX(CASE WHEN pm.meta_key = '_billing_first_name' THEN pm.meta_value END) as billing_first_name,
+				        MAX(CASE WHEN pm.meta_key = '_billing_last_name' THEN pm.meta_value END) as billing_last_name,
+				        MAX(CASE WHEN pm.meta_key = '_billing_phone' THEN pm.meta_value END) as billing_phone,
+				        MAX(CASE WHEN pm.meta_key = '_billing_company' THEN pm.meta_value END) as billing_company,
+				        MAX(CASE WHEN pm.meta_key = '_billing_address_1' THEN pm.meta_value END) as billing_address_1,
+				        MAX(CASE WHEN pm.meta_key = '_billing_address_2' THEN pm.meta_value END) as billing_address_2,
+				        MAX(CASE WHEN pm.meta_key = '_shipping_address_1' THEN pm.meta_value END) as shipping_address_1,
+				        MAX(CASE WHEN pm.meta_key = '_shipping_address_2' THEN pm.meta_value END) as shipping_address_2,
+				        MAX(CASE WHEN pm.meta_key = '_customer_user' THEN pm.meta_value END) as customer_id,
+				        MAX(CASE WHEN pm.meta_key = '_order_total' THEN pm.meta_value END) as order_total
+				FROM {$wpdb->posts} p
+				LEFT JOIN {$wpdb->postmeta} pm ON p.ID = pm.post_id
+				WHERE p.ID IN ($order_ids_str)
+				  AND p.post_type = 'shop_order'
+				GROUP BY p.ID
+				ORDER BY p.ID ASC",
+				ARRAY_A
+			);
+
+			// Get order items (products/SKUs) in bulk
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+			$order_items = $wpdb->get_results(
+				"SELECT oi.order_id,
+				        GROUP_CONCAT(DISTINCT oim_sku.meta_value SEPARATOR ' ') as sku_list,
+				        GROUP_CONCAT(DISTINCT oi.order_item_name SEPARATOR ' ') as product_names
+				FROM {$wpdb->prefix}woocommerce_order_items oi
+				LEFT JOIN {$wpdb->prefix}woocommerce_order_itemmeta oim_sku
+				  ON oi.order_item_id = oim_sku.order_item_id AND oim_sku.meta_key = '_sku'
+				WHERE oi.order_id IN ($order_ids_str)
+				  AND oi.order_item_type = 'line_item'
+				GROUP BY oi.order_id",
+				OBJECT_K
+			);
+
+			// Build bulk INSERT values
+			$values = array();
+			$placeholders = array();
+
+			foreach ( $orders_data as $order ) {
+				$order_id = (int) $order['order_id'];
+				$order_number = $order['order_number'];
+				$customer_email = $order['customer_email'] ?: '';
+				$customer_name = trim( ( $order['billing_first_name'] ?: '' ) . ' ' . ( $order['billing_last_name'] ?: '' ) );
+				$order_date = $order['order_date'];
+				$order_status = str_replace( 'wc-', '', $order['order_status'] );
+				$billing_phone = $order['billing_phone'] ?: '';
+				$billing_company = $order['billing_company'] ?: '';
+				$billing_address = trim( ( $order['billing_address_1'] ?: '' ) . ' ' . ( $order['billing_address_2'] ?: '' ) );
+				$shipping_address = trim( ( $order['shipping_address_1'] ?: '' ) . ' ' . ( $order['shipping_address_2'] ?: '' ) );
+				$order_total = (float) ( $order['order_total'] ?: 0 );
+
+				// Get SKUs and product names
+				$sku_list = isset( $order_items[ $order_id ] ) ? $order_items[ $order_id ]->sku_list : '';
+				$product_names = isset( $order_items[ $order_id ] ) ? $order_items[ $order_id ]->product_names : '';
+
+				// Build searchable text
+				$searchable_parts = array_filter( array(
+					$order_number,
+					$customer_email,
+					$customer_name,
+					$billing_phone,
+					$billing_company,
+					$billing_address,
+					$shipping_address,
+					$sku_list,
+					$product_names,
+				) );
+				$searchable_text = implode( ' ', $searchable_parts );
+
+				// Prepare values for bulk insert - match actual table structure
+				$values[] = $order_id;
+				$values[] = $order_number;
+				$values[] = $customer_email;
+				$values[] = $customer_name;
+				$values[] = $billing_phone;
+				$values[] = $billing_company;
+				$values[] = $billing_address;
+				$values[] = $shipping_address;
+				$values[] = $order_status;
+				$values[] = $order_total;
+				$values[] = $order_date;
+				$values[] = $sku_list;
+				$values[] = $product_names;
+				$values[] = $searchable_text;
+
+				$placeholders[] = '(%d, %s, %s, %s, %s, %s, %s, %s, %s, %f, %s, %s, %s, %s)';
+				$processed_count++;
 			}
+
+			// Bulk INSERT or REPLACE - much faster than individual queries
+			if ( ! empty( $values ) ) {
+				$sql = "REPLACE INTO {$wpdb->prefix}miniload_order_index
+				        (order_id, order_number, customer_email, customer_name, billing_phone, billing_company,
+				         billing_address, shipping_address, order_status, order_total, order_date,
+				         sku_list, product_names, searchable_text)
+				        VALUES ";
+				$sql .= implode( ', ', $placeholders );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+				$wpdb->query( $wpdb->prepare( $sql, $values ) );
+			}
+		}
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'MiniLoad rebuild_index: Successfully processed ' . $processed_count . ' orders' );
 		}
 
 		// Get total count - handle HPOS compatibility
@@ -630,33 +870,50 @@ class Order_Search_Optimizer {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 			$total_orders = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name} WHERE type = 'shop_order'" );
 		} else {
-			// Legacy mode
-			$total_orders_raw = wc_get_orders( array(
-				'type'   => 'shop_order',
-				'limit'  => -1,
-				'return' => 'count',
+			// Legacy mode - use direct database query to avoid memory issues
+			// Count all WooCommerce orders (statuses starting with 'wc-') but exclude drafts
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
+			$total_orders = (int) $wpdb->get_var( $wpdb->prepare(
+				"SELECT COUNT(*) FROM {$wpdb->posts}
+				WHERE post_type = %s
+				AND post_status LIKE 'wc-%%'",
+				'shop_order'
 			) );
-			$total_orders = is_array( $total_orders_raw ) ? count( $total_orders_raw ) : (int) $total_orders_raw;
 		}
 
 		$processed_so_far = $offset + count( $order_ids );
 		$is_completed = $processed_so_far >= $total_orders || count( $order_ids ) < $batch_size;
 
-		return array(
+		$result = array(
 			'completed'   => $is_completed,
-			'processed'   => count( $order_ids ),
+			'processed'   => $processed_count,  // Orders processed in this batch
+			'total_processed' => $processed_so_far,  // Total orders processed so far
 			'total'       => $total_orders,
 			'next_offset' => $offset + $batch_size,
 			'progress'    => $total_orders > 0 ? min( 100, round( ( $processed_so_far / $total_orders ) * 100 ) ) : 100,
 		);
+
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'MiniLoad rebuild_index: Returning result - completed: ' . ( $is_completed ? 'yes' : 'no' ) . ', progress: ' . $result['progress'] . '%' );
+		}
+
+		return $result;
 	}
 
 	/**
 	 * AJAX: Rebuild order index
 	 */
 	public function ajax_rebuild_index() {
+		// Debug: Log that the handler was called
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'MiniLoad: ajax_rebuild_index called' );
+		}
+
 		// Security check
 		if ( ! check_ajax_referer( 'miniload-ajax', 'nonce', false ) ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'MiniLoad: Invalid nonce in ajax_rebuild_index' );
+			}
 			wp_send_json_error( array( 'message' => 'Invalid nonce' ) );
 			return;
 		}
@@ -668,8 +925,23 @@ class Order_Search_Optimizer {
 
 		try {
 			$offset = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
-			$batch_size = get_option( 'miniload_order_index_batch_size', 100 );
+			$batch_size = get_option( 'miniload_order_index_batch_size', 1000 ); // Increased from 50 to 1000 for much faster indexing with optimized SQL
+
+			// Debug logging
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'MiniLoad: Rebuild starting - offset: ' . $offset . ', batch_size: ' . $batch_size );
+			}
+
 			$miniload_result = $this->rebuild_index( $offset, $batch_size );
+
+			// Check if result is valid
+			if ( ! is_array( $miniload_result ) ) {
+				if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+					error_log( 'MiniLoad: rebuild_index returned non-array: ' . var_export( $miniload_result, true ) );
+				}
+				wp_send_json_error( array( 'message' => 'Invalid response from rebuild_index' ) );
+				return;
+			}
 
 			if ( $miniload_result['completed'] ) {
 				wp_send_json_success( array(
@@ -682,6 +954,10 @@ class Order_Search_Optimizer {
 				wp_send_json_success( $miniload_result );
 			}
 		} catch ( \Exception $e ) {
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'MiniLoad: Exception in ajax_rebuild_index: ' . $e->getMessage() );
+				error_log( 'MiniLoad: Stack trace: ' . $e->getTraceAsString() );
+			}
 			wp_send_json_error( array(
 				'message' => 'Error rebuilding index: ' . $e->getMessage()
 			) );

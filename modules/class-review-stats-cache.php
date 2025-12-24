@@ -31,6 +31,16 @@ class Review_Stats_Cache {
 	private $cache_duration = 3600;
 
 	/**
+	 * Batch loaded stats cache
+	 */
+	private $batch_cache = array();
+
+	/**
+	 * Track if we've already batch loaded for this request
+	 */
+	private $batch_loaded = false;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -39,6 +49,13 @@ class Review_Stats_Cache {
 
 		// Create table if needed
 		add_action( 'init', array( $this, 'maybe_create_table' ) );
+
+		// Batch load stats for shop/archive pages
+		add_action( 'woocommerce_before_shop_loop', array( $this, 'batch_load_stats_for_loop' ), 5 );
+		add_action( 'woocommerce_shortcode_before_products_loop', array( $this, 'batch_load_stats_for_loop' ), 5 );
+
+		// Reset batch cache for each new request
+		add_action( 'wp', array( $this, 'reset_batch_cache' ) );
 
 		// Hook into review display
 		add_filter( 'woocommerce_product_get_average_rating', array( $this, 'get_cached_average_rating' ), 10, 2 );
@@ -110,6 +127,97 @@ class Review_Stats_Cache {
 	}
 
 	/**
+	 * Reset batch cache for new page load
+	 */
+	public function reset_batch_cache() {
+		$this->batch_cache = array();
+		$this->batch_loaded = false;
+	}
+
+	/**
+	 * Batch load stats for all products in the current loop
+	 */
+	public function batch_load_stats_for_loop() {
+		// Skip if already loaded or in admin
+		if ( $this->batch_loaded || ( is_admin() && ! wp_doing_ajax() ) ) {
+			return;
+		}
+
+		global $wpdb, $wp_query;
+
+		// Get all product IDs that will be displayed
+		$product_ids = array();
+
+		// For search results and archives
+		if ( isset( $wp_query->posts ) && ! empty( $wp_query->posts ) ) {
+			foreach ( $wp_query->posts as $post ) {
+				if ( isset( $post->post_type ) && $post->post_type === 'product' ) {
+					$product_ids[] = $post->ID;
+				}
+			}
+		}
+
+		// Also try to get from WooCommerce global products loop
+		global $product;
+		if ( isset( $GLOBALS['woocommerce_loop']['products'] ) ) {
+			foreach ( $GLOBALS['woocommerce_loop']['products'] as $loop_product ) {
+				if ( is_object( $loop_product ) ) {
+					$product_ids[] = $loop_product->get_id();
+				}
+			}
+		}
+
+		// Check for related/upsells on single product pages
+		if ( is_product() && $product ) {
+			$related_ids = wc_get_related_products( $product->get_id(), 12 );
+			$upsell_ids = $product->get_upsell_ids();
+			$cross_sell_ids = $product->get_cross_sell_ids();
+
+			$product_ids = array_merge(
+				$product_ids,
+				$related_ids,
+				$upsell_ids,
+				$cross_sell_ids,
+				array( $product->get_id() ) // Include current product
+			);
+		}
+
+		// Remove duplicates and filter
+		$product_ids = array_unique( array_filter( array_map( 'intval', $product_ids ) ) );
+
+		if ( empty( $product_ids ) ) {
+			return;
+		}
+
+		// Batch load all stats in ONE query
+		$ids_placeholder = implode( ',', array_fill( 0, count( $product_ids ), '%d' ) );
+
+		$query = $wpdb->prepare(
+			"SELECT * FROM " . esc_sql( $this->table_name ) . "
+			WHERE product_id IN ($ids_placeholder)
+			AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
+			array_merge( $product_ids, array( $this->cache_duration ) )
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results = $wpdb->get_results( $query );
+
+		// Store in batch cache
+		foreach ( $results as $row ) {
+			$this->batch_cache[ $row->product_id ] = $row;
+
+			// Also cache in WordPress object cache for 5 minutes
+			$cache_key = 'miniload_review_stats_' . $row->product_id;
+			wp_cache_set( $cache_key, $row, 'miniload', 300 );
+		}
+
+		// Mark as loaded
+		$this->batch_loaded = true;
+
+		miniload_log( sprintf( '[Review Stats] Batch loaded stats for %d products in 1 query instead of %d queries', count( $results ), count( $product_ids ) ), 'info' );
+	}
+
+	/**
 	 * Get cached average rating
 	 */
 	public function get_cached_average_rating( $rating, $product ) {
@@ -125,9 +233,7 @@ class Review_Stats_Cache {
 			return floatval( $cached->average_rating );
 		}
 
-		// Calculate and cache if not found
-		$this->update_single_product_stats( $product_id );
-
+		// Don't calculate - just return original rating
 		return $rating;
 	}
 
@@ -147,9 +253,7 @@ class Review_Stats_Cache {
 			return intval( $cached->review_count );
 		}
 
-		// Calculate and cache if not found
-		$this->update_single_product_stats( $product_id );
-
+		// Don't calculate - just return original count
 		return $count;
 	}
 
@@ -175,26 +279,29 @@ class Review_Stats_Cache {
 			);
 		}
 
-		// Calculate and cache if not found
-		$this->update_single_product_stats( $product_id );
-
+		// Don't calculate - just return original counts
 		return $counts;
 	}
 
 	/**
-	 * Get cached stats from database
+	 * Get cached stats from cache only (no database queries)
 	 */
 	private function get_cached_stats( $product_id ) {
-		global $wpdb;
+		// First check batch cache
+		if ( isset( $this->batch_cache[ $product_id ] ) ) {
+			return $this->batch_cache[ $product_id ];
+		}
 
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-		return $wpdb->get_row( $wpdb->prepare(
-			"SELECT * FROM " . esc_sql( $this->table_name ) . "
-			WHERE product_id = %d
-			AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
-			$product_id,
-			$this->cache_duration
-		) );
+		// Check WordPress object cache
+		$cache_key = 'miniload_review_stats_' . $product_id;
+		$cached = wp_cache_get( $cache_key, 'miniload' );
+
+		if ( false !== $cached ) {
+			return $cached;
+		}
+
+		// Not in cache - return null (don't query database)
+		return null;
 	}
 
 	/**

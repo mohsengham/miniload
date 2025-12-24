@@ -184,14 +184,14 @@ class Pagination_Optimizer {
 		if ( $count_query ) {
 			$start = microtime( true );
 			// Direct database query with caching
-		$cache_key = 'miniload_' . md5(  $count_query  );
-		$cached = wp_cache_get( $cache_key );
-		if ( false === $cached ) {
-			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-			$cached = $wpdb->get_var( $wpdb->prepare( "%s", $count_query ) );
-			wp_cache_set( $cache_key, $cached, '', 3600 );
-		}
-		$total_products = $cached;
+			$cache_key = 'miniload_' . md5( $count_query );
+			$cached = wp_cache_get( $cache_key );
+			if ( false === $cached ) {
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
+				$cached = $wpdb->get_var( $count_query );
+				wp_cache_set( $cache_key, $cached, '', 3600 );
+			}
+			$count = $cached;
 			$time = ( microtime( true ) - $start ) * 1000;
 
 			miniload_log( sprintf( 'Count query executed in %.2fms', $time ), 'debug' );
@@ -260,13 +260,13 @@ class Pagination_Optimizer {
 					$term_ids = array_map( 'intval', (array) $tax['terms'] );
 					$term_list = implode( ',', $term_ids );
 
-					$where .= $wpdb->prepare( "
+					$where .= "
 						AND ID IN (
 							SELECT object_id
 							FROM {$wpdb->term_relationships}
-							WHERE term_taxonomy_id IN (%s)
+							WHERE term_taxonomy_id IN ({$term_list})
 						)
-					", $term_list );
+					";
 				}
 			}
 		}
@@ -278,7 +278,7 @@ class Pagination_Optimizer {
 		";
 
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-		return intval( $wpdb->get_var( $wpdb->prepare( "%s", $count_query ) ) );
+		return intval( $wpdb->get_var( $count_query ) );
 	}
 
 	/**

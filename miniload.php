@@ -11,7 +11,7 @@
  * Plugin Name:       MiniLoad - Performance Optimizer for WooCommerce
  * Plugin URI:        https://github.com/mohsengham/miniload
  * Description:       Supercharge your WooCommerce store with blazing-fast AJAX search, optimized queries, and intelligent caching.
- * Version:           1.0.6
+ * Version:           1.1.0
  * Requires at least: 5.0
  * Requires PHP:      7.4
  * Author:            Minimall Team
@@ -39,7 +39,7 @@
 defined( 'ABSPATH' ) || exit;
 
 // Define plugin constants
-define( 'MINILOAD_VERSION', '1.0.5' );
+define( 'MINILOAD_VERSION', '1.1.0' );
 define( 'MINILOAD_PLUGIN_FILE', __FILE__ );
 define( 'MINILOAD_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'MINILOAD_PLUGIN_URL', plugin_dir_url( __FILE__ ) );
@@ -185,12 +185,15 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 			// AJAX hooks
 			add_action( 'wp_ajax_miniload_ajax', array( $this, 'handle_ajax' ) );
 			add_action( 'wp_ajax_miniload_save_settings', array( $this, 'ajax_save_settings' ) );
+
+			// Register Order Search AJAX handler early to ensure it's available
+			add_action( 'wp_ajax_miniload_rebuild_order_index', array( $this, 'handle_order_rebuild_ajax' ) );
 			add_action( 'wp_ajax_miniload_direct_save', array( $this, 'direct_save' ) );
 
-			// WP-CLI support (disabled for now)
-			// if ( defined( 'WP_CLI' ) && WP_CLI ) {
-			// 	$this->init_cli();
-			// }
+			// WP-CLI support
+			if ( defined( 'WP_CLI' ) && WP_CLI ) {
+				$this->init_cli();
+			}
 		}
 
 		/**
@@ -272,8 +275,8 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 				return;
 			}
 
-			// Only load if WooCommerce is active
-			if ( ! class_exists( 'WooCommerce' ) ) {
+			// Only load if WooCommerce is active (but allow for AJAX requests)
+			if ( ! class_exists( 'WooCommerce' ) && ! wp_doing_ajax() ) {
 				return;
 			}
 
@@ -285,6 +288,11 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 			// Load each enabled module
 			foreach ( $enabled_modules as $module_id => $module_class ) {
 				$this->load_module( $module_id, $module_class );
+			}
+
+			// Always load Order_Search_Optimizer for AJAX to ensure rebuild works
+			if ( wp_doing_ajax() && ! isset( $this->modules['order_search_optimizer'] ) ) {
+				$this->load_module( 'order_search_optimizer', 'Order_Search_Optimizer' );
 			}
 
 			// ALWAYS load Ajax Search Pro module (critical feature)
@@ -302,6 +310,12 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 			if ( ! isset( $this->modules['search_indexer'] ) && is_admin() ) {
 				require_once MINILOAD_PLUGIN_DIR . 'modules/class-search-indexer.php';
 				$this->modules['search_indexer'] = new \MiniLoad\Modules\Search_Indexer();
+			}
+
+			// CRITICAL: Load Search Optimizer for product search (including Persian/Arabic)
+			if ( ! isset( $this->modules['search_optimizer'] ) ) {
+				require_once MINILOAD_PLUGIN_DIR . 'modules/class-search-optimizer.php';
+				$this->modules['search_optimizer'] = new \MiniLoad\Modules\Search_Optimizer();
 			}
 
 			// Load Media Search Optimizer if enabled
@@ -470,6 +484,13 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 				'type' => 'integer',
 				'sanitize_callback' => 'absint',
 				'default' => 100
+			) );
+
+			// Register order search limit setting
+			register_setting( 'miniload_search_settings', 'miniload_order_search_limit', array(
+				'type' => 'integer',
+				'sanitize_callback' => 'absint',
+				'default' => 5000
 			) );
 
 			// Additional search settings that were missing
@@ -688,9 +709,26 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 				wp_send_json_error( 'Unauthorized' );
 			}
 
-			// Check nonce
-			if ( ! isset( $_POST['nonce'] ) || ! wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['nonce'] ) ), 'miniload_ajax_save' ) ) {
+			// Check nonce - accept both nonce types
+			$nonce_valid = false;
+			if ( isset( $_POST['nonce'] ) ) {
+				$nonce = sanitize_text_field( wp_unslash( $_POST['nonce'] ) );
+				$nonce_valid = wp_verify_nonce( $nonce, 'miniload_ajax_save' ) || wp_verify_nonce( $nonce, 'miniload-settings' );
+			}
+
+			if ( ! $nonce_valid ) {
 				wp_send_json_error( 'Security check failed' );
+			}
+
+			// Handle direct settings array (from order search page)
+			if ( isset( $_POST['settings'] ) && is_array( $_POST['settings'] ) ) {
+				foreach ( $_POST['settings'] as $key => $value ) {
+					$sanitized_key = sanitize_key( $key );
+					$sanitized_value = sanitize_text_field( wp_unslash( $value ) );
+					update_option( $sanitized_key, $sanitized_value );
+				}
+				wp_send_json_success( 'Settings saved' );
+				return;
 			}
 
 			$tab = sanitize_text_field( wp_unslash( $_POST['tab'] ?? '' ) );
@@ -936,10 +974,28 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 		 */
 		public function add_action_links( $links ) {
 			$action_links = array(
-				'<a href="' . admin_url( 'admin.php?page=miniload-settings' ) . '">' . __( 'Settings', 'miniload' ) . '</a>',
+				'<a href="' . admin_url( 'admin.php?page=miniload' ) . '">' . __( 'Settings', 'miniload' ) . '</a>',
 			);
 
 			return array_merge( $action_links, $links );
+		}
+
+		/**
+		 * Handle Order Rebuild AJAX request
+		 * Delegates to the Order_Search_Optimizer module if loaded
+		 */
+		public function handle_order_rebuild_ajax() {
+			// Load Order Search Optimizer module if not already loaded
+			if ( ! isset( $this->modules['order_search_optimizer'] ) ) {
+				$this->load_module( 'order_search_optimizer', 'Order_Search_Optimizer' );
+			}
+
+			// Check if module is now loaded
+			if ( isset( $this->modules['order_search_optimizer'] ) ) {
+				$this->modules['order_search_optimizer']->ajax_rebuild_index();
+			} else {
+				wp_send_json_error( array( 'message' => 'Order Search Optimizer module not available' ) );
+			}
 		}
 
 		/**
@@ -1024,7 +1080,8 @@ if ( ! class_exists( 'MiniLoad' ) ) {
 		 * Initialize WP-CLI commands
 		 */
 		private function init_cli() {
-			\WP_CLI::add_command( 'miniload', 'MiniLoad\\CLI\\Commands' );
+			// Load CLI commands
+			require_once MINILOAD_PLUGIN_DIR . 'includes/class-miniload-cli.php';
 		}
 
 		/**

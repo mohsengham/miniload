@@ -17,7 +17,7 @@ if ( class_exists( '\MiniLoad\Modules\Order_Search_Optimizer' ) ) {
 // Get stats
 $stats = $optimizer ? $optimizer->get_stats() : array();
 
-// Get total orders count
+// Get total orders count (excluding auto-drafts)
 // Try using direct database query for reliable count
 global $wpdb;
 if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) &&
@@ -27,11 +27,12 @@ if ( class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) &&
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.PreparedSQL.InterpolatedNotPrepared
 	$total_orders = (int) $wpdb->get_var( "SELECT COUNT(*) FROM {$table_name} WHERE type = 'shop_order'" );
 } else {
-	// Legacy mode - count from posts table
+	// Legacy mode - count all WooCommerce orders (statuses starting with 'wc-')
 	// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery
 	$total_orders = (int) $wpdb->get_var( $wpdb->prepare(
-		"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s AND post_status != %s",
-		'shop_order', 'trash'
+		"SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = %s
+		AND post_status LIKE 'wc-%%'",
+		'shop_order'
 	) );
 }
 
@@ -97,6 +98,26 @@ $hpos_enabled = class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) &&
 			<span class="dashicons dashicons-admin-tools"></span>
 			<?php _e( 'Index Management', 'miniload' ); ?>
 		</h3>
+
+		<!-- Search Settings -->
+		<div class="miniload-settings-group">
+			<label for="miniload_order_search_limit">
+				<?php _e( 'Maximum Search Results', 'miniload' ); ?>
+			</label>
+			<input type="number"
+				   id="miniload_order_search_limit"
+				   name="miniload_order_search_limit"
+				   value="<?php echo esc_attr( get_option( 'miniload_order_search_limit', 5000 ) ); ?>"
+				   min="100"
+				   max="999999"
+				   step="100" />
+			<p class="description">
+				<?php _e( 'Maximum number of orders to return in search results. Higher values may slow down the search. Default: 5000', 'miniload' ); ?>
+			</p>
+			<button type="button" class="button button-secondary" id="save-search-limit">
+				<?php _e( 'Save Limit', 'miniload' ); ?>
+			</button>
+		</div>
 
 		<div id="order-index-progress" style="display:none; margin: 20px 0;">
 			<p><strong><?php _e( 'Rebuilding Order Search Index...', 'miniload' ); ?></strong></p>
@@ -233,6 +254,59 @@ $hpos_enabled = class_exists( 'Automattic\WooCommerce\Utilities\OrderUtil' ) &&
 
 <script>
 jQuery(document).ready(function($) {
+	// Save search limit
+	$('#save-search-limit').on('click', function(e) {
+		e.preventDefault();
+		var $button = $(this);
+		var limit = $('#miniload_order_search_limit').val();
+
+		$button.prop('disabled', true).text('<?php _e( 'Saving...', 'miniload' ); ?>');
+
+		$.ajax({
+			url: ajaxurl,
+			type: 'POST',
+			data: {
+				action: 'miniload_save_settings',
+				nonce: '<?php echo wp_create_nonce( 'miniload-settings' ); ?>',
+				settings: {
+					'miniload_order_search_limit': limit
+				}
+			},
+			success: function(response) {
+				$button.text('<?php _e( 'Saved!', 'miniload' ); ?>').addClass('button-primary');
+
+				// Show success notification
+				var $notification = $('<div class="notice notice-success is-dismissible" style="margin-top: 10px;"><p><strong><?php _e( 'Success!', 'miniload' ); ?></strong> <?php _e( 'Order search limit updated to', 'miniload' ); ?> ' + limit + ' <?php _e( 'orders', 'miniload' ); ?>.</p></div>');
+				$button.closest('.miniload-settings-group').after($notification);
+
+				// Auto-dismiss after 5 seconds
+				setTimeout(function() {
+					$notification.fadeOut(300, function() { $(this).remove(); });
+				}, 5000);
+
+				setTimeout(function() {
+					$button.prop('disabled', false).text('<?php _e( 'Save Limit', 'miniload' ); ?>').removeClass('button-primary');
+				}, 2000);
+			},
+			error: function() {
+				$button.prop('disabled', false).text('<?php _e( 'Error!', 'miniload' ); ?>');
+
+				// Show error notification
+				var $notification = $('<div class="notice notice-error is-dismissible" style="margin-top: 10px;"><p><strong><?php _e( 'Error!', 'miniload' ); ?></strong> <?php _e( 'Failed to update order search limit. Please try again.', 'miniload' ); ?></p></div>');
+				$button.closest('.miniload-settings-group').after($notification);
+
+				// Auto-dismiss after 5 seconds
+				setTimeout(function() {
+					$notification.fadeOut(300, function() { $(this).remove(); });
+				}, 5000);
+
+				setTimeout(function() {
+					$button.text('<?php _e( 'Save Limit', 'miniload' ); ?>');
+				}, 2000);
+			}
+		});
+	});
+
 	// Rebuild Order Index
 	$('#rebuild-order-index').on('click', function() {
 		var $button = $(this);
@@ -246,6 +320,7 @@ jQuery(document).ready(function($) {
 
 		function processOrderBatch(offset) {
 			offset = offset || 0;
+			console.log('Processing batch with offset:', offset);
 
 			$.ajax({
 				url: ajaxurl,
@@ -256,8 +331,10 @@ jQuery(document).ready(function($) {
 					offset: offset
 				},
 				success: function(response) {
+					console.log('Rebuild response:', response);
 					if (response.success) {
 						if (response.data.completed) {
+							console.log('Rebuild completed');
 							$progressBar.css('width', '100%');
 							$progressText.text('100%');
 							$status.html('<span style="color: #46b450;">✓ ' + response.data.message + '</span>');
@@ -269,20 +346,37 @@ jQuery(document).ready(function($) {
 							}, 2000);
 						} else {
 							var progress = response.data.progress || 0;
+							var totalProcessed = response.data.total_processed || response.data.next_offset || offset;
+							var total = response.data.total || 0;
+							console.log('Continuing batch - Progress:', progress + '%, Next offset:', response.data.next_offset, 'Total processed:', totalProcessed);
 							$progressBar.css('width', progress + '%');
 							$progressText.text(progress + '%');
-							$status.text('Processed ' + response.data.processed + ' orders...');
+							$status.text('Processed ' + totalProcessed.toLocaleString() + ' of ' + total.toLocaleString() + ' orders...');
 
 							// Continue with next batch
-							processOrderBatch(response.data.next_offset);
+							if (response.data.next_offset !== undefined) {
+								processOrderBatch(response.data.next_offset);
+							} else {
+								console.error('Missing next_offset in response');
+								$status.html('<span style="color: #dc3232;">Error: Missing next_offset in response</span>');
+								$button.prop('disabled', false);
+							}
 						}
 					} else {
 						$status.html('<span style="color: #dc3232;">Error: ' + (response.data.message || 'Unknown error') + '</span>');
 						$button.prop('disabled', false);
 					}
 				},
-				error: function() {
-					$status.html('<span style="color: #dc3232;">Error: Failed to rebuild index</span>');
+				error: function(xhr, status, error) {
+					console.error('AJAX Error:', status, error);
+					console.error('Response:', xhr.responseText);
+					var errorMsg = 'Failed to rebuild index';
+					if (xhr.responseJSON && xhr.responseJSON.data && xhr.responseJSON.data.message) {
+						errorMsg = xhr.responseJSON.data.message;
+					} else if (xhr.responseText) {
+						errorMsg += ' (Check console for details)';
+					}
+					$status.html('<span style="color: #dc3232;">Error: ' + errorMsg + '</span>');
 					$button.prop('disabled', false);
 				}
 			});

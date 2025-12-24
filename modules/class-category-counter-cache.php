@@ -31,6 +31,16 @@ class Category_Counter_Cache {
 	private $cache_duration = 3600;
 
 	/**
+	 * Batch loaded category counts
+	 */
+	private $batch_cache = array();
+
+	/**
+	 * Track if we've batch loaded for this request
+	 */
+	private $batch_loaded = false;
+
+	/**
 	 * Constructor
 	 */
 	public function __construct() {
@@ -39,6 +49,9 @@ class Category_Counter_Cache {
 
 		// Create table if needed
 		add_action( 'init', array( $this, 'maybe_create_table' ) );
+
+		// Reset batch cache for each request
+		add_action( 'wp', array( $this, 'reset_batch_cache' ) );
 
 		// Hook into term count updates
 		add_filter( 'get_terms', array( $this, 'inject_cached_counts' ), 10, 2 );
@@ -72,7 +85,8 @@ class Category_Counter_Cache {
 			wp_cache_set( $cache_key, $cached, '', 3600 );
 		}
 
-		if ( ! isset( $table_exists ) || $table_exists !== $this->table_name ) {
+		// Check if table exists using the correct variable
+		if ( $cached !== $this->table_name ) {
 			require_once ABSPATH . 'wp-admin/includes/upgrade.php';
 
 			$charset_collate = $wpdb->get_charset_collate();
@@ -88,8 +102,8 @@ class Category_Counter_Cache {
 
 			dbDelta( $sql );
 
-			// Initial population
-			$this->update_all_counts();
+			// Don't populate immediately - let it happen via scheduled event
+			// $this->update_all_counts(); // Commented out - too expensive to run on init
 		}
 	}
 
@@ -133,48 +147,39 @@ class Category_Counter_Cache {
 	public function update_single_category_count( $term_id ) {
 		global $wpdb;
 
-		// Count all products in category (including children categories)
-		$args = array(
-			'post_type' => 'product',
-			'post_status' => 'publish',
-			'posts_per_page' => -1,
-			'fields' => 'ids',
-			'tax_query' => array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_tax_query -- Required for category filtering
-				array(
-					'taxonomy' => 'product_cat',
-					'field' => 'term_id',
-					'terms' => $term_id,
-					'include_children' => true
-				)
-			)
-		);
+		// Get all term IDs including children
+		$term_ids = get_term_children( $term_id, 'product_cat' );
+		$term_ids[] = $term_id;
+		$term_ids = array_map( 'intval', $term_ids );
+		$term_ids_str = implode( ',', $term_ids );
 
-		$query = new \WP_Query( $args );
-		$product_count = $query->found_posts;
+		// Count all products in category using direct SQL (much faster than WP_Query)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
+		$product_count = $wpdb->get_var( "
+			SELECT COUNT(DISTINCT p.ID)
+			FROM {$wpdb->posts} p
+			INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			WHERE p.post_type = 'product'
+			AND p.post_status = 'publish'
+			AND tt.term_id IN ({$term_ids_str})
+		" );
 
-		// Count visible products (in stock, not hidden)
-		$args['meta_query'] = array( // phpcs:ignore WordPress.DB.SlowDBQuery.slow_db_query_meta_query -- Required for stock/visibility filtering
-			'relation' => 'AND',
-			array(
-				'key' => '_visibility',
-				'value' => array( 'catalog', 'visible' ),
-				'compare' => 'IN'
-			),
-			array(
-				'relation' => 'OR',
-				array(
-					'key' => '_stock_status',
-					'value' => 'instock'
-				),
-				array(
-					'key' => '_stock_status',
-					'compare' => 'NOT EXISTS'
-				)
-			)
-		);
-
-		$query = new \WP_Query( $args );
-		$visible_count = $query->found_posts;
+		// Count visible products (in stock, not hidden) using direct SQL
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
+		$visible_count = $wpdb->get_var( "
+			SELECT COUNT(DISTINCT p.ID)
+			FROM {$wpdb->posts} p
+			INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+			INNER JOIN {$wpdb->term_taxonomy} tt ON tr.term_taxonomy_id = tt.term_taxonomy_id
+			LEFT JOIN {$wpdb->postmeta} pm_vis ON p.ID = pm_vis.post_id AND pm_vis.meta_key = '_visibility'
+			LEFT JOIN {$wpdb->postmeta} pm_stock ON p.ID = pm_stock.post_id AND pm_stock.meta_key = '_stock_status'
+			WHERE p.post_type = 'product'
+			AND p.post_status = 'publish'
+			AND tt.term_id IN ({$term_ids_str})
+			AND (pm_vis.meta_value IN ('catalog', 'visible') OR pm_vis.meta_value IS NULL)
+			AND (pm_stock.meta_value = 'instock' OR pm_stock.meta_value IS NULL)
+		" );
 
 		// Update or insert cache
 		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
@@ -229,11 +234,6 @@ class Category_Counter_Cache {
 			return $terms;
 		}
 
-		// Use static cache to prevent repeated queries in the same request
-		static $request_cache = array();
-
-		global $wpdb;
-
 		// Get all term IDs
 		$term_ids = array();
 		foreach ( $terms as $term ) {
@@ -246,46 +246,27 @@ class Category_Counter_Cache {
 			return $terms;
 		}
 
-		// Create a cache key for this specific set of term IDs
-		$request_key = md5( implode( ',', $term_ids ) );
-
-		// Check if we already have these counts in the request cache
-		if ( ! isset( $request_cache[ $request_key ] ) ) {
-			// Fetch cached counts
-			// Direct database query with caching
-			$cache_key = 'miniload_' . md5(  $wpdb->prepare(
-				"SELECT term_id, product_count, visible_count
-				FROM " . esc_sql( $this->table_name ) . "
-				WHERE term_id IN (" . implode( ',', array_fill( 0, count( $term_ids ), '%d' ) ) . ")
-				AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
-				array_merge( $term_ids, array( $this->cache_duration ) )
-			), OBJECT_K  );
-			$cached = wp_cache_get( $cache_key );
-			if ( false === $cached ) {
-				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-				$cached = $wpdb->get_results( $wpdb->prepare(
-				"SELECT term_id, product_count, visible_count
-				FROM " . esc_sql( $this->table_name ) . "
-				WHERE term_id IN (" . implode( ',', array_fill( 0, count( $term_ids ), '%d' ) ) . ")
-				AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
-				array_merge( $term_ids, array( $this->cache_duration ) )
-			), OBJECT_K );
-				wp_cache_set( $cache_key, $cached, '', 3600 );
+		// Update term counts from batch cache or WordPress cache ONLY
+		foreach ( $terms as &$term ) {
+			if ( ! is_object( $term ) || ! isset( $term->term_id ) ) {
+				continue;
 			}
 
-			// Store in request cache
-			$request_cache[ $request_key ] = $cached;
-		}
+			// Check batch cache first
+			if ( isset( $this->batch_cache[ $term->term_id ] ) ) {
+				$cached = $this->batch_cache[ $term->term_id ];
+				$term->count = $cached->product_count;
+				$term->visible_count = $cached->visible_count;
+				continue;
+			}
 
-		// Get cached counts from request cache
-		$cached_counts = $request_cache[ $request_key ];
+			// Check WordPress object cache
+			$cache_key = 'miniload_cat_count_' . $term->term_id;
+			$cached = wp_cache_get( $cache_key, 'miniload' );
 
-		// Update term counts
-		foreach ( $terms as &$term ) {
-			if ( is_object( $term ) && isset( $cached_counts[ $term->term_id ] ) ) {
-				$term->count = $cached_counts[ $term->term_id ]->product_count;
-				// Add custom property for visible count
-				$term->visible_count = $cached_counts[ $term->term_id ]->visible_count;
+			if ( false !== $cached ) {
+				$term->count = $cached->product_count;
+				$term->visible_count = $cached->visible_count;
 			}
 		}
 
@@ -293,28 +274,80 @@ class Category_Counter_Cache {
 	}
 
 	/**
+	 * Reset batch cache for new page load
+	 */
+	public function reset_batch_cache() {
+		$this->batch_cache = array();
+		$this->batch_loaded = false;
+	}
+
+	/**
+	 * Batch load all category counts in one query
+	 */
+	private function batch_load_category_counts() {
+		// Mark as loaded to prevent multiple calls
+		$this->batch_loaded = true;
+
+		global $wpdb;
+
+		// Get all product category term IDs - NO LIMIT
+		$terms = get_terms( array(
+			'taxonomy' => 'product_cat',
+			'hide_empty' => false,
+			'fields' => 'ids',
+		) );
+
+		if ( empty( $terms ) || is_wp_error( $terms ) ) {
+			return;
+		}
+
+		// Batch load all counts in ONE query
+		$ids_placeholder = implode( ',', array_fill( 0, count( $terms ), '%d' ) );
+
+		$query = $wpdb->prepare(
+			"SELECT term_id, product_count, visible_count
+			FROM " . esc_sql( $this->table_name ) . "
+			WHERE term_id IN ($ids_placeholder)
+			AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
+			array_merge( $terms, array( $this->cache_duration ) )
+		);
+
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$results = $wpdb->get_results( $query );
+
+		// Store in batch cache AND WordPress object cache
+		foreach ( $results as $row ) {
+			$this->batch_cache[ $row->term_id ] = $row;
+			$cache_key = 'miniload_cat_count_' . $row->term_id;
+			wp_cache_set( $cache_key, $row, 'miniload', 300 );
+		}
+
+		if ( ! empty( $results ) ) {
+			miniload_log( sprintf( '[Category Counts] Batch loaded %d category counts in 1 query', count( $results ) ), 'info' );
+		}
+	}
+
+	/**
 	 * Get cached count HTML for subcategories
 	 */
 	public function get_cached_count_html( $html, $category ) {
-		global $wpdb;
-
-		// Try to get cached count
-		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-		$cached = $wpdb->get_row( $wpdb->prepare(
-			"SELECT product_count, visible_count
-			FROM " . esc_sql( $this->table_name ) . "
-			WHERE term_id = %d
-			AND last_updated > DATE_SUB(NOW(), INTERVAL %d SECOND)",
-			$category->term_id,
-			$this->cache_duration
-		) );
-
-		if ( $cached ) {
+		// Check batch cache first
+		if ( isset( $this->batch_cache[ $category->term_id ] ) ) {
+			$cached = $this->batch_cache[ $category->term_id ];
 			$count = apply_filters( 'miniload_subcategory_count_html_count', $cached->visible_count, $category );
 			return ' <mark class="count">(' . esc_html( $count ) . ')</mark>';
 		}
 
-		// Fallback to original
+		// Check WordPress object cache
+		$cache_key = 'miniload_cat_count_' . $category->term_id;
+		$cached = wp_cache_get( $cache_key, 'miniload' );
+
+		if ( false !== $cached ) {
+			$count = apply_filters( 'miniload_subcategory_count_html_count', $cached->visible_count, $category );
+			return ' <mark class="count">(' . esc_html( $count ) . ')</mark>';
+		}
+
+		// No cache - just return original HTML
 		return $html;
 	}
 

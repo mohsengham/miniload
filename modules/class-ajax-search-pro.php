@@ -266,7 +266,94 @@ class Ajax_Search_Pro {
 				return $this->perform_fallback_search( $term, $type );
 			}
 
-			// First, get the total count for accurate display
+			// Check if search term contains non-Latin characters (Persian, Arabic, etc)
+			$is_non_latin = preg_match( '/[\x{0600}-\x{06FF}\x{0750}-\x{077F}\x{FB50}-\x{FDFF}\x{FE70}-\x{FEFF}]/u', $term );
+
+			// For Persian/Arabic text, use LIKE search instead of FULLTEXT
+			if ( $is_non_latin ) {
+				$like_term = '%' . $wpdb->esc_like( $term ) . '%';
+
+				// Get total count for Persian search
+				$total_count = $wpdb->get_var( $wpdb->prepare( "
+					SELECT COUNT(DISTINCT p.product_id)
+					FROM {$this->search_table} p
+					INNER JOIN {$wpdb->posts} post ON p.product_id = post.ID
+						AND post.post_status = 'publish'
+					WHERE
+						p.title LIKE %s
+						OR p.sku LIKE %s
+						OR p.categories LIKE %s
+						OR p.tags LIKE %s
+						OR p.attributes LIKE %s
+				", $like_term, $like_term, $like_term, $like_term, $like_term ) );
+
+				$results['total_products'] = intval( $total_count );
+
+				// Get products for Persian search
+				$products = $wpdb->get_results( $wpdb->prepare( "
+					SELECT
+						p.product_id,
+						p.sku,
+						p.title,
+						post.post_excerpt as excerpt,
+						pm1.meta_value as price,
+						pm2.meta_value as sale_price,
+						pm3.meta_value as image_id,
+						CASE
+							WHEN p.title LIKE %s THEN 100
+							WHEN p.sku LIKE %s THEN 90
+							WHEN p.categories LIKE %s THEN 70
+							WHEN p.tags LIKE %s THEN 60
+							WHEN p.attributes LIKE %s THEN 50
+							ELSE 1
+						END as relevance
+					FROM {$this->search_table} p
+					INNER JOIN {$wpdb->posts} post ON p.product_id = post.ID
+						AND post.post_status = 'publish'
+					LEFT JOIN {$wpdb->postmeta} pm1 ON p.product_id = pm1.post_id
+						AND pm1.meta_key = '_price'
+					LEFT JOIN {$wpdb->postmeta} pm2 ON p.product_id = pm2.post_id
+						AND pm2.meta_key = '_sale_price'
+					LEFT JOIN {$wpdb->postmeta} pm3 ON p.product_id = pm3.post_id
+						AND pm3.meta_key = '_thumbnail_id'
+					WHERE
+						p.title LIKE %s
+						OR p.sku LIKE %s
+						OR p.categories LIKE %s
+						OR p.tags LIKE %s
+						OR p.attributes LIKE %s
+					ORDER BY relevance DESC, p.title ASC
+					LIMIT %d
+				",
+					$like_term, $like_term, $like_term, $like_term, $like_term,
+					$like_term, $like_term, $like_term, $like_term, $like_term,
+					$this->max_results
+				) );
+
+				// Process products
+				foreach ( $products as $product ) {
+					$image_url = '';
+					if ( $product->image_id ) {
+						$image_url = wp_get_attachment_image_url( $product->image_id, 'thumbnail' );
+					}
+
+					$results['products'][] = array(
+						'id' => $product->product_id,
+						'title' => $product->title,
+						'sku' => $product->sku,
+						'excerpt' => $product->excerpt,
+						'price' => $product->price,
+						'sale_price' => $product->sale_price,
+						'url' => get_permalink( $product->product_id ),
+						'image' => $image_url,
+						'type' => 'product'
+					);
+				}
+
+				return $results;
+			}
+
+			// First, get the total count for accurate display (for Latin search)
 			// Direct database query with caching
 		// phpcs:ignore WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table name cannot be parameterized
 		$cache_key = 'miniload_' . md5(  $wpdb->prepare( "

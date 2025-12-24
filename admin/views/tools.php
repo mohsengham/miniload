@@ -154,27 +154,99 @@ global $wpdb;
 		</div>
 	</div>
 
-	<!-- Quick Commands -->
+	<!-- WP-CLI Commands Reference -->
 	<div class="tool-card" style="background: #fff; border: 1px solid #ccd0d4; padding: 20px; margin-top: 20px;">
-		<h2><?php echo esc_html__( 'Quick Commands', 'miniload' ); ?></h2>
+		<h2><?php echo esc_html__( 'WP-CLI Commands Reference', 'miniload' ); ?></h2>
 
-		<p><?php echo esc_html__( 'Run these commands via SSH for manual operations:', 'miniload' ); ?></p>
+		<p><?php echo esc_html__( 'Run these commands via SSH/terminal. Requires WP-CLI to be installed.', 'miniload' ); ?></p>
 
-		<div style="background: #f0f0f0; padding: 15px; border-radius: 3px; font-family: monospace; margin-top: 10px;">
-			<strong><?php echo esc_html__( 'Index all products:', 'miniload' ); ?></strong><br>
-			<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">
-				php /home/zabanpub/public_html/miniload-full-index.php
-			</code><br><br>
+		<!-- Status Commands -->
+		<div style="margin-top: 20px;">
+			<h3 style="font-size: 16px; margin-bottom: 10px; color: #0073aa;">📊 <?php echo esc_html__( 'Status & Information', 'miniload' ); ?></h3>
+			<div style="background: #f0f0f0; padding: 15px; border-radius: 3px; font-family: monospace;">
+				<strong><?php echo esc_html__( 'Check all indexes status:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload status</code><br><br>
 
-			<strong><?php echo esc_html__( 'Quick index (first 1000 products):', 'miniload' ); ?></strong><br>
-			<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">
-				php /home/zabanpub/public_html/miniload-index.php
-			</code><br><br>
+				<strong><?php echo esc_html__( 'Check order index status:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload order-status</code><br><br>
 
-			<strong><?php echo esc_html__( 'Test MiniLoad status:', 'miniload' ); ?></strong><br>
-			<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">
-				php /home/zabanpub/public_html/test-miniload.php
-			</code>
+				<strong><?php echo esc_html__( 'Check product index status:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload product-status</code><br><br>
+
+				<strong><?php echo esc_html__( 'View cache statistics:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload cache-stats</code>
+			</div>
+		</div>
+
+		<!-- Indexing Commands -->
+		<div style="margin-top: 20px;">
+			<h3 style="font-size: 16px; margin-bottom: 10px; color: #0073aa;">🚀 <?php echo esc_html__( 'Index Rebuilding (Recommended)', 'miniload' ); ?></h3>
+			<div style="background: #f0f0f0; padding: 15px; border-radius: 3px; font-family: monospace;">
+				<strong><?php echo esc_html__( 'Rebuild product index (FAST):', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild-products --batch-size=2000</code><br><br>
+
+				<strong><?php echo esc_html__( 'Rebuild order index (TURBO mode - FASTEST):', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild-orders --turbo</code><br><br>
+
+				<strong><?php echo esc_html__( 'Rebuild order index (Normal mode):', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild-orders --batch-size=2000</code><br><br>
+
+				<strong><?php echo esc_html__( 'Rebuild all indexes:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild --type=all --progress</code>
+			</div>
+		</div>
+
+		<!-- Advanced Options -->
+		<div style="margin-top: 20px;">
+			<h3 style="font-size: 16px; margin-bottom: 10px; color: #0073aa;">⚙️ <?php echo esc_html__( 'Advanced Options', 'miniload' ); ?></h3>
+			<div style="background: #f0f0f0; padding: 15px; border-radius: 3px; font-family: monospace;">
+				<strong><?php echo esc_html__( 'Clear index before rebuilding:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild-products --clear</code><br><br>
+
+				<strong><?php echo esc_html__( 'Show progress bar:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild-orders --progress</code><br><br>
+
+				<strong><?php echo esc_html__( 'Custom batch size:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload rebuild-products --batch-size=5000</code>
+			</div>
+		</div>
+
+		<!-- Cache Commands -->
+		<div style="margin-top: 20px;">
+			<h3 style="font-size: 16px; margin-bottom: 10px; color: #0073aa;">🗑️ <?php echo esc_html__( 'Cache Management', 'miniload' ); ?></h3>
+			<div style="background: #f0f0f0; padding: 15px; border-radius: 3px; font-family: monospace;">
+				<strong><?php echo esc_html__( 'Clear all MiniLoad caches:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload clear-cache</code><br><br>
+
+				<strong><?php echo esc_html__( 'Clear specific cache type:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload clear --type=query</code><br>
+				<span style="font-size: 12px; color: #666;"><?php echo esc_html__( 'Types: query, filter, search, all', 'miniload' ); ?></span>
+			</div>
+		</div>
+
+		<!-- Search Commands -->
+		<div style="margin-top: 20px;">
+			<h3 style="font-size: 16px; margin-bottom: 10px; color: #0073aa;">🔍 <?php echo esc_html__( 'Search Testing', 'miniload' ); ?></h3>
+			<div style="background: #f0f0f0; padding: 15px; border-radius: 3px; font-family: monospace;">
+				<strong><?php echo esc_html__( 'Test product search:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload search "search term"</code><br><br>
+
+				<strong><?php echo esc_html__( 'Search with limit:', 'miniload' ); ?></strong><br>
+				<code style="background: #fff; padding: 5px; display: inline-block; margin: 5px 0;">wp miniload search "search term" --limit=50</code>
+			</div>
+		</div>
+
+		<!-- Command Examples -->
+		<div style="background: #e7f5fe; padding: 15px; border-radius: 3px; margin-top: 20px; border-left: 4px solid #0073aa;">
+			<h4 style="margin-top: 0;"><?php echo esc_html__( '💡 Common Usage Examples', 'miniload' ); ?></h4>
+			<ul style="margin-left: 20px; font-family: monospace; font-size: 13px;">
+				<li><strong><?php echo esc_html__( 'After importing products:', 'miniload' ); ?></strong><br>
+				<code>wp miniload rebuild-products --batch-size=2000 --progress</code></li>
+				<li style="margin-top: 10px;"><strong><?php echo esc_html__( 'Complete reindex (products + orders):', 'miniload' ); ?></strong><br>
+				<code>wp miniload rebuild-products --batch-size=2000 && wp miniload rebuild-orders --turbo</code></li>
+				<li style="margin-top: 10px;"><strong><?php echo esc_html__( 'Fresh start (clear + rebuild):', 'miniload' ); ?></strong><br>
+				<code>wp miniload rebuild-orders --turbo --clear</code></li>
+			</ul>
 		</div>
 	</div>
 
