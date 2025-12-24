@@ -382,35 +382,38 @@ class Media_Search_Optimizer {
 			wp_send_json_error( 'Permission denied' );
 		}
 
-		// Get batch parameters
-		$offset = isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0;
-		$batch_size = isset( $_POST['batch_size'] ) ? absint( $_POST['batch_size'] ) : 50;
-		$clear_first = isset( $_POST['clear_first'] ) ? ( $_POST['clear_first'] === 'true' ) : ( $offset === 0 );
+		// Get batch parameters - now using last_id instead of offset
+		$last_id = isset( $_POST['last_id'] ) ? absint( $_POST['last_id'] ) :
+		           ( isset( $_POST['offset'] ) ? absint( $_POST['offset'] ) : 0 );
+		$batch_size = isset( $_POST['batch_size'] ) ? absint( $_POST['batch_size'] ) : 500;
+		$clear_first = isset( $_POST['clear_first'] ) ? ( $_POST['clear_first'] === 'true' ) : ( $last_id === 0 );
 
 		// Process batch
-		$miniload_result = $this->rebuild_index_batch( $offset, $batch_size, $clear_first );
+		$miniload_result = $this->rebuild_index_batch( $last_id, $batch_size, $clear_first );
 		wp_send_json_success( $miniload_result );
 	}
 
 	/**
-	 * Rebuild media index (batch processing version)
+	 * Rebuild media index (batch processing version) - ULTRA-OPTIMIZED
 	 *
-	 * @param int $offset Start offset
+	 * @param int $last_id Last processed ID (0 for start)
 	 * @param int $batch_size Number of items to process per batch
 	 * @param bool $clear_first Whether to clear the index first
 	 * @return array Results
 	 */
-	public function rebuild_index_batch( $offset = 0, $batch_size = 50, $clear_first = false ) {
+	public function rebuild_index_batch( $last_id = 0, $batch_size = 500, $clear_first = false ) {
 		global $wpdb;
 
 		$start_time = microtime( true );
 
 		// Clear existing index on first batch
-		if ( $clear_first || $offset === 0 ) {
+		if ( $clear_first || $last_id === 0 ) {
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 			$wpdb->query( "TRUNCATE TABLE " . esc_sql( $this->media_table ) );
 		}
 
 		// Get total media count
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
 		$total_media = $wpdb->get_var( "
 			SELECT COUNT(*)
 			FROM {$wpdb->posts}
@@ -418,50 +421,141 @@ class Media_Search_Optimizer {
 			AND post_status = 'inherit'
 		" );
 
-		// Get batch of attachments
-		$attachments = get_posts( array(
-			'post_type' => 'attachment',
-			'posts_per_page' => $batch_size,
-			'offset' => $offset,
-			'post_status' => 'inherit',
-			'fields' => 'ids',
-			'orderby' => 'ID',
-			'order' => 'ASC'
-		) );
+		// ULTRA-OPTIMIZED: Get batch using ID-based pagination (handles gaps better than OFFSET)
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$attachments = $wpdb->get_results( $wpdb->prepare( "
+			SELECT p.ID, p.post_title, p.post_content, p.post_excerpt, p.post_mime_type,
+			       pm_file.meta_value as file_path,
+			       pm_alt.meta_value as alt_text,
+			       pm_meta.meta_value as attachment_metadata
+			FROM {$wpdb->posts} p
+			LEFT JOIN {$wpdb->postmeta} pm_file ON p.ID = pm_file.post_id AND pm_file.meta_key = '_wp_attached_file'
+			LEFT JOIN {$wpdb->postmeta} pm_alt ON p.ID = pm_alt.post_id AND pm_alt.meta_key = '_wp_attachment_image_alt'
+			LEFT JOIN {$wpdb->postmeta} pm_meta ON p.ID = pm_meta.post_id AND pm_meta.meta_key = '_wp_attachment_metadata'
+			WHERE p.post_type = 'attachment'
+			  AND p.post_status = 'inherit'
+			  AND p.ID > %d
+			ORDER BY p.ID ASC
+			LIMIT %d
+		", $last_id, $batch_size ), ARRAY_A );
 
 		$batch_count = count( $attachments );
 		$indexed = 0;
-		$failed = 0;
+		$last_processed_id = $last_id;
 
-		foreach ( $attachments as $attachment_id ) {
-			if ( $this->index_media_item( $attachment_id ) ) {
-				$indexed++;
-			} else {
-				$failed++;
+		// Build bulk INSERT values
+		$values = array();
+		$placeholders = array();
+		$upload_dir = wp_upload_dir();
+		$base_dir = $upload_dir['basedir'];
+
+		foreach ( $attachments as $attachment ) {
+			$attachment_id = (int) $attachment['ID'];
+			$last_processed_id = $attachment_id;
+
+			// Skip if no file path
+			if ( empty( $attachment['file_path'] ) ) {
+				continue;
 			}
+
+			// Build search text
+			$search_parts = array();
+
+			if ( ! empty( $attachment['post_title'] ) ) {
+				$search_parts[] = $attachment['post_title'];
+			}
+			if ( ! empty( $attachment['post_content'] ) ) {
+				$search_parts[] = $attachment['post_content'];
+			}
+			if ( ! empty( $attachment['post_excerpt'] ) ) {
+				$search_parts[] = $attachment['post_excerpt'];
+			}
+			if ( ! empty( $attachment['alt_text'] ) ) {
+				$search_parts[] = $attachment['alt_text'];
+			}
+
+			// File name and metadata
+			$file_path = $attachment['file_path'];
+			$file_name = basename( $file_path );
+			$file_name_no_ext = pathinfo( $file_name, PATHINFO_FILENAME );
+			$search_parts[] = $file_name_no_ext;
+
+			// Parse metadata if available
+			$image_meta_json = '';
+			if ( ! empty( $attachment['attachment_metadata'] ) ) {
+				$metadata = maybe_unserialize( $attachment['attachment_metadata'] );
+				if ( is_array( $metadata ) ) {
+					$image_meta_json = wp_json_encode( $metadata );
+
+					// Add EXIF data to search
+					if ( ! empty( $metadata['image_meta'] ) && is_array( $metadata['image_meta'] ) ) {
+						foreach ( $metadata['image_meta'] as $meta_value ) {
+							if ( is_string( $meta_value ) && ! empty( $meta_value ) && $meta_value !== '0' ) {
+								$search_parts[] = $meta_value;
+							}
+						}
+					}
+				}
+			}
+
+			$search_text = implode( ' ', array_filter( $search_parts ) );
+
+			// Get file info
+			$file_type = wp_check_filetype( $file_name );
+			$full_path = $base_dir . '/' . $file_path;
+			$file_size = file_exists( $full_path ) ? filesize( $full_path ) : 0;
+
+			// Add to bulk insert
+			$placeholders[] = '(%d, %s, %s, %s, %s, %d, %s, NOW())';
+			$values[] = $attachment_id;
+			$values[] = $search_text;
+			$values[] = $file_name;
+			$values[] = $file_type['ext'];
+			$values[] = $attachment['post_mime_type'];
+			$values[] = $file_size;
+			$values[] = $image_meta_json;
+
+			$indexed++;
+		}
+
+		// Bulk INSERT - much faster than individual queries
+		if ( ! empty( $values ) ) {
+			$sql = "REPLACE INTO {$this->media_table}
+			        (attachment_id, search_text, file_name, file_type, mime_type, file_size, image_meta, indexed_at)
+			        VALUES " . implode( ', ', $placeholders );
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching, WordPress.DB.PreparedSQL.NotPrepared
+			$wpdb->query( $wpdb->prepare( $sql, $values ) );
 		}
 
 		// Clear caches periodically
-		wp_cache_flush();
+		if ( $last_processed_id % 5000 < $batch_size ) {
+			wp_cache_flush();
+		}
 
 		$time_taken = round( microtime( true ) - $start_time, 2 );
-		$progress = $total_media > 0 ? round( ( ( $offset + $batch_count ) / $total_media ) * 100, 1 ) : 100;
-		$completed = ( $offset + $batch_count >= $total_media );
+
+		// Get count of already indexed items for progress calculation
+		// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+		$current_indexed = $wpdb->get_var( "SELECT COUNT(*) FROM {$this->media_table}" );
+		$progress = $total_media > 0 ? round( ( $current_indexed / $total_media ) * 100, 1 ) : 100;
+		$completed = ( $batch_count < $batch_size );
 
 		return array(
 			'success' => true,
 			'batch_indexed' => $indexed,
-			'batch_failed' => $failed,
+			'batch_failed' => 0,
 			'batch_count' => $batch_count,
-			'offset' => $offset,
-			'next_offset' => $offset + $batch_size,
+			'offset' => $last_processed_id,
+			'next_offset' => $last_processed_id,
+			'last_id' => $last_processed_id,
 			'total' => $total_media,
 			'progress' => $progress,
 			'completed' => $completed,
 			'time' => $time_taken,
+			'processed' => $indexed,
 			'message' => $completed ?
-				sprintf( __( 'Media index rebuild completed! Processed %d items.', 'miniload' ), $total_media ) :
-				sprintf( __( 'Processing... %d of %d media items (%d%%)', 'miniload' ), $offset + $batch_count, $total_media, $progress )
+				sprintf( __( 'Media index rebuild completed! Processed %d items.', 'miniload' ), $current_indexed ) :
+				sprintf( __( 'Processing... %d of %d media items (%d%%)', 'miniload' ), $current_indexed, $total_media, $progress )
 		);
 	}
 
@@ -551,11 +645,11 @@ class Media_Search_Optimizer {
 		$indexed = $cached;
 
 		// Direct database query with caching
-		$cache_key = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment'"  );
+		$cache_key = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'"  );
 		$cached = wp_cache_get( $cache_key );
 		if ( false === $cached ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery -- Required for performance optimization
-			$cached = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment'" );
+			$cached = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'" );
 			wp_cache_set( $cache_key, $cached, '', 3600 );
 		}
 		$total = $cached;

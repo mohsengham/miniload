@@ -16,26 +16,70 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 		$miniload_message = '';
 
 		switch ( $action ) {
+			case 'empty-search-index':
+				// Empty product search index
+				global $wpdb;
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}miniload_search_index" );
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_miniload_search_%'" );
+				$miniload_message = __( 'Product search index emptied successfully.', 'miniload' );
+				break;
+
 			case 'rebuild-search-index':
-				// Rebuild search index
-				$miniload_indexer = new \MiniLoad\Modules\Search_Indexer();
-				$miniload_result = $miniload_indexer->rebuild_index();
+				// Rebuild search index using optimized Search_Optimizer
+				$miniload_optimizer = new \MiniLoad\Modules\Search_Optimizer();
+				$miniload_offset = 0;
+				$miniload_batch_size = 500;
+				$miniload_total_indexed = 0;
+
+				// Process in batches
+				do {
+					$miniload_result = $miniload_optimizer->rebuild_index( $miniload_offset, $miniload_batch_size );
+					$miniload_total_indexed += $miniload_result['processed'];
+					$miniload_offset = $miniload_result['next_offset'];
+				} while ( ! $miniload_result['completed'] );
+
+				// Clear search caches
+				// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+				$wpdb->query( "DELETE FROM {$wpdb->options} WHERE option_name LIKE '_transient_miniload_search_%'" );
+
 				$miniload_message = sprintf(
 					/* translators: %d: number of products indexed */
 					__( 'Search index rebuilt successfully. %d products indexed.', 'miniload' ),
-					$result
+					$miniload_total_indexed
 				);
 				break;
 
+			case 'empty-media-index':
+				// Empty media search index
+				if ( class_exists( '\MiniLoad\Modules\Media_Search_Optimizer' ) ) {
+					global $wpdb;
+					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching
+					$wpdb->query( "TRUNCATE TABLE {$wpdb->prefix}miniload_media_search" );
+					$miniload_message = __( 'Media search index emptied successfully.', 'miniload' );
+				}
+				break;
+
 			case 'rebuild-media-index':
-				// Rebuild media index
+				// Rebuild media index using optimized batch processing
 				if ( class_exists( '\MiniLoad\Modules\Media_Search_Optimizer' ) ) {
 					$miniload_media_optimizer = new \MiniLoad\Modules\Media_Search_Optimizer();
-					$miniload_result = $miniload_media_optimizer->rebuild_index();
+					$miniload_last_id = 0;
+					$miniload_batch_size = 500;
+					$miniload_total_indexed = 0;
+
+					// Process in batches using ID-based pagination
+					do {
+						$miniload_result = $miniload_media_optimizer->rebuild_index_batch( $miniload_last_id, $miniload_batch_size );
+						$miniload_total_indexed += $miniload_result['processed'];
+						$miniload_last_id = $miniload_result['last_id'];
+					} while ( ! $miniload_result['completed'] );
+
 					$miniload_message = sprintf(
 						/* translators: %d: number of media items indexed */
 						__( 'Media index rebuilt successfully. %d items indexed.', 'miniload' ),
-						$result
+						$miniload_total_indexed
 					);
 				}
 				break;
@@ -56,7 +100,7 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 					$wpdb->prefix . 'miniload_media_search'
 				);
 
-				foreach ( $tables as $miniload_table ) {
+				foreach ( $miniload_tables as $miniload_table ) {
 					// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
 					if ( $wpdb->get_var( $wpdb->prepare( "SHOW TABLES LIKE %s", $miniload_table ) ) ) {
 						$wpdb->query( "OPTIMIZE TABLE " . esc_sql( $miniload_table ) );
@@ -88,8 +132,8 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 				break;
 		}
 
-		if ( $message ) {
-			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $message ) . '</p></div>';
+		if ( $miniload_message ) {
+			echo '<div class="notice notice-success is-dismissible"><p>' . esc_html( $miniload_message ) . '</p></div>';
 		}
 	}
 }
@@ -136,11 +180,19 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 						$miniload_total
 					) ); ?></span>
 				</div>
-				<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=miniload&tab=tools&action=rebuild-search-index' ), 'miniload_tool_action' ) ); ?>"
-				   class="button button-primary">
-					<span class="dashicons dashicons-update"></span>
-					<?php esc_html_e( 'Rebuild Index', 'miniload' ); ?>
-				</a>
+				<div class="miniload-tool-buttons">
+					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=miniload&tab=tools&action=rebuild-search-index' ), 'miniload_tool_action' ) ); ?>"
+					   class="button button-primary">
+						<span class="dashicons dashicons-update"></span>
+						<?php esc_html_e( 'Rebuild Index', 'miniload' ); ?>
+					</a>
+					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=miniload&tab=tools&action=empty-search-index' ), 'miniload_tool_action' ) ); ?>"
+					   class="button button-secondary"
+					   onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to empty the product search index? This action cannot be undone.', 'miniload' ) ); ?>');">
+						<span class="dashicons dashicons-trash"></span>
+						<?php esc_html_e( 'Empty Index', 'miniload' ); ?>
+					</a>
+				</div>
 			</div>
 
 			<div class="miniload-tool-card">
@@ -162,11 +214,11 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 		$miniload_media_indexed = $miniload_cached3;
 				}
 				// Direct database query with caching
-		$miniload_cache_key4 = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment'"  );
+		$miniload_cache_key4 = 'miniload_' . md5(  "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'"  );
 		$miniload_cached4 = wp_cache_get( $miniload_cache_key4 );
 		if ( false === $miniload_cached4 ) {
 			// phpcs:ignore WordPress.DB.DirectDatabaseQuery.DirectQuery, WordPress.DB.DirectDatabaseQuery.NoCaching -- Required for performance optimization
-			$miniload_cached4 = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment'" );
+			$miniload_cached4 = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type = 'attachment' AND post_status = 'inherit'" );
 			wp_cache_set( $miniload_cache_key4, $miniload_cached4, '', 3600 );
 		}
 		$miniload_media_total = $miniload_cached4;
@@ -179,11 +231,19 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 						$miniload_media_total
 					) ); ?></span>
 				</div>
-				<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=miniload&tab=tools&action=rebuild-media-index' ), 'miniload_tool_action' ) ); ?>"
-				   class="button">
-					<span class="dashicons dashicons-update"></span>
-					<?php esc_html_e( 'Rebuild Index', 'miniload' ); ?>
-				</a>
+				<div class="miniload-tool-buttons">
+					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=miniload&tab=tools&action=rebuild-media-index' ), 'miniload_tool_action' ) ); ?>"
+					   class="button button-primary">
+						<span class="dashicons dashicons-update"></span>
+						<?php esc_html_e( 'Rebuild Index', 'miniload' ); ?>
+					</a>
+					<a href="<?php echo esc_url( wp_nonce_url( admin_url( 'admin.php?page=miniload&tab=tools&action=empty-media-index' ), 'miniload_tool_action' ) ); ?>"
+					   class="button button-secondary"
+					   onclick="return confirm('<?php echo esc_js( __( 'Are you sure you want to empty the media search index? This action cannot be undone.', 'miniload' ) ); ?>');">
+						<span class="dashicons dashicons-trash"></span>
+						<?php esc_html_e( 'Empty Index', 'miniload' ); ?>
+					</a>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -322,6 +382,133 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 			</table>
 		</div>
 	</div>
+
+	<!-- WP-CLI Commands Reference -->
+	<div class="miniload-section">
+		<h3 class="miniload-section-title">
+			<span class="dashicons dashicons-admin-tools"></span>
+			<?php esc_html_e( 'WP-CLI Commands Reference', 'miniload' ); ?>
+		</h3>
+
+		<p><?php esc_html_e( 'Run these commands via SSH/terminal for ultra-fast indexing. Requires WP-CLI to be installed.', 'miniload' ); ?></p>
+
+		<div class="miniload-cli-sections">
+			<!-- Status Commands -->
+			<div class="miniload-cli-section">
+				<h4>📊 <?php esc_html_e( 'Status & Information', 'miniload' ); ?></h4>
+				<div class="miniload-cli-commands">
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Check all indexes status:', 'miniload' ); ?></strong>
+						<code>wp miniload status</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Check order index status:', 'miniload' ); ?></strong>
+						<code>wp miniload order-status</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Check product index status:', 'miniload' ); ?></strong>
+						<code>wp miniload product-status</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'View cache statistics:', 'miniload' ); ?></strong>
+						<code>wp miniload cache-stats</code>
+					</div>
+				</div>
+			</div>
+
+			<!-- Indexing Commands -->
+			<div class="miniload-cli-section">
+				<h4>🚀 <?php esc_html_e( 'Index Rebuilding (Recommended)', 'miniload' ); ?></h4>
+				<div class="miniload-cli-commands">
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Rebuild product index (FAST):', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild-products --batch-size=2000</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Rebuild order index (TURBO mode - FASTEST):', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild-orders --turbo</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Rebuild order index (Normal mode):', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild-orders --batch-size=2000</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Rebuild all indexes:', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild --type=all --progress</code>
+					</div>
+				</div>
+			</div>
+
+			<!-- Advanced Options -->
+			<div class="miniload-cli-section">
+				<h4>⚙️ <?php esc_html_e( 'Advanced Options', 'miniload' ); ?></h4>
+				<div class="miniload-cli-commands">
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Clear index before rebuilding:', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild-products --clear</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Show progress bar:', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild-orders --progress</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Custom batch size:', 'miniload' ); ?></strong>
+						<code>wp miniload rebuild-products --batch-size=5000</code>
+					</div>
+				</div>
+			</div>
+
+			<!-- Cache Commands -->
+			<div class="miniload-cli-section">
+				<h4>🗑️ <?php esc_html_e( 'Cache Management', 'miniload' ); ?></h4>
+				<div class="miniload-cli-commands">
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Clear all MiniLoad caches:', 'miniload' ); ?></strong>
+						<code>wp miniload clear-cache</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Clear specific cache type:', 'miniload' ); ?></strong>
+						<code>wp miniload clear --type=query</code>
+						<span class="miniload-cli-note"><?php esc_html_e( 'Types: query, filter, search, all', 'miniload' ); ?></span>
+					</div>
+				</div>
+			</div>
+
+			<!-- Search Commands -->
+			<div class="miniload-cli-section">
+				<h4>🔍 <?php esc_html_e( 'Search Testing', 'miniload' ); ?></h4>
+				<div class="miniload-cli-commands">
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Test product search:', 'miniload' ); ?></strong>
+						<code>wp miniload search "search term"</code>
+					</div>
+					<div class="miniload-cli-command">
+						<strong><?php esc_html_e( 'Search with limit:', 'miniload' ); ?></strong>
+						<code>wp miniload search "search term" --limit=50</code>
+					</div>
+				</div>
+			</div>
+
+			<!-- Command Examples -->
+			<div class="miniload-cli-examples">
+				<h4>💡 <?php esc_html_e( 'Common Usage Examples', 'miniload' ); ?></h4>
+				<ul>
+					<li>
+						<strong><?php esc_html_e( 'After importing products:', 'miniload' ); ?></strong><br>
+						<code>wp miniload rebuild-products --batch-size=2000 --progress</code>
+					</li>
+					<li>
+						<strong><?php esc_html_e( 'Complete reindex (products + orders):', 'miniload' ); ?></strong><br>
+						<code>wp miniload rebuild-products --batch-size=2000 && wp miniload rebuild-orders --turbo</code>
+					</li>
+					<li>
+						<strong><?php esc_html_e( 'Fresh start (clear + rebuild):', 'miniload' ); ?></strong><br>
+						<code>wp miniload rebuild-orders --turbo --clear</code>
+					</li>
+				</ul>
+			</div>
+		</div>
+	</div>
 </div>
 
 <style>
@@ -360,6 +547,12 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 	color: #555;
 }
 
+.miniload-tool-buttons {
+	display: flex;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+
 .miniload-tool-card .button {
 	display: inline-flex;
 	align-items: center;
@@ -379,5 +572,109 @@ if ( isset( $_GET['action'] ) && isset( $_GET['_wpnonce'] ) ) {
 .miniload-diagnostics td:first-child {
 	font-weight: 600;
 	width: 200px;
+}
+
+/* WP-CLI Commands Reference Styles */
+.miniload-cli-sections {
+	margin-top: 20px;
+}
+
+.miniload-cli-section {
+	background: #fff;
+	border: 1px solid #e0e0e0;
+	border-radius: 8px;
+	padding: 20px;
+	margin-bottom: 20px;
+}
+
+.miniload-cli-section h4 {
+	margin: 0 0 15px 0;
+	font-size: 16px;
+	color: #0073aa;
+	border-bottom: 2px solid #0073aa;
+	padding-bottom: 10px;
+}
+
+.miniload-cli-commands {
+	display: grid;
+	gap: 15px;
+}
+
+.miniload-cli-command {
+	background: #f7f7f7;
+	padding: 12px 15px;
+	border-radius: 4px;
+	border-left: 3px solid #0073aa;
+}
+
+.miniload-cli-command strong {
+	display: block;
+	margin-bottom: 5px;
+	color: #333;
+	font-size: 14px;
+}
+
+.miniload-cli-command code {
+	display: block;
+	background: #fff;
+	padding: 8px 12px;
+	border: 1px solid #ddd;
+	border-radius: 3px;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 13px;
+	color: #d63638;
+	margin-top: 5px;
+	overflow-x: auto;
+}
+
+.miniload-cli-note {
+	display: block;
+	margin-top: 5px;
+	font-size: 12px;
+	color: #666;
+	font-style: italic;
+}
+
+.miniload-cli-examples {
+	background: #e7f5fe;
+	border: 1px solid #0073aa;
+	border-left: 4px solid #0073aa;
+	border-radius: 4px;
+	padding: 20px;
+	margin-top: 20px;
+}
+
+.miniload-cli-examples h4 {
+	margin: 0 0 15px 0;
+	color: #0073aa;
+	font-size: 16px;
+}
+
+.miniload-cli-examples ul {
+	margin: 0;
+	padding-left: 20px;
+	list-style: none;
+}
+
+.miniload-cli-examples li {
+	margin-bottom: 15px;
+	padding-left: 0;
+}
+
+.miniload-cli-examples li:last-child {
+	margin-bottom: 0;
+}
+
+.miniload-cli-examples code {
+	display: block;
+	background: #fff;
+	padding: 8px 12px;
+	border: 1px solid #ccc;
+	border-radius: 3px;
+	font-family: 'Courier New', Courier, monospace;
+	font-size: 13px;
+	color: #d63638;
+	margin-top: 5px;
+	overflow-x: auto;
 }
 </style>

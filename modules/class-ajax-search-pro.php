@@ -87,8 +87,8 @@ class Ajax_Search_Pro {
 		// Settings
 		add_action( 'admin_init', array( $this, 'register_settings' ) );
 
-		// Search index rebuilding
-		add_action( 'wp_ajax_miniload_rebuild_search_index', array( $this, 'ajax_rebuild_search_index' ) );
+		// Search index rebuilding - DISABLED: Using optimized handler in class-search-optimizer.php instead
+		// add_action( 'wp_ajax_miniload_rebuild_search_index', array( $this, 'ajax_rebuild_search_index' ) );
 
 		// Database tables
 		add_action( 'init', array( $this, 'maybe_create_tables' ) );

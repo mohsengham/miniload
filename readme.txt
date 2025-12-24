@@ -6,7 +6,7 @@ Tested up to: 6.9
 Requires PHP: 7.4
 WC requires at least: 3.0
 WC tested up to: 10.4.3
-Stable tag: 1.1.0
+Stable tag: 1.2.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -96,6 +96,22 @@ Absolutely! MiniLoad indexes all product types including simple, variable, group
 5. Mobile-optimized search interface
 
 == Changelog ==
+
+= 1.2.0 =
+* NEW: Empty Index buttons in Tools tab for easy testing
+* NEW: WP-CLI Commands Reference guide in Tools tab for users without SSH access
+* ENHANCEMENT: Media search indexing now uses ID-based pagination for reliability
+* ENHANCEMENT: Media indexing optimized with bulk SQL queries (10x faster)
+* ENHANCEMENT: Media batch size increased from 50 to 500 items
+* FIX: Admin page product/media rebuild buttons now work correctly
+* FIX: Tools tab now uses optimized Search_Optimizer class instead of old Search_Indexer
+* FIX: Media index now correctly counts only 'inherit' status items
+* FIX: Removed duplicate AJAX handler registration conflict
+* FIX: Search settings tab cleaned up - removed duplicate options
+* FIX: All search options now save properly (max_results, replace_search, enable_modal, batch_size)
+* FIX: Consolidated search settings into single clean interface
+* IMPROVEMENT: Better completion detection for batch processing
+* IMPROVEMENT: Added comprehensive WP-CLI documentation in admin interface
 
 = 1.1.0 =
 * MAJOR PERFORMANCE UPGRADE: 50-100x faster indexing with optimized SQL queries

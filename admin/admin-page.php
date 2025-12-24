@@ -58,6 +58,7 @@ $tabs = array(
 				update_option( 'miniload_search_min_chars', absint( $_POST['miniload_search_min_chars'] ?? 3 ) );
 				update_option( 'miniload_search_delay', absint( $_POST['miniload_search_delay'] ?? 300 ) );
 				update_option( 'miniload_search_results_count', absint( $_POST['miniload_search_results_count'] ?? 8 ) );
+				update_option( 'miniload_search_max_results', absint( $_POST['miniload_search_max_results'] ?? 10 ) );
 				update_option( 'miniload_search_in_content', isset( $_POST['miniload_search_in_content'] ) ? 1 : 0 );
 				update_option( 'miniload_search_in_title', isset( $_POST['miniload_search_in_title'] ) ? 1 : 0 );
 				update_option( 'miniload_search_in_sku', isset( $_POST['miniload_search_in_sku'] ) ? 1 : 0 );
@@ -71,6 +72,9 @@ $tabs = array(
 				update_option( 'miniload_show_price', isset( $_POST['miniload_show_price'] ) ? 1 : 0 );
 				update_option( 'miniload_show_image', isset( $_POST['miniload_show_image'] ) ? 1 : 0 );
 				update_option( 'miniload_font_style', sanitize_text_field( wp_unslash( $_POST['miniload_font_style'] ?? 'inherit' ) ) );
+				update_option( 'miniload_replace_search', isset( $_POST['miniload_replace_search'] ) ? 1 : 0 );
+				update_option( 'miniload_enable_search_modal', isset( $_POST['miniload_enable_search_modal'] ) ? 1 : 0 );
+				update_option( 'miniload_index_batch_size', absint( $_POST['miniload_index_batch_size'] ?? 100 ) );
 				break;
 
 			case 'modules':

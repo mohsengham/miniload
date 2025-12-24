@@ -220,14 +220,65 @@ if ( ! defined( 'ABSPATH' ) ) {
 		</table>
 	</div>
 
-	<!-- Include comprehensive shortcode documentation -->
-	<?php
-	$miniload_settings_ajax_search_file = MINILOAD_PLUGIN_DIR . 'admin/settings-ajax-search.php';
-	if ( file_exists( $miniload_settings_ajax_search_file ) ) {
-		include $miniload_settings_ajax_search_file;
-	} else {
-		// Fallback to inline shortcode documentation if file not found
-	?>
+	<!-- Advanced Settings -->
+	<div class="miniload-section">
+		<h3 class="miniload-section-title">
+			<span class="dashicons dashicons-admin-settings"></span>
+			<?php esc_html_e( 'Advanced Settings', 'miniload' ); ?>
+		</h3>
+
+		<table class="form-table">
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Maximum Results', 'miniload' ); ?></th>
+				<td>
+					<input type="number" name="miniload_search_max_results"
+						value="<?php echo esc_attr( get_option( 'miniload_search_max_results', 10 ) ); ?>"
+						min="5" max="50" />
+					<p class="description"><?php esc_html_e( 'Maximum number of results to display in dropdown', 'miniload' ); ?></p>
+				</td>
+			</tr>
+
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Replace Default Search', 'miniload' ); ?></th>
+				<td>
+					<label class="miniload-toggle">
+						<input type="checkbox" name="miniload_replace_search" value="1"
+							<?php checked( 1, absint( get_option( 'miniload_replace_search', 0 ) ) ); ?> />
+						<span class="miniload-toggle-slider"></span>
+					</label>
+					<p class="description"><?php esc_html_e( 'Replace WordPress default search forms with MiniLoad AJAX search', 'miniload' ); ?></p>
+				</td>
+			</tr>
+
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Enable Search Modal', 'miniload' ); ?></th>
+				<td>
+					<label class="miniload-toggle">
+						<input type="checkbox" name="miniload_enable_search_modal" value="1"
+							<?php checked( 1, absint( get_option( 'miniload_enable_search_modal', 0 ) ) ); ?> />
+						<span class="miniload-toggle-slider"></span>
+					</label>
+					<p class="description"><?php esc_html_e( 'Enable modal search popup (keyboard shortcut: Alt+K)', 'miniload' ); ?></p>
+				</td>
+			</tr>
+
+			<tr>
+				<th scope="row"><?php esc_html_e( 'Index Batch Size', 'miniload' ); ?></th>
+				<td>
+					<input type="number" name="miniload_index_batch_size"
+						value="<?php echo esc_attr( get_option( 'miniload_index_batch_size', 100 ) ); ?>"
+						min="25" max="500" step="25" />
+					<p class="description">
+						<?php esc_html_e( 'Number of items to process per batch during index rebuilding.', 'miniload' ); ?><br>
+						<?php esc_html_e( 'Higher values are faster but may timeout on slower servers.', 'miniload' ); ?><br>
+						<strong><?php esc_html_e( 'Recommended:', 'miniload' ); ?></strong>
+						<?php esc_html_e( '25-50 for shared hosting, 100-200 for VPS, 200-500 for dedicated servers', 'miniload' ); ?>
+					</p>
+				</td>
+			</tr>
+		</table>
+	</div>
+
 	<!-- Shortcode Usage -->
 	<div class="miniload-section">
 		<h3 class="miniload-section-title">
@@ -282,7 +333,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 			<code>[miniload_search placeholder="Find products..." mobile_fullscreen="false"]</code>
 		</div>
 	</div>
-	<?php } ?>
 </div>
 
 <style>

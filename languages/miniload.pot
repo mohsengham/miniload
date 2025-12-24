@@ -2,14 +2,14 @@
 # This file is distributed under the GPL v2 or later.
 msgid ""
 msgstr ""
-"Project-Id-Version: MiniLoad - Performance Optimizer for WooCommerce 1.1.0\n"
+"Project-Id-Version: MiniLoad - Performance Optimizer for WooCommerce 1.2.0\n"
 "Report-Msgid-Bugs-To: https://wordpress.org/support/plugin/miniload\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2025-12-24T07:50:07+00:00\n"
+"POT-Creation-Date: 2025-12-24T14:29:24+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.12.0\n"
 "X-Domain: miniload\n"
@@ -68,7 +68,7 @@ msgstr ""
 msgid "Security check failed. Please try again."
 msgstr ""
 
-#: admin/admin-page.php:70
+#: admin/admin-page.php:71
 #: admin/tabs/tab-search.php:178
 #: miniload.php:774
 #: modules/class-ajax-search-pro.php:1175
@@ -76,21 +76,21 @@ msgstr ""
 msgid "Search products..."
 msgstr ""
 
-#: admin/admin-page.php:133
+#: admin/admin-page.php:137
 msgid "Settings saved successfully!"
 msgstr ""
 
-#: admin/admin-page.php:153
-#: admin/tabs/tab-tools.php:225
+#: admin/admin-page.php:157
+#: admin/tabs/tab-tools.php:285
 #: admin/views/dashboard.php:161
 msgid "Clear Cache"
 msgstr ""
 
-#: admin/admin-page.php:205
+#: admin/admin-page.php:209
 msgid "Tab content not found."
 msgstr ""
 
-#: admin/admin-page.php:213
+#: admin/admin-page.php:217
 msgid "Save Settings"
 msgstr ""
 
@@ -121,6 +121,7 @@ msgid "Minimum characters before search starts"
 msgstr ""
 
 #: admin/settings-ajax-search.php:49
+#: admin/tabs/tab-search.php:232
 msgid "Maximum Results"
 msgstr ""
 
@@ -129,6 +130,7 @@ msgid "Maximum number of results to display"
 msgstr ""
 
 #: admin/settings-ajax-search.php:57
+#: admin/tabs/tab-search.php:242
 msgid "Replace Default Search"
 msgstr ""
 
@@ -137,6 +139,7 @@ msgid "Replace WordPress default search forms"
 msgstr ""
 
 #: admin/settings-ajax-search.php:67
+#: admin/tabs/tab-search.php:254
 msgid "Enable Search Modal"
 msgstr ""
 
@@ -171,10 +174,12 @@ msgstr ""
 
 #: admin/settings-ajax-search.php:112
 #: admin/settings-order-search.php:200
+#: admin/tabs/tab-search.php:266
 msgid "Index Batch Size"
 msgstr ""
 
 #: admin/settings-ajax-search.php:118
+#: admin/tabs/tab-search.php:272
 msgid "Number of items to process per batch during index rebuilding."
 msgstr ""
 
@@ -183,10 +188,12 @@ msgid "Higher values are faster but may timeout on slower servers. Default: 100"
 msgstr ""
 
 #: admin/settings-ajax-search.php:120
+#: admin/tabs/tab-search.php:274
 msgid "Recommended:"
 msgstr ""
 
 #: admin/settings-ajax-search.php:121
+#: admin/tabs/tab-search.php:275
 msgid "25-50 for shared hosting, 100-200 for VPS, 200-500 for dedicated servers"
 msgstr ""
 
@@ -333,7 +340,7 @@ msgid "<strong>Index Complete:</strong> All orders are indexed and searchable!"
 msgstr ""
 
 #: admin/settings-order-search.php:99
-#: admin/tabs/tab-tools.php:103
+#: admin/tabs/tab-tools.php:147
 #: admin/views/tools.php:64
 msgid "Index Management"
 msgstr ""
@@ -544,7 +551,7 @@ msgid "Quick Actions"
 msgstr ""
 
 #: admin/tabs/tab-dashboard.php:142
-#: admin/tabs/tab-tools.php:200
+#: admin/tabs/tab-tools.php:260
 #: admin/views/tools.php:131
 msgid "Clear All Caches"
 msgstr ""
@@ -570,7 +577,7 @@ msgid "MySQL FULLTEXT Support"
 msgstr ""
 
 #: admin/tabs/tab-dashboard.php:185
-#: admin/tabs/tab-tools.php:311
+#: admin/tabs/tab-tools.php:371
 msgid "Supported"
 msgstr ""
 
@@ -584,12 +591,12 @@ msgid "WooCommerce"
 msgstr ""
 
 #: admin/tabs/tab-dashboard.php:197
-#: admin/tabs/tab-tools.php:297
+#: admin/tabs/tab-tools.php:357
 msgid "Not Active"
 msgstr ""
 
 #: admin/tabs/tab-dashboard.php:202
-#: admin/tabs/tab-tools.php:300
+#: admin/tabs/tab-tools.php:360
 msgid "PHP Version"
 msgstr ""
 
@@ -810,23 +817,44 @@ msgstr ""
 msgid "Choose whether to use your theme's font or a system font stack for the search box"
 msgstr ""
 
-#: admin/tabs/tab-search.php:235
+#: admin/tabs/tab-search.php:227
+#: admin/tabs/tab-settings.php:122
+msgid "Advanced Settings"
+msgstr ""
+
+#: admin/tabs/tab-search.php:237
+msgid "Maximum number of results to display in dropdown"
+msgstr ""
+
+#: admin/tabs/tab-search.php:249
+msgid "Replace WordPress default search forms with MiniLoad AJAX search"
+msgstr ""
+
+#: admin/tabs/tab-search.php:261
+msgid "Enable modal search popup (keyboard shortcut: Alt+K)"
+msgstr ""
+
+#: admin/tabs/tab-search.php:273
+msgid "Higher values are faster but may timeout on slower servers."
+msgstr ""
+
+#: admin/tabs/tab-search.php:286
 msgid "Shortcode Usage"
 msgstr ""
 
-#: admin/tabs/tab-search.php:272
+#: admin/tabs/tab-search.php:323
 msgid "Basic Usage (Always Visible)"
 msgstr ""
 
-#: admin/tabs/tab-search.php:275
+#: admin/tabs/tab-search.php:326
 msgid "Icon Only for Headers"
 msgstr ""
 
-#: admin/tabs/tab-search.php:278
+#: admin/tabs/tab-search.php:329
 msgid "With Categories"
 msgstr ""
 
-#: admin/tabs/tab-search.php:281
+#: admin/tabs/tab-search.php:332
 msgid "Custom Placeholder"
 msgstr ""
 
@@ -880,7 +908,7 @@ msgid "Number of items to process per batch during indexing"
 msgstr ""
 
 #: admin/tabs/tab-settings.php:84
-#: admin/tabs/tab-tools.php:318
+#: admin/tabs/tab-tools.php:378
 msgid "Memory Limit"
 msgstr ""
 
@@ -894,10 +922,6 @@ msgstr ""
 
 #: admin/tabs/tab-settings.php:112
 msgid "Automatically index new products when they are created"
-msgstr ""
-
-#: admin/tabs/tab-settings.php:122
-msgid "Advanced Settings"
 msgstr ""
 
 #: admin/tabs/tab-settings.php:127
@@ -1020,141 +1044,291 @@ msgstr ""
 msgid "Reset All Settings"
 msgstr ""
 
+#: admin/tabs/tab-tools.php:26
+msgid "Product search index emptied successfully."
+msgstr ""
+
 #. translators: %d: number of products indexed
-#: admin/tabs/tab-tools.php:25
+#: admin/tabs/tab-tools.php:49
 #, php-format
 msgid "Search index rebuilt successfully. %d products indexed."
 msgstr ""
 
+#: admin/tabs/tab-tools.php:60
+msgid "Media search index emptied successfully."
+msgstr ""
+
 #. translators: %d: number of media items indexed
-#: admin/tabs/tab-tools.php:37
+#: admin/tabs/tab-tools.php:81
 #, php-format
 msgid "Media index rebuilt successfully. %d items indexed."
 msgstr ""
 
-#: admin/tabs/tab-tools.php:47
+#: admin/tabs/tab-tools.php:91
 msgid "All caches cleared successfully."
 msgstr ""
 
-#: admin/tabs/tab-tools.php:65
+#: admin/tabs/tab-tools.php:109
 msgid "Database tables optimized successfully."
 msgstr ""
 
-#: admin/tabs/tab-tools.php:108
+#: admin/tabs/tab-tools.php:152
 msgid "Product Search Index"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:109
+#: admin/tabs/tab-tools.php:153
 msgid "Rebuild the FULLTEXT search index for all products."
 msgstr ""
 
 #. translators: %1$d: number of indexed products, %2$d: total number of products
-#: admin/tabs/tab-tools.php:134
+#: admin/tabs/tab-tools.php:178
 #: admin/views/dashboard.php:113
 #, php-format
 msgid "%1$d of %2$d products indexed"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:142
-#: admin/tabs/tab-tools.php:185
+#: admin/tabs/tab-tools.php:187
+#: admin/tabs/tab-tools.php:238
 msgid "Rebuild Index"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:147
+#: admin/tabs/tab-tools.php:191
+msgid "Are you sure you want to empty the product search index? This action cannot be undone."
+msgstr ""
+
+#: admin/tabs/tab-tools.php:193
+#: admin/tabs/tab-tools.php:244
+msgid "Empty Index"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:199
 msgid "Media Search Index"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:148
+#: admin/tabs/tab-tools.php:200
 msgid "Rebuild the search index for media library items."
 msgstr ""
 
 #. translators: %1$d: number of indexed media items, %2$d: total number of media items
-#: admin/tabs/tab-tools.php:177
+#: admin/tabs/tab-tools.php:229
 #, php-format
 msgid "%1$d of %2$d media items indexed"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:195
+#: admin/tabs/tab-tools.php:242
+msgid "Are you sure you want to empty the media search index? This action cannot be undone."
+msgstr ""
+
+#: admin/tabs/tab-tools.php:255
+#: admin/tabs/tab-tools.php:463
 #: admin/views/tools.php:124
 #: admin/views/tools.php:216
 msgid "Cache Management"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:201
+#: admin/tabs/tab-tools.php:261
 msgid "Clear all MiniLoad caches including search results and transients."
 msgstr ""
 
 #. translators: %d: number of cached items
-#: admin/tabs/tab-tools.php:218
+#: admin/tabs/tab-tools.php:278
 #, php-format
 msgid "%d cached items"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:230
+#: admin/tabs/tab-tools.php:290
 msgid "Optimize Database"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:231
+#: admin/tabs/tab-tools.php:291
 msgid "Optimize MiniLoad database tables for better performance."
 msgstr ""
 
-#: admin/tabs/tab-tools.php:233
+#: admin/tabs/tab-tools.php:293
 msgid "Defragment and optimize tables"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:238
+#: admin/tabs/tab-tools.php:298
 msgid "Optimize"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:248
+#: admin/tabs/tab-tools.php:308
 msgid "Import/Export"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:253
-#: admin/tabs/tab-tools.php:258
+#: admin/tabs/tab-tools.php:313
+#: admin/tabs/tab-tools.php:318
 msgid "Export Settings"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:254
+#: admin/tabs/tab-tools.php:314
 msgid "Download all MiniLoad settings as a JSON file."
 msgstr ""
 
-#: admin/tabs/tab-tools.php:263
-#: admin/tabs/tab-tools.php:270
+#: admin/tabs/tab-tools.php:323
+#: admin/tabs/tab-tools.php:330
 msgid "Import Settings"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:264
+#: admin/tabs/tab-tools.php:324
 msgid "Import MiniLoad settings from a JSON file."
 msgstr ""
 
-#: admin/tabs/tab-tools.php:281
+#: admin/tabs/tab-tools.php:341
 msgid "Diagnostics"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:288
+#: admin/tabs/tab-tools.php:348
 msgid "Plugin Version"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:292
+#: admin/tabs/tab-tools.php:352
 msgid "WordPress Version"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:296
+#: admin/tabs/tab-tools.php:356
 msgid "WooCommerce Version"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:304
+#: admin/tabs/tab-tools.php:364
 #: admin/views/dashboard.php:122
 msgid "MySQL Version"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:308
+#: admin/tabs/tab-tools.php:368
 msgid "FULLTEXT Support"
 msgstr ""
 
-#: admin/tabs/tab-tools.php:313
+#: admin/tabs/tab-tools.php:373
 msgid "Not Supported"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:390
+#: admin/views/tools.php:159
+msgid "WP-CLI Commands Reference"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:393
+msgid "Run these commands via SSH/terminal for ultra-fast indexing. Requires WP-CLI to be installed."
+msgstr ""
+
+#: admin/tabs/tab-tools.php:398
+#: admin/views/tools.php:165
+msgid "Status & Information"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:401
+#: admin/views/tools.php:167
+msgid "Check all indexes status:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:405
+#: admin/views/tools.php:170
+msgid "Check order index status:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:409
+#: admin/views/tools.php:173
+msgid "Check product index status:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:413
+#: admin/views/tools.php:176
+msgid "View cache statistics:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:421
+#: admin/views/tools.php:183
+msgid "Index Rebuilding (Recommended)"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:424
+#: admin/views/tools.php:185
+msgid "Rebuild product index (FAST):"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:428
+#: admin/views/tools.php:188
+msgid "Rebuild order index (TURBO mode - FASTEST):"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:432
+#: admin/views/tools.php:191
+msgid "Rebuild order index (Normal mode):"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:436
+#: admin/views/tools.php:194
+msgid "Rebuild all indexes:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:444
+#: admin/views/tools.php:201
+msgid "Advanced Options"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:447
+#: admin/views/tools.php:203
+msgid "Clear index before rebuilding:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:451
+#: admin/views/tools.php:206
+msgid "Show progress bar:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:455
+#: admin/views/tools.php:209
+msgid "Custom batch size:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:466
+#: admin/views/tools.php:218
+msgid "Clear all MiniLoad caches:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:470
+#: admin/views/tools.php:221
+msgid "Clear specific cache type:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:472
+#: admin/views/tools.php:223
+msgid "Types: query, filter, search, all"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:479
+#: admin/views/tools.php:229
+msgid "Search Testing"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:482
+#: admin/views/tools.php:231
+msgid "Test product search:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:486
+#: admin/views/tools.php:234
+msgid "Search with limit:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:494
+msgid "Common Usage Examples"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:497
+#: admin/views/tools.php:243
+msgid "After importing products:"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:501
+#: admin/views/tools.php:245
+msgid "Complete reindex (products + orders):"
+msgstr ""
+
+#: admin/tabs/tab-tools.php:505
+#: admin/views/tools.php:247
+msgid "Fresh start (clear + rebuild):"
 msgstr ""
 
 #: admin/views/dashboard.php:14
@@ -1523,108 +1697,12 @@ msgstr ""
 msgid "Optimize database tables for better performance."
 msgstr ""
 
-#: admin/views/tools.php:159
-msgid "WP-CLI Commands Reference"
-msgstr ""
-
 #: admin/views/tools.php:161
 msgid "Run these commands via SSH/terminal. Requires WP-CLI to be installed."
 msgstr ""
 
-#: admin/views/tools.php:165
-msgid "Status & Information"
-msgstr ""
-
-#: admin/views/tools.php:167
-msgid "Check all indexes status:"
-msgstr ""
-
-#: admin/views/tools.php:170
-msgid "Check order index status:"
-msgstr ""
-
-#: admin/views/tools.php:173
-msgid "Check product index status:"
-msgstr ""
-
-#: admin/views/tools.php:176
-msgid "View cache statistics:"
-msgstr ""
-
-#: admin/views/tools.php:183
-msgid "Index Rebuilding (Recommended)"
-msgstr ""
-
-#: admin/views/tools.php:185
-msgid "Rebuild product index (FAST):"
-msgstr ""
-
-#: admin/views/tools.php:188
-msgid "Rebuild order index (TURBO mode - FASTEST):"
-msgstr ""
-
-#: admin/views/tools.php:191
-msgid "Rebuild order index (Normal mode):"
-msgstr ""
-
-#: admin/views/tools.php:194
-msgid "Rebuild all indexes:"
-msgstr ""
-
-#: admin/views/tools.php:201
-msgid "Advanced Options"
-msgstr ""
-
-#: admin/views/tools.php:203
-msgid "Clear index before rebuilding:"
-msgstr ""
-
-#: admin/views/tools.php:206
-msgid "Show progress bar:"
-msgstr ""
-
-#: admin/views/tools.php:209
-msgid "Custom batch size:"
-msgstr ""
-
-#: admin/views/tools.php:218
-msgid "Clear all MiniLoad caches:"
-msgstr ""
-
-#: admin/views/tools.php:221
-msgid "Clear specific cache type:"
-msgstr ""
-
-#: admin/views/tools.php:223
-msgid "Types: query, filter, search, all"
-msgstr ""
-
-#: admin/views/tools.php:229
-msgid "Search Testing"
-msgstr ""
-
-#: admin/views/tools.php:231
-msgid "Test product search:"
-msgstr ""
-
-#: admin/views/tools.php:234
-msgid "Search with limit:"
-msgstr ""
-
 #: admin/views/tools.php:241
 msgid "💡 Common Usage Examples"
-msgstr ""
-
-#: admin/views/tools.php:243
-msgid "After importing products:"
-msgstr ""
-
-#: admin/views/tools.php:245
-msgid "Complete reindex (products + orders):"
-msgstr ""
-
-#: admin/views/tools.php:247
-msgid "Fresh start (clear + rebuild):"
 msgstr ""
 
 #: admin/views/tools.php:257
@@ -1798,18 +1876,18 @@ msgstr ""
 msgid "Media"
 msgstr ""
 
-#: modules/class-media-search-optimizer.php:463
+#: modules/class-media-search-optimizer.php:557
 #, php-format
 msgid "Media index rebuild completed! Processed %d items."
 msgstr ""
 
-#: modules/class-media-search-optimizer.php:464
+#: modules/class-media-search-optimizer.php:558
 #, php-format
 msgid "Processing... %d of %d media items (%d%%)"
 msgstr ""
 
 #. translators: %1$d: number of indexed media items, %2$s: time taken in seconds
-#: modules/class-media-search-optimizer.php:506
+#: modules/class-media-search-optimizer.php:600
 #, php-format
 msgid "Indexed %1$d media items in %2$s seconds"
 msgstr ""
@@ -1850,8 +1928,13 @@ msgstr ""
 msgid "Every 30 Minutes"
 msgstr ""
 
-#: modules/class-search-optimizer.php:936
+#: modules/class-search-optimizer.php:942
 msgid "Search index rebuilt successfully"
+msgstr ""
+
+#: modules/class-search-optimizer.php:954
+#, php-format
+msgid "Processed %d of %d products (%d%%)"
 msgstr ""
 
 #: modules/class-sort-index.php:314

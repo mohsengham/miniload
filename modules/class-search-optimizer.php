@@ -915,10 +915,16 @@ class Search_Optimizer {
 	 * AJAX: Rebuild search index
 	 */
 	public function ajax_rebuild_index() {
-		// Security check
-		if ( ! check_ajax_referer( 'miniload-ajax', 'nonce', false ) ||
-		     ! current_user_can( 'manage_options' ) ) {
-			wp_die( -1 );
+		// Security check - accept both nonce types for compatibility
+		$nonce_valid = false;
+		if ( isset( $_POST['nonce'] ) ) {
+			$nonce_valid = check_ajax_referer( 'miniload-ajax', 'nonce', false ) ||
+			               check_ajax_referer( 'miniload_rebuild_search', 'nonce', false );
+		}
+
+		if ( ! $nonce_valid || ! current_user_can( 'manage_options' ) ) {
+			wp_send_json_error( array( 'message' => 'Security check failed' ) );
+			return;
 		}
 
 		$offset = isset( $_POST['offset'] ) ? intval( $_POST['offset'] ) : 0;
@@ -935,9 +941,22 @@ class Search_Optimizer {
 			wp_send_json_success( array(
 				'message'   => __( 'Search index rebuilt successfully', 'miniload' ),
 				'completed' => true,
+				'batch_indexed' => $miniload_result['processed'],
+				'progress' => 100,
 			) );
 		} else {
-			wp_send_json_success( $result );
+			wp_send_json_success( array(
+				'completed' => false,
+				'batch_indexed' => $miniload_result['processed'],
+				'batch_count' => $miniload_result['processed'],
+				'next_offset' => $miniload_result['next_offset'],
+				'progress' => $miniload_result['progress'],
+				'message' => sprintf( __( 'Processed %d of %d products (%d%%)', 'miniload' ),
+					$offset + $miniload_result['processed'],
+					$miniload_result['total'],
+					$miniload_result['progress']
+				),
+			) );
 		}
 	}
 
